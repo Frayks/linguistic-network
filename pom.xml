@@ -16,7 +16,12 @@
     </modules>
 
     <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <version.org.apache.commons.commons-lang3>3.12.0</version.org.apache.commons.commons-lang3>
+        <version.org.projectlombok.lombok>1.18.30</version.org.projectlombok.lombok>
     </properties>
 
     <dependencyManagement>
@@ -26,11 +31,17 @@
                 <artifactId>linguistic-network-lib</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${version.org.apache.commons.commons-lang3}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${version.org.projectlombok.lombok}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
