@@ -2,7 +2,24 @@ package org.andyou.linguistic_network.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class TextTokenizerUtil {
+
+    public static String[][] createElementGroups(String text, boolean caseSensitive, boolean considerSentenceBounds) {
+        if (!caseSensitive) {
+            text = text.toLowerCase();
+        }
+
+        if (considerSentenceBounds) {
+            String[] sentences = splitIntoSentences(text);
+            return splitIntoWordGroups(sentences);
+        } else {
+            return new String[][]{splitIntoWords(text)};
+        }
+    }
 
     public static String[] splitIntoSentences(String text) {
         return text.split("(\\.\\.\\.)|[.!?…]");
@@ -25,6 +42,27 @@ public class TextTokenizerUtil {
         }
 
         return wordGroups;
+    }
+
+    public static String[][] removeStopWords(String[][] wordGroups, String[] stopWords) {
+        List<String[]> filteredWordGroups = new ArrayList<>();
+        List<String> stopWordList = Arrays.asList(stopWords);
+
+        for (String[] words : wordGroups) {
+            List<String> filteredWords = new ArrayList<>();
+
+            for (String word : words) {
+                if (stopWordList.stream().noneMatch(word::equalsIgnoreCase)) {
+                    filteredWords.add(word);
+                }
+            }
+
+            if (!filteredWords.isEmpty()) {
+                filteredWordGroups.add(filteredWords.toArray(new String[0]));
+            }
+        }
+
+        return filteredWordGroups.toArray(new String[0][]);
     }
 
 }
