@@ -1,7 +1,7 @@
-package org.andyou.linguistic_network.util;
+package org.andyou.linguistic_network.lib.util;
 
-import org.andyou.linguistic_network.api.node.CDFNode;
-import org.andyou.linguistic_network.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.CDFNode;
+import org.andyou.linguistic_network.lib.api.node.SWNode;
 
 import java.util.*;
 

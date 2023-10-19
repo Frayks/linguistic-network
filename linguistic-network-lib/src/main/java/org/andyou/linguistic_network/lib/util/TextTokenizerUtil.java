@@ -1,4 +1,4 @@
-package org.andyou.linguistic_network.util;
+package org.andyou.linguistic_network.lib.util;
 
 import org.apache.commons.lang3.StringUtils;
 
