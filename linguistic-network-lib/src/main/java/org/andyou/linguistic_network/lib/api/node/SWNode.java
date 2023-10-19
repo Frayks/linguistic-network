@@ -21,8 +21,8 @@ public class SWNode {
     }
 
     public SWNode(SWNode swNode) {
-        this.element = swNode.getElement();
-        this.frequency = swNode.getFrequency();
+        this.element = swNode.element;
+        this.frequency = swNode.frequency;
         this.neighbors = new HashSet<>();
     }
 
