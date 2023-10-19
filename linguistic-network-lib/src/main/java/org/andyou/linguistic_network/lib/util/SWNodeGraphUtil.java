@@ -103,19 +103,19 @@ public class SWNodeGraphUtil {
     }
 
     public static Set<SWNode> clone(Set<SWNode> swNodeGraph) {
-        Map<String, SWNode> swNodeMap = new HashMap<>();
+        Map<SWNode, SWNode> swNodeCloneMap = new HashMap<>();
 
         for (SWNode swNode : swNodeGraph) {
-            swNodeMap.put(swNode.getElement(), new SWNode(swNode));
+            swNodeCloneMap.put(swNode, new SWNode(swNode));
         }
         for (SWNode swNode : swNodeGraph) {
-            SWNode swNodeCopy = swNodeMap.get(swNode.getElement());
+            SWNode swNodeClone = swNodeCloneMap.get(swNode);
             for (SWNode neighbor : swNode.getNeighbors()) {
-                swNodeCopy.getNeighbors().add(swNodeMap.get(neighbor.getElement()));
+                swNodeClone.getNeighbors().add(swNodeCloneMap.get(neighbor));
             }
         }
 
-        return new HashSet<>(swNodeMap.values());
+        return new HashSet<>(swNodeCloneMap.values());
     }
 
     public static void removeSWNode(Set<SWNode> swNodeGraph, SWNode swNode) {
