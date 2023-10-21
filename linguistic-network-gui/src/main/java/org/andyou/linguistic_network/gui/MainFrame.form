@@ -334,7 +334,9 @@
             <children>
               <component id="1da40" class="javax.swing.JProgressBar" binding="progressBar">
                 <constraints border-constraint="Center"/>
-                <properties/>
+                <properties>
+                  <maximum value="1000"/>
+                </properties>
               </component>
               <component id="7139c" class="javax.swing.JButton" binding="terminateCalculationButton">
                 <constraints border-constraint="East"/>

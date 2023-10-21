@@ -1,5 +1,6 @@
 package org.andyou.linguistic_network.lib.util;
 
+import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -44,9 +45,13 @@ public class TextTokenizerUtil {
         return wordGroups;
     }
 
-    public static String[][] removeStopWords(String[][] wordGroups, String[] stopWords) {
+    public static String[][] removeStopWords(String[][] wordGroups, String[] stopWords, ProgressBarProcessor progressBarProcessor) {
         List<String[]> filteredWordGroups = new ArrayList<>();
         List<String> stopWordList = Arrays.asList(stopWords);
+        if (progressBarProcessor != null) {
+            int stepsCount = Arrays.stream(wordGroups).mapToInt(elementGroup -> elementGroup.length).sum();
+            progressBarProcessor.initNextBlock(stepsCount);
+        }
 
         for (String[] words : wordGroups) {
             List<String> filteredWords = new ArrayList<>();
@@ -54,6 +59,9 @@ public class TextTokenizerUtil {
             for (String word : words) {
                 if (stopWordList.stream().noneMatch(word::equalsIgnoreCase)) {
                     filteredWords.add(word);
+                }
+                if (progressBarProcessor != null) {
+                    progressBarProcessor.walk();
                 }
             }
 

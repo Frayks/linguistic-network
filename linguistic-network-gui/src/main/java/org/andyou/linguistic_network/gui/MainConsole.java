@@ -23,7 +23,7 @@ public class MainConsole {
         int rangeSize = 2;
 
         String[][] elementGroups = TextTokenizerUtil.createElementGroups(text, caseSensitive, considerSentenceBounds);
-        Set<SWNode> swNodeGraph = SWNodeGraphUtil.createSWNodeGraph(elementGroups, useRange, rangeSize);
+        Set<SWNode> swNodeGraph = SWNodeGraphUtil.createSWNodeGraph(elementGroups, useRange, rangeSize, null);
 
         long end = System.currentTimeMillis();
         System.out.printf("Time %d ms\n", end - start);

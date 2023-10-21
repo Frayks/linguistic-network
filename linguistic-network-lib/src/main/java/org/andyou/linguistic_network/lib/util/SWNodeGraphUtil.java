@@ -1,13 +1,18 @@
 package org.andyou.linguistic_network.lib.util;
 
+import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.node.SWNode;
 
 import java.util.*;
 
 public class SWNodeGraphUtil {
 
-    public static Set<SWNode> createSWNodeGraph(String[][] elementGroups, boolean useRange, int rangeSize) {
+    public static Set<SWNode> createSWNodeGraph(String[][] elementGroups, boolean useRange, int rangeSize, ProgressBarProcessor progressBarProcessor) {
         Map<String, SWNode> swNodeMap = new HashMap<>();
+        if (progressBarProcessor != null) {
+            int stepsCount = Arrays.stream(elementGroups).mapToInt(elementGroup -> elementGroup.length).sum();
+            progressBarProcessor.initNextBlock(stepsCount);
+        }
 
         for (String[] elementGroup : elementGroups) {
             for (String element : elementGroup) {
@@ -27,6 +32,9 @@ public class SWNodeGraphUtil {
                 SWNode swNode = swNodeMap.get(element);
                 for (String neighborElement : neighborElements) {
                     swNode.getNeighbors().add(swNodeMap.get(neighborElement));
+                }
+                if (progressBarProcessor != null) {
+                    progressBarProcessor.walk();
                 }
             }
         }

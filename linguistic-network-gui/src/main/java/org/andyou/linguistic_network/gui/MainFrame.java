@@ -1,5 +1,6 @@
 package org.andyou.linguistic_network.gui;
 
+import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.node.SWNode;
 import org.andyou.linguistic_network.lib.util.SWNodeGraphUtil;
 import org.andyou.linguistic_network.lib.util.TextTokenizerUtil;
@@ -18,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class MainFrame extends JFrame {
 
     private static final String WARNING_MESSAGE_MISSING_STOP_WORDS = "You selected option \"Remove stop words\", but didn't select a file with stop words!";
-    private static final String A = "You have not selected either the \"Sentence bounds\" or \"Use range\" options.\nIt means that all words will be neighbors!\nProcessing such a large number of connections can be time-consuming!\nDo you want to continue?";
+    private static final String A = "You have not selected either the \"Sentence bounds\" or \"Use range\" options.\nIt means that all words will be considered neighbors!\nProcessing such a large number of connections can be time-consuming!\nDo you want to continue?";
 
     private JPanel mainPanel;
     private JMenu fileMenu;
@@ -123,8 +124,9 @@ public class MainFrame extends JFrame {
                 spentTimeTextField.setText("");
                 defaultTableModel.setRowCount(0);
 
-                String text = new String(Files.readAllBytes(textFile.toPath()), StandardCharsets.UTF_8);
+                ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Arrays.asList(5, 10, 75, 10));
 
+                String text = new String(Files.readAllBytes(textFile.toPath()), StandardCharsets.UTF_8);
                 boolean caseSensitive = caseSensitiveCheckBox.isSelected();
                 boolean considerSentenceBounds = considerSentenceBoundsCheckBox.isSelected();
                 boolean useRange = useRangeCheckBox.isSelected();
@@ -133,32 +135,31 @@ public class MainFrame extends JFrame {
                 boolean filterByFrequency = filterByFrequencyCheckBox.isSelected();
                 int filterFrequency = (int) filterFrequencySpinner.getValue();
 
-                String[] stopWords = null;
-                if (removeStopWords) {
-                    String stopWordsText = new String(Files.readAllBytes(stopWordsFile.toPath()), StandardCharsets.UTF_8);
-                    stopWords = TextTokenizerUtil.splitIntoWords(stopWordsText);
-                }
-
                 long startTime = System.currentTimeMillis();
                 String[][] elementGroups = TextTokenizerUtil.createElementGroups(text, caseSensitive, considerSentenceBounds);
+                progressBarProcessor.initAndFinishNextBlock();
 
-                if (removeStopWords && stopWords != null) {
-                    elementGroups = TextTokenizerUtil.removeStopWords(elementGroups, stopWords);
+                if (removeStopWords) {
+                    String stopWordsText = new String(Files.readAllBytes(stopWordsFile.toPath()), StandardCharsets.UTF_8);
+                    String[] stopWords = TextTokenizerUtil.splitIntoWords(stopWordsText);
+                    elementGroups = TextTokenizerUtil.removeStopWords(elementGroups, stopWords, progressBarProcessor);
+                } else {
+                    progressBarProcessor.initAndFinishNextBlock();
                 }
 
-                Set<SWNode> swNodeGraph = SWNodeGraphUtil.createSWNodeGraph(elementGroups, useRange, rangeSize);
+                Set<SWNode> swNodeGraph = SWNodeGraphUtil.createSWNodeGraph(elementGroups, useRange, rangeSize, progressBarProcessor);
 
                 if (filterByFrequency && filterFrequency > 0) {
                     SWNodeGraphUtil.filterByFrequency(swNodeGraph, filterFrequency);
                 }
+                progressBarProcessor.initAndFinishNextBlock();
                 long endTime = System.currentTimeMillis();
-
-                swNodes = new ArrayList<>(swNodeGraph);
-                swNodes.sort(Comparator.comparingInt(SWNode::getFrequency).reversed());
 
                 elementCountTextField.setText(String.valueOf(swNodeGraph.size()));
                 spentTimeTextField.setText(DurationFormatUtils.formatDuration(endTime - startTime, "HH:mm:ss.SSS", true));
 
+                swNodes = new ArrayList<>(swNodeGraph);
+                swNodes.sort(Comparator.comparingInt(SWNode::getFrequency).reversed());
                 tableRowSorter.setSortKeys(null);
                 for (int i = 0; i < swNodes.size(); i++) {
                     SWNode swNode = swNodes.get(i);
@@ -206,11 +207,13 @@ public class MainFrame extends JFrame {
             openMenuItem.setEnabled(true);
             calculateButton.setEnabled(true);
             terminateCalculationButton.setEnabled(false);
+            progressBar.setValue(0);
         });
 
     }
 
     private void showErrorMessageDialog(Exception ex) {
+        ex.printStackTrace();
         JOptionPane.showMessageDialog(this, ExceptionUtils.getStackTrace(ex), "Error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -225,7 +228,7 @@ public class MainFrame extends JFrame {
     private void createUIComponents() {
         rangeSizeSpinner = new JSpinner(new SpinnerNumberModel(2, 1, 1000000000, 1));
 
-        filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(0, 0, 1000000000, 1));
+        filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(1, 0, 1000000000, 1));
 
     }
 }
