@@ -6,7 +6,7 @@ import java.util.*;
 
 public class SWNodeGraphUtil {
 
-    public static Set<SWNode> createSWNodeGraph(String[][] elementGroups, Integer range) {
+    public static Set<SWNode> createSWNodeGraph(String[][] elementGroups, boolean useRange, int rangeSize) {
         Map<String, SWNode> swNodeMap = new HashMap<>();
 
         for (String[] elementGroup : elementGroups) {
@@ -18,10 +18,10 @@ public class SWNodeGraphUtil {
                 String element = elementGroup[i];
 
                 List<String> neighborElements;
-                if (range == null) {
+                if (useRange) {
                     neighborElements = getNeighborElements(elementGroup, i);
                 } else {
-                    neighborElements = getNeighborElements(elementGroup, i, range);
+                    neighborElements = getNeighborElements(elementGroup, i, rangeSize);
                 }
 
                 SWNode swNode = swNodeMap.get(element);
@@ -47,10 +47,10 @@ public class SWNodeGraphUtil {
         return neighborElements;
     }
 
-    private static List<String> getNeighborElements(String[] elementGroup, int index, int range) {
+    private static List<String> getNeighborElements(String[] elementGroup, int index, int rangeSize) {
         List<String> neighborElements = new ArrayList<>();
-        int startIndex = Math.max(0, index - range);
-        int endIndex = Math.min(elementGroup.length - 1, index + range);
+        int startIndex = Math.max(0, index - rangeSize);
+        int endIndex = Math.min(elementGroup.length - 1, index + rangeSize);
 
         String element = elementGroup[index];
         for (int i = startIndex; i <= endIndex; i++) {

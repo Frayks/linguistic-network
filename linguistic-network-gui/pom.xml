@@ -27,10 +27,6 @@
 
         <dependency>
             <groupId>com.jetbrains.intellij.java</groupId>
-            <artifactId>java-gui-forms-rt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jetbrains.intellij.java</groupId>
             <artifactId>java-compiler-ant-tasks</artifactId>
         </dependency>
     </dependencies>

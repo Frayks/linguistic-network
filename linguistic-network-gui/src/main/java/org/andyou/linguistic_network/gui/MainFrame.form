@@ -1,44 +1,288 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.andyou.linguistic_network.gui.MainFrame">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="0" left="0" bottom="0" right="0"/>
+  <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="500" height="550"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="91575" class="javax.swing.JMenuBar" binding="menuBar" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
+      <grid id="6717b" class="javax.swing.JMenuBar" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
+        <constraints border-constraint="North"/>
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="636df" class="javax.swing.JMenu" binding="menuFile" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
+          <grid id="1ea1c" class="javax.swing.JMenu" binding="fileMenu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints/>
             <properties>
+              <font size="14"/>
+              <selected value="false"/>
               <text value="File"/>
             </properties>
             <border type="none"/>
             <children>
-              <component id="a8dbc" class="javax.swing.JMenuItem" binding="menuItemOpen">
+              <component id="e9b3d" class="javax.swing.JMenuItem" binding="openMenuItem">
                 <constraints/>
                 <properties>
-                  <horizontalAlignment value="10"/>
                   <icon value="javax/swing/plaf/metal/icons/ocean/file.gif"/>
-                  <selected value="false"/>
-                  <text value="Open..."/>
+                  <text value="Open"/>
                 </properties>
               </component>
-              <component id="95ad" class="javax.swing.JMenuItem" binding="menuItemSave">
+              <component id="ce2b8" class="javax.swing.JMenuItem" binding="saveMenuItem">
                 <constraints/>
                 <properties>
                   <icon value="javax/swing/plaf/metal/icons/ocean/floppy.gif"/>
                   <text value="Save"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="cf7a8" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="empty">
+          <size top="5" left="5" bottom="5" right="5"/>
+        </border>
+        <children>
+          <grid id="bf03" layout-manager="BorderLayout" hgap="5" vgap="0">
+            <constraints border-constraint="North"/>
+            <properties/>
+            <border type="empty">
+              <size top="0" left="5" bottom="0" right="5"/>
+            </border>
+            <children>
+              <component id="40843" class="javax.swing.JLabel">
+                <constraints border-constraint="West"/>
+                <properties>
+                  <font size="14"/>
+                  <text value="Selected file"/>
+                </properties>
+              </component>
+              <component id="99995" class="javax.swing.JTextField" binding="textFileTextField">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <editable value="false"/>
+                  <font size="14"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="4858c" layout-manager="BorderLayout" hgap="5" vgap="0">
+            <constraints border-constraint="Center"/>
+            <properties/>
+            <border type="empty">
+              <size top="5" left="0" bottom="5" right="0"/>
+            </border>
+            <children>
+              <grid id="bef7d" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints border-constraint="West"/>
+                <properties/>
+                <border type="etched"/>
+                <children>
+                  <grid id="9dfc" layout-manager="GridBagLayout">
+                    <constraints border-constraint="Center"/>
+                    <properties/>
+                    <border type="empty">
+                      <size top="5" left="5" bottom="5" right="5"/>
+                    </border>
+                    <children>
+                      <component id="82919" class="javax.swing.JCheckBox" binding="caseSensitiveCheckBox">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <font size="14"/>
+                          <selected value="true"/>
+                          <text value="Case sensitive"/>
+                        </properties>
+                      </component>
+                      <component id="daeca" class="javax.swing.JCheckBox" binding="considerSentenceBoundsCheckBox">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="true"/>
+                          <font size="14"/>
+                          <text value="Sentence bounds"/>
+                        </properties>
+                      </component>
+                      <component id="146dc" class="javax.swing.JCheckBox" binding="useRangeCheckBox">
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <font size="14"/>
+                          <selected value="true"/>
+                          <text value="Use range"/>
+                        </properties>
+                      </component>
+                      <grid id="85b7a" layout-manager="BorderLayout" hgap="5" vgap="0">
+                        <constraints>
+                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties/>
+                        <border type="empty">
+                          <size top="0" left="5" bottom="0" right="5"/>
+                        </border>
+                        <children>
+                          <component id="e0975" class="javax.swing.JLabel" binding="rangeLabel">
+                            <constraints border-constraint="West"/>
+                            <properties>
+                              <font size="14"/>
+                              <text value="Range"/>
+                            </properties>
+                          </component>
+                          <component id="4d54c" class="javax.swing.JSpinner" binding="rangeSizeSpinner" custom-create="true">
+                            <constraints border-constraint="Center"/>
+                            <properties>
+                              <enabled value="true"/>
+                              <font size="14"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                      <component id="ad34" class="javax.swing.JCheckBox" binding="removeStopWordsCheckBox">
+                        <constraints>
+                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <font size="14"/>
+                          <text value="Remove stop words"/>
+                        </properties>
+                      </component>
+                      <grid id="a6281" layout-manager="BorderLayout" hgap="5" vgap="0">
+                        <constraints>
+                          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties/>
+                        <border type="empty">
+                          <size top="0" left="5" bottom="0" right="5"/>
+                        </border>
+                        <children>
+                          <component id="27466" class="javax.swing.JTextField" binding="stopWordsFileTextField">
+                            <constraints border-constraint="Center"/>
+                            <properties>
+                              <columns value="10"/>
+                              <editable value="false"/>
+                              <enabled value="false"/>
+                              <font size="14"/>
+                            </properties>
+                          </component>
+                          <component id="d27bd" class="javax.swing.JButton" binding="chooseStopWordsFileButton">
+                            <constraints border-constraint="East"/>
+                            <properties>
+                              <enabled value="false"/>
+                              <font size="14"/>
+                              <text value="File"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                      <component id="4b3ca" class="javax.swing.JCheckBox" binding="filterByFrequencyCheckBox">
+                        <constraints>
+                          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="true"/>
+                          <font size="14"/>
+                          <text value="Filter by frequency"/>
+                        </properties>
+                      </component>
+                      <grid id="c9a0f" layout-manager="BorderLayout" hgap="5" vgap="0">
+                        <constraints>
+                          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties/>
+                        <border type="empty">
+                          <size top="0" left="5" bottom="0" right="5"/>
+                        </border>
+                        <children>
+                          <component id="c89ae" class="javax.swing.JLabel" binding="frequencyLabel">
+                            <constraints border-constraint="West"/>
+                            <properties>
+                              <enabled value="false"/>
+                              <font size="14"/>
+                              <text value="Frequency"/>
+                            </properties>
+                          </component>
+                          <component id="f07c5" class="javax.swing.JSpinner" binding="filterFrequencySpinner" custom-create="true">
+                            <constraints border-constraint="Center"/>
+                            <properties>
+                              <enabled value="false"/>
+                              <font size="14"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                      <vspacer id="aeb9c">
+                        <constraints>
+                          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="1.0"/>
+                        </constraints>
+                      </vspacer>
+                      <component id="c0017" class="javax.swing.JButton" binding="calculateButton">
+                        <constraints>
+                          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="false"/>
+                          <font size="14"/>
+                          <text value="Calculate"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <scrollpane id="c3e60">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <font/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="e6f8e" class="javax.swing.JTable" binding="statisticTable">
+                    <constraints/>
+                    <properties>
+                      <autoCreateRowSorter value="true"/>
+                      <cellSelectionEnabled value="true"/>
+                      <columnSelectionAllowed value="true"/>
+                      <font size="14"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+            </children>
+          </grid>
+          <grid id="ee3d8" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints border-constraint="South"/>
+            <properties/>
+            <border type="empty">
+              <size top="0" left="5" bottom="0" right="5"/>
+            </border>
+            <children>
+              <component id="1da40" class="javax.swing.JProgressBar" binding="progressBar">
+                <constraints border-constraint="Center"/>
+                <properties/>
+              </component>
+              <component id="7139c" class="javax.swing.JButton" binding="terminateCalculationButton">
+                <constraints border-constraint="East"/>
+                <properties>
+                  <enabled value="false"/>
+                  <icon value="icon/terminatedlaunchIcon.png"/>
+                  <preferredSize width="30" height="30"/>
+                  <text value=""/>
                 </properties>
               </component>
             </children>
