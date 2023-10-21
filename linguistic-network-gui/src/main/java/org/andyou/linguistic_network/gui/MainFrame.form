@@ -245,24 +245,84 @@
                   </grid>
                 </children>
               </grid>
-              <scrollpane id="c3e60">
+              <grid id="af820" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints border-constraint="Center"/>
-                <properties>
-                  <font/>
-                </properties>
+                <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="e6f8e" class="javax.swing.JTable" binding="statisticTable">
-                    <constraints/>
-                    <properties>
-                      <autoCreateRowSorter value="true"/>
-                      <cellSelectionEnabled value="true"/>
-                      <columnSelectionAllowed value="true"/>
-                      <font size="14"/>
-                    </properties>
-                  </component>
+                  <grid id="ca" layout-manager="GridBagLayout">
+                    <constraints border-constraint="South"/>
+                    <properties/>
+                    <border type="empty">
+                      <size top="5" left="5" bottom="5" right="5"/>
+                    </border>
+                    <children>
+                      <component id="2e6ee" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="0" bottom="5" right="5" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <text value="Element count"/>
+                        </properties>
+                      </component>
+                      <hspacer id="188df">
+                        <constraints>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="1.0" weighty="0.0"/>
+                        </constraints>
+                      </hspacer>
+                      <component id="ba865" class="javax.swing.JTextField" binding="elementCountTextField">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                          <gridbag top="0" left="0" bottom="5" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <columns value="10"/>
+                          <editable value="false"/>
+                        </properties>
+                      </component>
+                      <component id="4fc8c" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="0" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <text value="Spent time"/>
+                        </properties>
+                      </component>
+                      <component id="efc11" class="javax.swing.JTextField" binding="spentTimeTextField">
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <columns value="10"/>
+                          <editable value="false"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <scrollpane id="6a7a9">
+                    <constraints border-constraint="Center"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="1c99c" class="javax.swing.JTable" binding="statisticTable">
+                        <constraints/>
+                        <properties>
+                          <autoCreateRowSorter value="true"/>
+                          <cellSelectionEnabled value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
                 </children>
-              </scrollpane>
+              </grid>
             </children>
           </grid>
           <grid id="ee3d8" layout-manager="BorderLayout" hgap="0" vgap="0">

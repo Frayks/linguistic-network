@@ -19,9 +19,9 @@ public class SWNodeGraphUtil {
 
                 List<String> neighborElements;
                 if (useRange) {
-                    neighborElements = getNeighborElements(elementGroup, i);
-                } else {
                     neighborElements = getNeighborElements(elementGroup, i, rangeSize);
+                } else {
+                    neighborElements = getNeighborElements(elementGroup, i);
                 }
 
                 SWNode swNode = swNodeMap.get(element);

@@ -9,8 +9,8 @@ public class Main {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         MainFrame mainForm = new MainFrame();
         mainForm.setTitle("Linguistic network");
-        mainForm.setMinimumSize(new Dimension(700, 600));
-        mainForm.setPreferredSize(new Dimension(700, 600));
+        mainForm.setMinimumSize(new Dimension(800, 600));
+        mainForm.setPreferredSize(new Dimension(800, 600));
         mainForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainForm.pack();
         mainForm.setLocationRelativeTo(null);
