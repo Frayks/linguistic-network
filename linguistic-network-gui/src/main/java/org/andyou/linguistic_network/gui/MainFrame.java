@@ -45,45 +45,11 @@ public class MainFrame extends JFrame {
 
     private File textFile;
     private File stopWordsFile;
+    private List<SWNode> swNodes;
 
 
     public MainFrame() {
         setContentPane(mainPanel);
-
-        useRangeCheckBox.addActionListener(e -> {
-            rangeLabel.setEnabled(useRangeCheckBox.isSelected());
-            rangeSizeSpinner.setEnabled(useRangeCheckBox.isSelected());
-        });
-
-        removeStopWordsCheckBox.addActionListener(e -> {
-            stopWordsFileTextField.setEnabled(removeStopWordsCheckBox.isSelected());
-            chooseStopWordsFileButton.setEnabled(removeStopWordsCheckBox.isSelected());
-        });
-
-        filterByFrequencyCheckBox.addActionListener(e -> {
-            frequencyLabel.setEnabled(filterByFrequencyCheckBox.isSelected());
-            filterFrequencySpinner.setEnabled(filterByFrequencyCheckBox.isSelected());
-        });
-
-        JFileChooser jFileChooser = new JFileChooser();
-        jFileChooser.setFileFilter(new FileNameExtensionFilter("Normal text file (*.txt)", "txt"));
-
-        openMenuItem.addActionListener(e -> {
-            int returnValue = jFileChooser.showOpenDialog(this);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                textFile = jFileChooser.getSelectedFile();
-                textFileTextField.setText(textFile.getAbsolutePath());
-                calculateButton.setEnabled(true);
-            }
-        });
-
-        chooseStopWordsFileButton.addActionListener(e -> {
-            int returnValue = jFileChooser.showOpenDialog(this);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                stopWordsFile = jFileChooser.getSelectedFile();
-                stopWordsFileTextField.setText(stopWordsFile.getAbsolutePath());
-            }
-        });
 
         String[] columnIdentifiers = {"Rank", "Element", "Frequency", "NeighborsCount"};
         DefaultTableModel defaultTableModel = new DefaultTableModel(0, 4) {
@@ -110,6 +76,46 @@ public class MainFrame extends JFrame {
         leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
         List<TableColumn> tableColumns = Collections.list(statisticTable.getColumnModel().getColumns());
         tableColumns.forEach(tableColumn -> tableColumn.setCellRenderer(leftRenderer));
+
+        useRangeCheckBox.addActionListener(e -> {
+            rangeLabel.setEnabled(useRangeCheckBox.isSelected());
+            rangeSizeSpinner.setEnabled(useRangeCheckBox.isSelected());
+        });
+
+        removeStopWordsCheckBox.addActionListener(e -> {
+            stopWordsFileTextField.setEnabled(removeStopWordsCheckBox.isSelected());
+            chooseStopWordsFileButton.setEnabled(removeStopWordsCheckBox.isSelected());
+        });
+
+        filterByFrequencyCheckBox.addActionListener(e -> {
+            frequencyLabel.setEnabled(filterByFrequencyCheckBox.isSelected());
+            filterFrequencySpinner.setEnabled(filterByFrequencyCheckBox.isSelected());
+        });
+
+        JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.setFileFilter(new FileNameExtensionFilter("Normal text file (*.txt)", "txt"));
+
+        openMenuItem.addActionListener(e -> {
+            int returnValue = jFileChooser.showOpenDialog(this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                textFile = jFileChooser.getSelectedFile();
+                textFileTextField.setText(textFile.getAbsolutePath());
+
+                defaultTableModel.setRowCount(0);
+                swNodes = null;
+                elementCountTextField.setText("");
+                spentTimeTextField.setText("");
+                calculateButton.setEnabled(true);
+            }
+        });
+
+        chooseStopWordsFileButton.addActionListener(e -> {
+            int returnValue = jFileChooser.showOpenDialog(this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                stopWordsFile = jFileChooser.getSelectedFile();
+                stopWordsFileTextField.setText(stopWordsFile.getAbsolutePath());
+            }
+        });
 
         Runnable task = () -> {
             try {
@@ -147,7 +153,7 @@ public class MainFrame extends JFrame {
                 }
                 long endTime = System.currentTimeMillis();
 
-                List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
+                swNodes = new ArrayList<>(swNodeGraph);
                 swNodes.sort(Comparator.comparingInt(SWNode::getFrequency).reversed());
 
                 elementCountTextField.setText(String.valueOf(swNodeGraph.size()));
@@ -161,6 +167,7 @@ public class MainFrame extends JFrame {
             } catch (Exception ex) {
                 showErrorMessageDialog(ex);
             } finally {
+                openMenuItem.setEnabled(true);
                 calculateButton.setEnabled(true);
                 terminateCalculationButton.setEnabled(false);
             }
@@ -186,6 +193,7 @@ public class MainFrame extends JFrame {
             atomicReference.set(new Thread(task));
             atomicReference.get().start();
 
+            openMenuItem.setEnabled(false);
             calculateButton.setEnabled(false);
             terminateCalculationButton.setEnabled(true);
         });
@@ -195,6 +203,7 @@ public class MainFrame extends JFrame {
                 atomicReference.get().stop();
             }
 
+            openMenuItem.setEnabled(true);
             calculateButton.setEnabled(true);
             terminateCalculationButton.setEnabled(false);
         });
@@ -217,9 +226,6 @@ public class MainFrame extends JFrame {
         rangeSizeSpinner = new JSpinner(new SpinnerNumberModel(2, 1, 1000000000, 1));
 
         filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(0, 0, 1000000000, 1));
-
-
-        //statisticTable.getRowSorter().setSortKeys(Collections.singletonList(new RowSorter.SortKey(1, SortOrder.DESCENDING)));
 
     }
 }
