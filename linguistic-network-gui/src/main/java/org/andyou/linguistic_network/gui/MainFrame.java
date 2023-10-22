@@ -173,6 +173,7 @@ public class MainFrame extends JFrame {
                     SWNodeGraphUtil.filterByFrequency(swNodeGraph, filterFrequency);
                     progressBarProcessor.initAndFinishNextBlock();
                 }
+                progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
                 mainContext.setSwNodeGraph(swNodeGraph);
@@ -329,6 +330,7 @@ public class MainFrame extends JFrame {
         frame.setPreferredSize(new Dimension(width, height));
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 

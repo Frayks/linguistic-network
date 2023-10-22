@@ -67,6 +67,7 @@ public class SmallWorldFrame extends JFrame implements SubFrame {
                 double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(swNodeGraph, swNodeGraphSize, progressBarProcessor);
                 double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(swNodeGraph);
                 progressBarProcessor.initAndFinishNextBlock();
+                progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
                 smallWorldContext.setCdfNodes(cdfNodes);

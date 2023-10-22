@@ -43,4 +43,8 @@ public class ProgressBarProcessor {
         progressBar.setValue((int) Math.round(progress));
     }
 
+    public void completed() {
+        progressBar.setValue(0);
+    }
+
 }
