@@ -22,25 +22,11 @@
 
         <version.org.apache.commons.commons-lang3>3.12.0</version.org.apache.commons.commons-lang3>
 
-        <version.com.jetbrains.intellij.java>232.10072.31</version.com.jetbrains.intellij.java>
-
         <version.org.projectlombok.lombok>1.18.30</version.org.projectlombok.lombok>
 
         <version.org.apache.maven.plugins.maven-jar-plugin>3.3.0</version.org.apache.maven.plugins.maven-jar-plugin>
         <version.org.apache.maven.plugins.maven-assembly-plugin>3.6.0</version.org.apache.maven.plugins.maven-assembly-plugin>
-        <version.org.apache.maven.plugins.maven-antrun-plugin>3.1.0</version.org.apache.maven.plugins.maven-antrun-plugin>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>jetbrains.releases</id>
-            <url>https://www.jetbrains.com/intellij-repository/releases</url>
-        </repository>
-        <repository>
-            <id>jetbrains.3rdparty</id>
-            <url>https://cache-redirector.jetbrains.com/intellij-dependencies</url>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -53,12 +39,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${version.org.apache.commons.commons-lang3}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jetbrains.intellij.java</groupId>
-                <artifactId>java-compiler-ant-tasks</artifactId>
-                <version>${version.com.jetbrains.intellij.java}</version>
             </dependency>
 
             <dependency>
@@ -82,11 +62,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${version.org.apache.maven.plugins.maven-assembly-plugin}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>${version.org.apache.maven.plugins.maven-antrun-plugin}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

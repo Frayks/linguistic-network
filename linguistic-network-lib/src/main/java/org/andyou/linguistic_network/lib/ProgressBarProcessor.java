@@ -10,7 +10,7 @@ public class ProgressBarProcessor {
     private final JProgressBar progressBar;
     private final Queue<Float> blockSizeQueue;
     private float blockSize;
-    private float stepCoefficient;
+    private float stepSize;
     private float progress;
 
 
@@ -23,19 +23,19 @@ public class ProgressBarProcessor {
         progressBar.setValue(0);
     }
 
-    public void initNextBlock(int stepsCount) {
-        this.blockSize = blockSizeQueue.poll();
-        this.stepCoefficient = 1.0f / stepsCount;
-    }
-
     public void initAndFinishNextBlock() {
-        this.blockSize = blockSizeQueue.poll();
+        blockSize = blockSizeQueue.poll();
         progress += blockSize;
         updateProgressBar();
     }
 
+    public void initNextBlock(int stepsCount) {
+        blockSize = blockSizeQueue.poll();
+        stepSize = 1.0f / stepsCount * blockSize;
+    }
+
     public void walk() {
-        progress += stepCoefficient * blockSize;
+        progress += stepSize;
         updateProgressBar();
     }
 
