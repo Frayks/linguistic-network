@@ -7,15 +7,15 @@ public class Main {
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        MainFrame mainForm = new MainFrame();
-        mainForm.setTitle("Linguistic network");
-        mainForm.setIconImage(new ImageIcon(Main.class.getResource("/icon/networkIcon.png")).getImage());
-        mainForm.setMinimumSize(new Dimension(800, 600));
-        mainForm.setPreferredSize(new Dimension(800, 600));
-        mainForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainForm.pack();
-        mainForm.setLocationRelativeTo(null);
-        mainForm.setVisible(true);
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.setTitle("Linguistic network");
+        mainFrame.setIconImage(new ImageIcon(Main.class.getResource("/icon/networkIcon.png")).getImage());
+        mainFrame.setMinimumSize(new Dimension(800, 600));
+        mainFrame.setPreferredSize(new Dimension(800, 600));
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.pack();
+        mainFrame.setLocationRelativeTo(null);
+        mainFrame.setVisible(true);
     }
 
 }

@@ -8,10 +8,10 @@ import java.util.Queue;
 public class ProgressBarProcessor {
 
     private final JProgressBar progressBar;
-    private final Queue<Float> blockSizeQueue;
-    private float blockSize;
-    private float stepSize;
-    private float progress;
+    private final Queue<Double> blockSizeQueue;
+    private double blockSize;
+    private double stepSize;
+    private double progress;
 
 
     public ProgressBarProcessor(JProgressBar progressBar, List<Integer> blockSizes) {
@@ -19,7 +19,7 @@ public class ProgressBarProcessor {
         this.blockSizeQueue = new ArrayDeque<>();
         int blockSizesSum = blockSizes.stream().mapToInt(Integer::intValue).sum();
         int progressBarMax = progressBar.getMaximum();
-        blockSizes.forEach(blockSize -> blockSizeQueue.add((float) blockSize / blockSizesSum * progressBarMax));
+        blockSizes.forEach(blockSize -> blockSizeQueue.add((double) blockSize / blockSizesSum * progressBarMax));
         progressBar.setValue(0);
     }
 
@@ -34,13 +34,13 @@ public class ProgressBarProcessor {
         stepSize = 1.0f / stepsCount * blockSize;
     }
 
-    public void walk() {
+    synchronized public void walk() {
         progress += stepSize;
         updateProgressBar();
     }
 
     private void updateProgressBar() {
-        progressBar.setValue(Math.round(progress));
+        progressBar.setValue((int) Math.round(progress));
     }
 
 }

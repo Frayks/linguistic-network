@@ -26,4 +26,8 @@ public class SWNode {
         this.neighbors = new HashSet<>();
     }
 
+    public int getNeighborCount() {
+        return neighbors.size();
+    }
+
 }

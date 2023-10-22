@@ -12,7 +12,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="1ea1c" class="javax.swing.JMenu" binding="fileMenu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+          <grid id="1ea1c" class="javax.swing.JMenu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
             <constraints/>
             <properties>
               <font size="14"/>
@@ -33,6 +33,23 @@
                 <properties>
                   <icon value="javax/swing/plaf/metal/icons/ocean/floppy.gif"/>
                   <text value="Save"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="44507" class="javax.swing.JMenu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints/>
+            <properties>
+              <font size="14"/>
+              <text value="Analysis"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="15fe" class="javax.swing.JMenuItem" binding="smallWorldMenuItem">
+                <constraints/>
+                <properties>
+                  <font size="14"/>
+                  <text value="SmallWorld"/>
                 </properties>
               </component>
             </children>
@@ -94,6 +111,7 @@
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
+                          <enabled value="true"/>
                           <font size="14"/>
                           <selected value="true"/>
                           <text value="Case sensitive"/>
@@ -116,6 +134,7 @@
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
+                          <enabled value="true"/>
                           <font size="14"/>
                           <selected value="true"/>
                           <text value="Use range"/>
@@ -172,14 +191,14 @@
                             <properties>
                               <columns value="10"/>
                               <editable value="false"/>
-                              <enabled value="false"/>
+                              <enabled value="true"/>
                               <font size="14"/>
                             </properties>
                           </component>
                           <component id="d27bd" class="javax.swing.JButton" binding="chooseStopWordsFileButton">
                             <constraints border-constraint="East"/>
                             <properties>
-                              <enabled value="false"/>
+                              <enabled value="true"/>
                               <font size="14"/>
                               <text value="File"/>
                             </properties>
@@ -210,7 +229,7 @@
                           <component id="c89ae" class="javax.swing.JLabel" binding="frequencyLabel">
                             <constraints border-constraint="West"/>
                             <properties>
-                              <enabled value="false"/>
+                              <enabled value="true"/>
                               <font size="14"/>
                               <text value="Frequency"/>
                             </properties>
@@ -218,7 +237,7 @@
                           <component id="f07c5" class="javax.swing.JSpinner" binding="filterFrequencySpinner" custom-create="true">
                             <constraints border-constraint="Center"/>
                             <properties>
-                              <enabled value="false"/>
+                              <enabled value="true"/>
                               <font size="14"/>
                             </properties>
                           </component>
@@ -236,7 +255,7 @@
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
-                          <enabled value="false"/>
+                          <enabled value="true"/>
                           <font size="14"/>
                           <text value="Calculate"/>
                         </properties>
@@ -263,6 +282,7 @@
                           <gridbag top="0" left="0" bottom="5" right="5" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
+                          <font size="14"/>
                           <text value="Element count"/>
                         </properties>
                       </component>
@@ -282,6 +302,7 @@
                         <properties>
                           <columns value="10"/>
                           <editable value="false"/>
+                          <font size="14"/>
                         </properties>
                       </component>
                       <component id="4fc8c" class="javax.swing.JLabel">
@@ -290,6 +311,7 @@
                           <gridbag top="0" left="0" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
+                          <font size="14"/>
                           <text value="Spent time"/>
                         </properties>
                       </component>
@@ -303,6 +325,7 @@
                         <properties>
                           <columns value="10"/>
                           <editable value="false"/>
+                          <font size="14"/>
                         </properties>
                       </component>
                     </children>
@@ -312,11 +335,12 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="1c99c" class="javax.swing.JTable" binding="statisticTable">
+                      <component id="1c99c" class="javax.swing.JTable" binding="statisticTable" custom-create="true">
                         <constraints/>
                         <properties>
                           <autoCreateRowSorter value="true"/>
                           <cellSelectionEnabled value="true"/>
+                          <font size="14"/>
                         </properties>
                       </component>
                     </children>
@@ -341,7 +365,7 @@
               <component id="7139c" class="javax.swing.JButton" binding="terminateCalculationButton">
                 <constraints border-constraint="East"/>
                 <properties>
-                  <enabled value="false"/>
+                  <enabled value="true"/>
                   <icon value="icon/terminatedlaunchIcon.png"/>
                   <preferredSize width="30" height="30"/>
                   <text value=""/>
