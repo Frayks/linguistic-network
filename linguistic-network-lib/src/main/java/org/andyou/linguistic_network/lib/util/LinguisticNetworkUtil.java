@@ -13,7 +13,7 @@ public class LinguisticNetworkUtil {
         Map<SWNode, Double> keywordStatistics = new HashMap<>();
 
         int swNodeGraphSize = swNodeGraph.size();
-        double gl = calcAveragePathLength(swNodeGraph, 0, null);
+        double gl = calcAveragePathLength(swNodeGraph, swNodeGraphSize, null);
 
         System.out.println(swNodeGraph.size());
 

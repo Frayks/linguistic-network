@@ -8,11 +8,11 @@ import lombok.Setter;
 public class LinguisticNetworkContext {
 
     private MainContext mainContext;
-    private SmallWorldContext smallWorldContext;
+    private LinguisticMetricsContext linguisticMetricsContext;
 
     public LinguisticNetworkContext() {
         mainContext = new MainContext();
-        smallWorldContext = new SmallWorldContext();
+        linguisticMetricsContext = new LinguisticMetricsContext();
     }
 
 }

@@ -33,7 +33,7 @@ public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private JMenuItem saveMenuItem;
     private JMenuItem openMenuItem;
-    private JMenuItem smallWorldMenuItem;
+    private JMenuItem linguisticMetricsMenuItem;
     private JTextField textFileTextField;
     private JCheckBox caseSensitiveCheckBox;
     private JCheckBox considerSentenceBoundsCheckBox;
@@ -113,19 +113,21 @@ public class MainFrame extends JFrame {
                 updateUI();
             }
         });
-        smallWorldMenuItem.addActionListener(e -> {
-            if (subFrameMap.containsKey(FrameKey.SMALL_WORLD)) {
-                return;
+        linguisticMetricsMenuItem.addActionListener(e -> {
+            JFrame linguisticMetricsSubFrame = subFrameMap.get(FrameKey.LINGUISTIC_METRICS);
+            if (linguisticMetricsSubFrame == null) {
+                LinguisticMetricsFrame linguisticMetricsFrame = new LinguisticMetricsFrame(linguisticNetworkContext);
+                linguisticMetricsFrame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        subFrameMap.remove(FrameKey.LINGUISTIC_METRICS);
+                    }
+                });
+                configureDefaultSubFrame(linguisticMetricsFrame, "Linguistic network (Linguistic Metrics)", 500, 600);
+                subFrameMap.put(FrameKey.LINGUISTIC_METRICS, linguisticMetricsFrame);
+            } else {
+                linguisticMetricsSubFrame.requestFocus();
             }
-            SmallWorldFrame smallWorldFrame = new SmallWorldFrame(linguisticNetworkContext);
-            smallWorldFrame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    subFrameMap.remove(FrameKey.SMALL_WORLD);
-                }
-            });
-            configureDefaultSubFrame(smallWorldFrame, "Linguistic network (Small-world)", 500, 600);
-            subFrameMap.put(FrameKey.SMALL_WORLD, smallWorldFrame);
         });
 
         Runnable task = () -> {
@@ -404,11 +406,20 @@ public class MainFrame extends JFrame {
         if (menu2Font != null) menu2.setFont(menu2Font);
         menu2.setText("Analysis");
         menuBar1.add(menu2);
-        smallWorldMenuItem = new JMenuItem();
-        Font smallWorldMenuItemFont = this.$$$getFont$$$(null, -1, 14, smallWorldMenuItem.getFont());
-        if (smallWorldMenuItemFont != null) smallWorldMenuItem.setFont(smallWorldMenuItemFont);
-        smallWorldMenuItem.setText("SmallWorld");
-        menu2.add(smallWorldMenuItem);
+        linguisticMetricsMenuItem = new JMenuItem();
+        Font linguisticMetricsMenuItemFont = this.$$$getFont$$$(null, -1, 14, linguisticMetricsMenuItem.getFont());
+        if (linguisticMetricsMenuItemFont != null) linguisticMetricsMenuItem.setFont(linguisticMetricsMenuItemFont);
+        linguisticMetricsMenuItem.setText("Linguistic Metrics");
+        menu2.add(linguisticMetricsMenuItem);
+        final JMenuItem menuItem1 = new JMenuItem();
+        menuItem1.setText("Keyword extraction \"Small-world\"");
+        menu2.add(menuItem1);
+        final JMenuItem menuItem2 = new JMenuItem();
+        menuItem2.setText("Keyword extraction \"TextRank\"");
+        menu2.add(menuItem2);
+        final JMenuItem menuItem3 = new JMenuItem();
+        menuItem3.setText("Keyword extraction \"Centrality Measures\"");
+        menu2.add(menuItem3);
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new BorderLayout(0, 0));
         mainPanel.add(panel1, BorderLayout.CENTER);
@@ -449,6 +460,7 @@ public class MainFrame extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(caseSensitiveCheckBox, gbc);
@@ -460,6 +472,7 @@ public class MainFrame extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(considerSentenceBoundsCheckBox, gbc);
@@ -472,27 +485,29 @@ public class MainFrame extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(useRangeCheckBox, gbc);
-        final JPanel panel6 = new JPanel();
-        panel6.setLayout(new BorderLayout(5, 0));
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(2, 0, 2, 0);
-        panel5.add(panel6, gbc);
-        panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         rangeLabel = new JLabel();
         Font rangeLabelFont = this.$$$getFont$$$(null, -1, 14, rangeLabel.getFont());
         if (rangeLabelFont != null) rangeLabel.setFont(rangeLabelFont);
         rangeLabel.setText("Range");
-        panel6.add(rangeLabel, BorderLayout.WEST);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 5, 0, 5);
+        panel5.add(rangeLabel, gbc);
         rangeSizeSpinner.setEnabled(true);
         Font rangeSizeSpinnerFont = this.$$$getFont$$$(null, -1, 14, rangeSizeSpinner.getFont());
         if (rangeSizeSpinnerFont != null) rangeSizeSpinner.setFont(rangeSizeSpinnerFont);
-        panel6.add(rangeSizeSpinner, BorderLayout.CENTER);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 0, 5);
+        panel5.add(rangeSizeSpinner, gbc);
         removeStopWordsCheckBox = new JCheckBox();
         Font removeStopWordsCheckBoxFont = this.$$$getFont$$$(null, -1, 14, removeStopWordsCheckBox.getFont());
         if (removeStopWordsCheckBoxFont != null) removeStopWordsCheckBox.setFont(removeStopWordsCheckBoxFont);
@@ -500,31 +515,33 @@ public class MainFrame extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 4;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(removeStopWordsCheckBox, gbc);
-        final JPanel panel7 = new JPanel();
-        panel7.setLayout(new BorderLayout(5, 0));
+        final JPanel panel6 = new JPanel();
+        panel6.setLayout(new BorderLayout(5, 0));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 5;
+        gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(2, 0, 2, 0);
-        panel5.add(panel7, gbc);
-        panel7.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel5.add(panel6, gbc);
+        panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         stopWordsFileTextField = new JTextField();
         stopWordsFileTextField.setColumns(10);
         stopWordsFileTextField.setEditable(false);
         stopWordsFileTextField.setEnabled(true);
         Font stopWordsFileTextFieldFont = this.$$$getFont$$$(null, -1, 14, stopWordsFileTextField.getFont());
         if (stopWordsFileTextFieldFont != null) stopWordsFileTextField.setFont(stopWordsFileTextFieldFont);
-        panel7.add(stopWordsFileTextField, BorderLayout.CENTER);
+        panel6.add(stopWordsFileTextField, BorderLayout.CENTER);
         chooseStopWordsFileButton = new JButton();
         chooseStopWordsFileButton.setEnabled(true);
         Font chooseStopWordsFileButtonFont = this.$$$getFont$$$(null, -1, 14, chooseStopWordsFileButton.getFont());
         if (chooseStopWordsFileButtonFont != null) chooseStopWordsFileButton.setFont(chooseStopWordsFileButtonFont);
         chooseStopWordsFileButton.setText("File");
-        panel7.add(chooseStopWordsFileButton, BorderLayout.EAST);
+        panel6.add(chooseStopWordsFileButton, BorderLayout.EAST);
         filterByFrequencyCheckBox = new JCheckBox();
         filterByFrequencyCheckBox.setEnabled(true);
         Font filterByFrequencyCheckBoxFont = this.$$$getFont$$$(null, -1, 14, filterByFrequencyCheckBox.getFont());
@@ -533,32 +550,35 @@ public class MainFrame extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 6;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(filterByFrequencyCheckBox, gbc);
-        final JPanel panel8 = new JPanel();
-        panel8.setLayout(new BorderLayout(5, 0));
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(2, 0, 2, 0);
-        panel5.add(panel8, gbc);
-        panel8.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         frequencyLabel = new JLabel();
         frequencyLabel.setEnabled(true);
         Font frequencyLabelFont = this.$$$getFont$$$(null, -1, 14, frequencyLabel.getFont());
         if (frequencyLabelFont != null) frequencyLabel.setFont(frequencyLabelFont);
         frequencyLabel.setText("Frequency");
-        panel8.add(frequencyLabel, BorderLayout.WEST);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 5, 0, 5);
+        panel5.add(frequencyLabel, gbc);
         filterFrequencySpinner.setEnabled(true);
         Font filterFrequencySpinnerFont = this.$$$getFont$$$(null, -1, 14, filterFrequencySpinner.getFont());
         if (filterFrequencySpinnerFont != null) filterFrequencySpinner.setFont(filterFrequencySpinnerFont);
-        panel8.add(filterFrequencySpinner, BorderLayout.CENTER);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 0, 5);
+        panel5.add(filterFrequencySpinner, gbc);
         final JPanel spacer1 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 8;
+        gbc.gridwidth = 2;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
         panel5.add(spacer1, gbc);
@@ -570,14 +590,15 @@ public class MainFrame extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 9;
+        gbc.gridwidth = 2;
         panel5.add(calculateButton, gbc);
-        final JPanel panel9 = new JPanel();
-        panel9.setLayout(new BorderLayout(0, 0));
-        panel3.add(panel9, BorderLayout.CENTER);
-        final JPanel panel10 = new JPanel();
-        panel10.setLayout(new GridBagLayout());
-        panel9.add(panel10, BorderLayout.SOUTH);
-        panel10.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JPanel panel7 = new JPanel();
+        panel7.setLayout(new BorderLayout(0, 0));
+        panel3.add(panel7, BorderLayout.CENTER);
+        final JPanel panel8 = new JPanel();
+        panel8.setLayout(new GridBagLayout());
+        panel7.add(panel8, BorderLayout.SOUTH);
+        panel8.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final JLabel label2 = new JLabel();
         Font label2Font = this.$$$getFont$$$(null, -1, 14, label2.getFont());
         if (label2Font != null) label2.setFont(label2Font);
@@ -587,14 +608,14 @@ public class MainFrame extends JFrame {
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 5, 5);
-        panel10.add(label2, gbc);
+        panel8.add(label2, gbc);
         final JPanel spacer2 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 2;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel10.add(spacer2, gbc);
+        panel8.add(spacer2, gbc);
         elementCountTextField = new JTextField();
         elementCountTextField.setColumns(10);
         elementCountTextField.setEditable(false);
@@ -606,7 +627,7 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 0, 5, 0);
-        panel10.add(elementCountTextField, gbc);
+        panel8.add(elementCountTextField, gbc);
         final JLabel label3 = new JLabel();
         Font label3Font = this.$$$getFont$$$(null, -1, 14, label3.getFont());
         if (label3Font != null) label3.setFont(label3Font);
@@ -616,7 +637,7 @@ public class MainFrame extends JFrame {
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 0, 5);
-        panel10.add(label3, gbc);
+        panel8.add(label3, gbc);
         spentTimeTextField = new JTextField();
         spentTimeTextField.setColumns(10);
         spentTimeTextField.setEditable(false);
@@ -627,27 +648,27 @@ public class MainFrame extends JFrame {
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel10.add(spentTimeTextField, gbc);
+        panel8.add(spentTimeTextField, gbc);
         final JScrollPane scrollPane1 = new JScrollPane();
-        panel9.add(scrollPane1, BorderLayout.CENTER);
+        panel7.add(scrollPane1, BorderLayout.CENTER);
         statisticTable.setAutoCreateRowSorter(true);
         statisticTable.setCellSelectionEnabled(true);
         Font statisticTableFont = this.$$$getFont$$$(null, -1, 14, statisticTable.getFont());
         if (statisticTableFont != null) statisticTable.setFont(statisticTableFont);
         scrollPane1.setViewportView(statisticTable);
-        final JPanel panel11 = new JPanel();
-        panel11.setLayout(new BorderLayout(5, 0));
-        panel1.add(panel11, BorderLayout.SOUTH);
-        panel11.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JPanel panel9 = new JPanel();
+        panel9.setLayout(new BorderLayout(5, 0));
+        panel1.add(panel9, BorderLayout.SOUTH);
+        panel9.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         progressBar = new JProgressBar();
         progressBar.setMaximum(1000);
-        panel11.add(progressBar, BorderLayout.CENTER);
+        panel9.add(progressBar, BorderLayout.CENTER);
         terminateCalculationButton = new JButton();
         terminateCalculationButton.setEnabled(true);
         terminateCalculationButton.setIcon(new ImageIcon(getClass().getResource("/icon/terminatedlaunchIcon.png")));
         terminateCalculationButton.setPreferredSize(new Dimension(30, 30));
         terminateCalculationButton.setText("");
-        panel11.add(terminateCalculationButton, BorderLayout.EAST);
+        panel9.add(terminateCalculationButton, BorderLayout.EAST);
     }
 
     /**
@@ -678,5 +699,4 @@ public class MainFrame extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
-
 }

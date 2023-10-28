@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class SmallWorldContext {
+public class LinguisticMetricsContext {
 
     private List<CDFNode> cdfNodes;
     private double averageClusteringCoefficient;

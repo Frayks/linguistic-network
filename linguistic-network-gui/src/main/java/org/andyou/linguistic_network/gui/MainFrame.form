@@ -45,11 +45,29 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="15fe" class="javax.swing.JMenuItem" binding="smallWorldMenuItem">
+              <component id="15fe" class="javax.swing.JMenuItem" binding="linguisticMetricsMenuItem">
                 <constraints/>
                 <properties>
                   <font size="14"/>
-                  <text value="SmallWorld"/>
+                  <text value="Linguistic Metrics"/>
+                </properties>
+              </component>
+              <component id="c88e7" class="javax.swing.JMenuItem">
+                <constraints/>
+                <properties>
+                  <text value="Keyword extraction &quot;Small-world&quot;"/>
+                </properties>
+              </component>
+              <component id="88b71" class="javax.swing.JMenuItem">
+                <constraints/>
+                <properties>
+                  <text value="Keyword extraction &quot;TextRank&quot;"/>
+                </properties>
+              </component>
+              <component id="b0dd8" class="javax.swing.JMenuItem">
+                <constraints/>
+                <properties>
+                  <text value="Keyword extraction &quot;Centrality Measures&quot;"/>
                 </properties>
               </component>
             </children>
@@ -107,7 +125,7 @@
                     <children>
                       <component id="82919" class="javax.swing.JCheckBox" binding="caseSensitiveCheckBox">
                         <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -119,7 +137,7 @@
                       </component>
                       <component id="daeca" class="javax.swing.JCheckBox" binding="considerSentenceBoundsCheckBox">
                         <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -130,7 +148,7 @@
                       </component>
                       <component id="146dc" class="javax.swing.JCheckBox" binding="useRangeCheckBox">
                         <constraints>
-                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -140,35 +158,29 @@
                           <text value="Use range"/>
                         </properties>
                       </component>
-                      <grid id="85b7a" layout-manager="BorderLayout" hgap="5" vgap="0">
+                      <component id="e0975" class="javax.swing.JLabel" binding="rangeLabel">
                         <constraints>
-                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="5" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
                         </constraints>
-                        <properties/>
-                        <border type="empty">
-                          <size top="0" left="5" bottom="0" right="5"/>
-                        </border>
-                        <children>
-                          <component id="e0975" class="javax.swing.JLabel" binding="rangeLabel">
-                            <constraints border-constraint="West"/>
-                            <properties>
-                              <font size="14"/>
-                              <text value="Range"/>
-                            </properties>
-                          </component>
-                          <component id="4d54c" class="javax.swing.JSpinner" binding="rangeSizeSpinner" custom-create="true">
-                            <constraints border-constraint="Center"/>
-                            <properties>
-                              <enabled value="true"/>
-                              <font size="14"/>
-                            </properties>
-                          </component>
-                        </children>
-                      </grid>
+                        <properties>
+                          <font size="14"/>
+                          <text value="Range"/>
+                        </properties>
+                      </component>
+                      <component id="4d54c" class="javax.swing.JSpinner" binding="rangeSizeSpinner" custom-create="true">
+                        <constraints>
+                          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="0" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="true"/>
+                          <font size="14"/>
+                        </properties>
+                      </component>
                       <component id="ad34" class="javax.swing.JCheckBox" binding="removeStopWordsCheckBox">
                         <constraints>
-                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -178,7 +190,7 @@
                       </component>
                       <grid id="a6281" layout-manager="BorderLayout" hgap="5" vgap="0">
                         <constraints>
-                          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties/>
@@ -207,7 +219,7 @@
                       </grid>
                       <component id="4b3ca" class="javax.swing.JCheckBox" binding="filterByFrequencyCheckBox">
                         <constraints>
-                          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -216,42 +228,36 @@
                           <text value="Filter by frequency"/>
                         </properties>
                       </component>
-                      <grid id="c9a0f" layout-manager="BorderLayout" hgap="5" vgap="0">
+                      <component id="c89ae" class="javax.swing.JLabel" binding="frequencyLabel">
                         <constraints>
-                          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                          <gridbag top="2" left="0" bottom="2" right="0" weightx="0.0" weighty="0.0"/>
+                          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="5" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
                         </constraints>
-                        <properties/>
-                        <border type="empty">
-                          <size top="0" left="5" bottom="0" right="5"/>
-                        </border>
-                        <children>
-                          <component id="c89ae" class="javax.swing.JLabel" binding="frequencyLabel">
-                            <constraints border-constraint="West"/>
-                            <properties>
-                              <enabled value="true"/>
-                              <font size="14"/>
-                              <text value="Frequency"/>
-                            </properties>
-                          </component>
-                          <component id="f07c5" class="javax.swing.JSpinner" binding="filterFrequencySpinner" custom-create="true">
-                            <constraints border-constraint="Center"/>
-                            <properties>
-                              <enabled value="true"/>
-                              <font size="14"/>
-                            </properties>
-                          </component>
-                        </children>
-                      </grid>
+                        <properties>
+                          <enabled value="true"/>
+                          <font size="14"/>
+                          <text value="Frequency"/>
+                        </properties>
+                      </component>
+                      <component id="f07c5" class="javax.swing.JSpinner" binding="filterFrequencySpinner" custom-create="true">
+                        <constraints>
+                          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="0" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="true"/>
+                          <font size="14"/>
+                        </properties>
+                      </component>
                       <vspacer id="aeb9c">
                         <constraints>
-                          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                          <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="1.0"/>
                         </constraints>
                       </vspacer>
                       <component id="c0017" class="javax.swing.JButton" binding="calculateButton">
                         <constraints>
-                          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>

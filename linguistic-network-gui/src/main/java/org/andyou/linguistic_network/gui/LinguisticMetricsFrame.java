@@ -5,7 +5,7 @@ import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.context.SmallWorldContext;
+import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
 import org.andyou.linguistic_network.lib.api.node.SWNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SmallWorldFrame extends JFrame implements SubFrame {
+public class LinguisticMetricsFrame extends JFrame implements SubFrame {
 
     private JPanel mainPanel;
     private JTable statisticTable;
@@ -37,23 +37,23 @@ public class SmallWorldFrame extends JFrame implements SubFrame {
 
     private AtomicReference<Thread> threadAtomicReference;
     private MainContext mainContext;
-    private SmallWorldContext smallWorldContext;
+    private LinguisticMetricsContext linguisticMetricsContext;
 
-    public SmallWorldFrame(LinguisticNetworkContext linguisticNetworkContext) {
+    public LinguisticMetricsFrame(LinguisticNetworkContext linguisticNetworkContext) {
         $$$setupUI$$$();
         setContentPane(mainPanel);
         this.mainContext = linguisticNetworkContext.getMainContext();
-        this.smallWorldContext = linguisticNetworkContext.getSmallWorldContext();
+        this.linguisticMetricsContext = linguisticNetworkContext.getLinguisticMetricsContext();
 
         threadAtomicReference = new AtomicReference<>();
 
         Runnable task = () -> {
             try {
-                smallWorldContext.setCdfNodes(null);
-                smallWorldContext.setAverageClusteringCoefficient(0.0);
-                smallWorldContext.setAveragePathLength(0.0);
-                smallWorldContext.setAverageNeighbourCount(0.0);
-                smallWorldContext.setSpentTime(0);
+                linguisticMetricsContext.setCdfNodes(null);
+                linguisticMetricsContext.setAverageClusteringCoefficient(0.0);
+                linguisticMetricsContext.setAveragePathLength(0.0);
+                linguisticMetricsContext.setAverageNeighbourCount(0.0);
+                linguisticMetricsContext.setSpentTime(0);
                 updateUI();
 
                 Set<SWNode> swNodeGraph = mainContext.getSwNodeGraph();
@@ -70,11 +70,11 @@ public class SmallWorldFrame extends JFrame implements SubFrame {
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
-                smallWorldContext.setCdfNodes(cdfNodes);
-                smallWorldContext.setAverageClusteringCoefficient(averageClusteringCoefficient);
-                smallWorldContext.setAveragePathLength(averagePathLength);
-                smallWorldContext.setAverageNeighbourCount(averageNeighbourCount);
-                smallWorldContext.setSpentTime(endTime - startTime);
+                linguisticMetricsContext.setCdfNodes(cdfNodes);
+                linguisticMetricsContext.setAverageClusteringCoefficient(averageClusteringCoefficient);
+                linguisticMetricsContext.setAveragePathLength(averagePathLength);
+                linguisticMetricsContext.setAverageNeighbourCount(averageNeighbourCount);
+                linguisticMetricsContext.setSpentTime(endTime - startTime);
 
                 tableRowSorter.setSortKeys(null);
                 for (CDFNode cdfNode : cdfNodes) {
@@ -110,11 +110,11 @@ public class SmallWorldFrame extends JFrame implements SubFrame {
 
     @Override
     public void clearContext() {
-        smallWorldContext.setCdfNodes(null);
-        smallWorldContext.setAverageClusteringCoefficient(0);
-        smallWorldContext.setAveragePathLength(0);
-        smallWorldContext.setAverageNeighbourCount(0);
-        smallWorldContext.setSpentTime(0);
+        linguisticMetricsContext.setCdfNodes(null);
+        linguisticMetricsContext.setAverageClusteringCoefficient(0);
+        linguisticMetricsContext.setAveragePathLength(0);
+        linguisticMetricsContext.setAverageNeighbourCount(0);
+        linguisticMetricsContext.setSpentTime(0);
     }
 
     @Override
@@ -124,12 +124,12 @@ public class SmallWorldFrame extends JFrame implements SubFrame {
     }
 
     synchronized public void updateUI(boolean calculationStarted) {
-        averageClusteringCoefficientTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(smallWorldContext.getAverageClusteringCoefficient()));
-        averagePathLengthTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(smallWorldContext.getAveragePathLength()));
-        averageNeighbourCountTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(smallWorldContext.getAverageNeighbourCount()));
-        spentTimeTextField.setText(CommonUtil.formatDuration(smallWorldContext.getSpentTime()));
+        averageClusteringCoefficientTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(linguisticMetricsContext.getAverageClusteringCoefficient()));
+        averagePathLengthTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(linguisticMetricsContext.getAveragePathLength()));
+        averageNeighbourCountTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(linguisticMetricsContext.getAverageNeighbourCount()));
+        spentTimeTextField.setText(CommonUtil.formatDuration(linguisticMetricsContext.getSpentTime()));
 
-        if (smallWorldContext.getCdfNodes() == null) {
+        if (linguisticMetricsContext.getCdfNodes() == null) {
             defaultTableModel.setRowCount(0);
         }
 
