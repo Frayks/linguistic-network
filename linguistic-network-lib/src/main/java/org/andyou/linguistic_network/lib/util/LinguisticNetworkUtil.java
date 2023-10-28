@@ -18,8 +18,8 @@ public class LinguisticNetworkUtil {
         }
 
         // TODO
-        //int swNodeGraphSize = swNodeGraph.size();
-        int swNodeGraphSize = 0;
+        int swNodeGraphSize = swNodeGraph.size();
+        //int swNodeGraphSize = 0;
         double gl = calcAveragePathLength(swNodeGraph, swNodeGraphSize, null);
         List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
         for (SWNode swNode : swNodes) {

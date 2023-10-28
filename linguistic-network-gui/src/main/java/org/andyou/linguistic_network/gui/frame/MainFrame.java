@@ -1,10 +1,11 @@
 package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.constant.FrameKey;
-import org.andyou.linguistic_network.gui.api.constant.MessageText;
+import org.andyou.linguistic_network.gui.api.constant.TextConstant;
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.api.constant.FormatType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
@@ -129,6 +130,26 @@ public class MainFrame extends JFrame {
                 updateUI();
             }
         });
+        saveMenuItem.addActionListener(e -> {
+            FormatType[] formatTypes = FormatType.values();
+            int choice = CommonGUIUtil.showQuestionDialog(
+                    this,
+                    TextConstant.INFORMATION_MESSAGE_CHOOSE_SAVING_FORMAT,
+                    TextConstant.TITLE_SAVE_AS,
+                    FormatType.values());
+            if (choice != JOptionPane.CLOSED_OPTION) {
+                switch (formatTypes[choice]) {
+                    case TEXT: {
+
+                        break;
+                    }
+                    case EXCEL: {
+
+                        break;
+                    }
+                }
+            }
+        });
         linguisticMetricsMenuItem.addActionListener(e -> {
             JFrame linguisticMetricsSubFrame = subFrameMap.get(FrameKey.LINGUISTIC_METRICS);
             if (linguisticMetricsSubFrame == null) {
@@ -241,12 +262,12 @@ public class MainFrame extends JFrame {
 
         calculateButton.addActionListener(e -> {
             if (mainContext.isRemoveStopWords() && mainContext.getStopWordsFile() == null) {
-                CommonGUIUtil.showWarningMessageDialog(this, MessageText.WARNING_MESSAGE_MISSING_STOP_WORDS);
+                CommonGUIUtil.showWarningMessageDialog(this, TextConstant.WARNING_MESSAGE_MISSING_STOP_WORDS);
                 return;
             }
 
             if (!mainContext.isConsiderSentenceBounds() && !mainContext.isUseRange()) {
-                int choice = CommonGUIUtil.showConfirmDialog(this, MessageText.WARNING_MESSAGE_NOT_SELECTED_OPTIONS);
+                int choice = CommonGUIUtil.showConfirmDialog(this, TextConstant.WARNING_MESSAGE_NOT_SELECTED_OPTIONS);
                 if (choice != JOptionPane.YES_OPTION) {
                     return;
                 }
