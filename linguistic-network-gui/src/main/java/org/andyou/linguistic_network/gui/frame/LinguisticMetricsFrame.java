@@ -1,11 +1,11 @@
-package org.andyou.linguistic_network.gui;
+package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
 import org.andyou.linguistic_network.lib.api.node.SWNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
@@ -14,7 +14,9 @@ import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.util.List;
@@ -26,7 +28,6 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     private JPanel mainPanel;
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
-    private TableRowSorter<TableModel> tableRowSorter;
     private JButton calculateButton;
     private JProgressBar progressBar;
     private JButton terminateCalculationButton;
@@ -35,9 +36,9 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     private JTextField averageNeighbourCountTextField;
     private JTextField spentTimeTextField;
 
-    private AtomicReference<Thread> threadAtomicReference;
     private MainContext mainContext;
     private LinguisticMetricsContext linguisticMetricsContext;
+    private AtomicReference<Thread> threadAtomicReference;
 
     public LinguisticMetricsFrame(LinguisticNetworkContext linguisticNetworkContext) {
         $$$setupUI$$$();
@@ -49,11 +50,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
 
         Runnable task = () -> {
             try {
-                linguisticMetricsContext.setCdfNodes(null);
-                linguisticMetricsContext.setAverageClusteringCoefficient(0.0);
-                linguisticMetricsContext.setAveragePathLength(0.0);
-                linguisticMetricsContext.setAverageNeighbourCount(0.0);
-                linguisticMetricsContext.setSpentTime(0);
+                clearContext();
                 updateUI();
 
                 Set<SWNode> swNodeGraph = mainContext.getSwNodeGraph();
@@ -63,7 +60,9 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
                 long startTime = System.currentTimeMillis();
                 List<CDFNode> cdfNodes = LinguisticNetworkUtil.calcCDFNodes(swNodeGraph, progressBarProcessor);
                 double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(swNodeGraph, progressBarProcessor);
-                int swNodeGraphSize = swNodeGraph.size();
+                // TODO
+                //int swNodeGraphSize = swNodeGraph.size();
+                int swNodeGraphSize = 0;
                 double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(swNodeGraph, swNodeGraphSize, progressBarProcessor);
                 double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(swNodeGraph);
                 progressBarProcessor.initAndFinishNextBlock();
@@ -76,9 +75,8 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
                 linguisticMetricsContext.setAverageNeighbourCount(averageNeighbourCount);
                 linguisticMetricsContext.setSpentTime(endTime - startTime);
 
-                tableRowSorter.setSortKeys(null);
                 for (CDFNode cdfNode : cdfNodes) {
-                    defaultTableModel.addRow(new Object[]{cdfNode.getK(), cdfNode.getN(), cdfNode.getPdf(), cdfNode.getCdf()});
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{cdfNode.getK(), cdfNode.getN(), cdfNode.getPdf(), cdfNode.getCdf()}));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -111,9 +109,9 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     @Override
     public void clearContext() {
         linguisticMetricsContext.setCdfNodes(null);
-        linguisticMetricsContext.setAverageClusteringCoefficient(0);
-        linguisticMetricsContext.setAveragePathLength(0);
-        linguisticMetricsContext.setAverageNeighbourCount(0);
+        linguisticMetricsContext.setAverageClusteringCoefficient(0.0);
+        linguisticMetricsContext.setAveragePathLength(0.0);
+        linguisticMetricsContext.setAverageNeighbourCount(0.0);
         linguisticMetricsContext.setSpentTime(0);
     }
 
@@ -140,7 +138,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     private void createUIComponents() {
         statisticTable = new JTable();
 
-        String[] columnIdentifiers = {"k", "n", "pdf", "cdf"};
+        String[] columnIdentifiers = {"K", "N", "PDF", "CDF"};
         defaultTableModel = new DefaultTableModel(0, 4) {
             final Class<?>[] types = {Integer.class, Integer.class, Double.class, Double.class};
 
@@ -155,12 +153,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
             }
         };
         defaultTableModel.setColumnIdentifiers(columnIdentifiers);
-
         statisticTable.setModel(defaultTableModel);
-
-        tableRowSorter = new TableRowSorter<>(statisticTable.getModel());
-        tableRowSorter.setSortsOnUpdates(false);
-        statisticTable.setRowSorter(tableRowSorter);
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
@@ -276,6 +269,8 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         gbc.insets = new Insets(0, 0, 5, 0);
         panel1.add(averageNeighbourCountTextField, gbc);
         calculateButton = new JButton();
+        Font calculateButtonFont = this.$$$getFont$$$(null, -1, 14, calculateButton.getFont());
+        if (calculateButtonFont != null) calculateButton.setFont(calculateButtonFont);
         calculateButton.setText("Calculate");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;

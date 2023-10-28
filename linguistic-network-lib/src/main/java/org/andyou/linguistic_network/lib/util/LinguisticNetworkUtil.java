@@ -8,16 +8,19 @@ import java.util.*;
 
 public class LinguisticNetworkUtil {
 
-    public static Map<SWNode, Double> calcKeywordStatisticsSmallWorld(Set<SWNode> swNodeGraph) {
+    public static Map<SWNode, Double> calcKeywordStatisticsSmallWorld(Set<SWNode> swNodeGraph, ProgressBarProcessor progressBarProcessor) {
         swNodeGraph = SWNodeGraphUtil.clone(swNodeGraph);
         Map<SWNode, Double> keywordStatistics = new HashMap<>();
 
-        int swNodeGraphSize = swNodeGraph.size();
+        if (progressBarProcessor != null) {
+            int stepsCount = swNodeGraph.size();
+            progressBarProcessor.initNextBlock(stepsCount);
+        }
+
+        // TODO
+        //int swNodeGraphSize = swNodeGraph.size();
+        int swNodeGraphSize = 0;
         double gl = calcAveragePathLength(swNodeGraph, swNodeGraphSize, null);
-
-        System.out.println(swNodeGraph.size());
-
-        int counter = 0;
         List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
         for (SWNode swNode : swNodes) {
             SWNodeGraphUtil.removeSWNode(swNodeGraph, swNode);
@@ -28,9 +31,8 @@ public class LinguisticNetworkUtil {
 
             SWNodeGraphUtil.addSWNode(swNodeGraph, swNode);
 
-            counter++;
-            if (counter % 10 == 0) {
-                System.out.println(counter);
+            if (progressBarProcessor != null) {
+                progressBarProcessor.walk();
             }
         }
 

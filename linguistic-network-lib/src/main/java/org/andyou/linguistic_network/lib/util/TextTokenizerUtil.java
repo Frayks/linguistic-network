@@ -1,6 +1,7 @@
 package org.andyou.linguistic_network.lib.util;
 
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -9,21 +10,50 @@ import java.util.List;
 
 public class TextTokenizerUtil {
 
-    public static String[][] createElementGroups(String text, boolean caseSensitive, boolean considerSentenceBounds) {
+    public static String[][] createElementGroups(String text, NGramType nGramType, boolean caseSensitive, boolean considerSentenceBounds) {
         if (!caseSensitive) {
             text = text.toLowerCase();
         }
 
+        String[] sentences;
         if (considerSentenceBounds) {
-            String[] sentences = splitIntoSentences(text);
-            return splitIntoWordGroups(sentences);
+            sentences = splitIntoSentences(text);
         } else {
-            return new String[][]{splitIntoWords(text)};
+            sentences = new String[]{text};
         }
+
+        return splitIntoElementGroups(sentences, nGramType);
     }
 
     public static String[] splitIntoSentences(String text) {
         return text.split("(\\.\\.\\.)|[.!?…]");
+    }
+
+    public static String[][] splitIntoElementGroups(String[] sentences, NGramType nGramType) {
+        String[][] elementGroups = new String[sentences.length][];
+
+        switch (nGramType) {
+            case WORDS: {
+                for (int i = 0; i < sentences.length; i++) {
+                    elementGroups[i] = splitIntoWords(sentences[i]);
+                }
+                break;
+            }
+            case LETTERS_AND_NUMBERS: {
+                for (int i = 0; i < sentences.length; i++) {
+                    elementGroups[i] = splitIntoLettersAndNumbers(sentences[i]);
+                }
+                break;
+            }
+            case SYMBOLS: {
+                for (int i = 0; i < sentences.length; i++) {
+                    elementGroups[i] = splitIntoSymbols(sentences[i]);
+                }
+                break;
+            }
+        }
+
+        return elementGroups;
     }
 
     public static String[] splitIntoWords(String text) {
@@ -35,14 +65,28 @@ public class TextTokenizerUtil {
         return StringUtils.split(text, " ");
     }
 
-    public static String[][] splitIntoWordGroups(String[] sentences) {
-        String[][] wordGroups = new String[sentences.length][];
+    public static String[] splitIntoLettersAndNumbers(String text) {
+        text = text.replaceAll("[^\\p{L}\\p{N}]+", "");
+        return text.split("");
+    }
 
-        for (int i = 0; i < sentences.length; i++) {
-            wordGroups[i] = splitIntoWords(sentences[i]);
+    public static String[] splitIntoSymbols(String text) {
+        return text.split("");
+    }
+
+    public static void combineIntoNGrams(String[][] elementGroups, int nGramSize, String separator) {
+        for (int i = 0; i < elementGroups.length; i++) {
+            elementGroups[i] = combineIntoNGrams(elementGroups[i], nGramSize, separator);
         }
+    }
 
-        return wordGroups;
+    public static String[] combineIntoNGrams(String[] elements, int nGramSize, String separator) {
+        int normalizedNGramSize = Math.min(elements.length, nGramSize);
+        List<String> nGrams = new ArrayList<>();
+        for (int i = 0; i <= elements.length - normalizedNGramSize; i++) {
+            nGrams.add(String.join(separator, Arrays.copyOfRange(elements, i, i + normalizedNGramSize)));
+        }
+        return nGrams.toArray(new String[0]);
     }
 
     public static String[][] removeStopWords(String[][] wordGroups, String[] stopWords, ProgressBarProcessor progressBarProcessor) {

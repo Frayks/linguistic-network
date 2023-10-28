@@ -1,5 +1,7 @@
 package org.andyou.linguistic_network.gui;
 
+import org.andyou.linguistic_network.gui.frame.MainFrame;
+
 import javax.swing.*;
 import java.awt.*;
 

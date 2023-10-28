@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.andyou.linguistic_network.gui.LinguisticMetricsFrame">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.andyou.linguistic_network.gui.frame.LinguisticMetricsFrame">
   <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
       <xy x="20" y="20" width="500" height="400"/>
@@ -112,6 +112,7 @@
               <gridbag top="0" left="0" bottom="5" right="0" weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
+              <font size="14"/>
               <text value="Calculate"/>
             </properties>
           </component>
