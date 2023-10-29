@@ -16,7 +16,6 @@ import org.andyou.linguistic_network.lib.util.TextTokenizerUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -74,11 +73,17 @@ public class MainFrame extends JFrame {
         threadAtomicReference = new AtomicReference<>();
         initContext();
 
-        JFileChooser jFileChooser = new JFileChooser();
-        jFileChooser.setFileFilter(new FileNameExtensionFilter("Normal text file (*.txt)", "txt"));
+        JFileChooser textFileChooser = new JFileChooser();
+        textFileChooser.setFileFilter(CommonGUIUtil.TEXT_FILE_FILTER);
+        JFileChooser xlsxFileChooser = new JFileChooser();
+        xlsxFileChooser.setFileFilter(CommonGUIUtil.XLSX_FILE_FILTER);
+        JFileChooser directoryChooser = new JFileChooser();
+        directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         Font font = new JLabel().getFont().deriveFont(14f);
-        setComponentsFont(jFileChooser.getComponents(), font);
+        setComponentsFont(textFileChooser.getComponents(), font);
+        setComponentsFont(xlsxFileChooser.getComponents(), font);
+        setComponentsFont(directoryChooser.getComponents(), font);
 
         nGramTypeComboBox.addActionListener(e -> {
             NGramType nGramType = (NGramType) nGramTypeComboBox.getSelectedItem();
@@ -109,9 +114,8 @@ public class MainFrame extends JFrame {
             updateUI();
         });
         chooseStopWordsFileButton.addActionListener(e -> {
-            int returnValue = jFileChooser.showOpenDialog(this);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                mainContext.setStopWordsFile(jFileChooser.getSelectedFile());
+            if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                mainContext.setStopWordsFile(textFileChooser.getSelectedFile());
                 updateUI();
             }
         });
@@ -123,31 +127,61 @@ public class MainFrame extends JFrame {
             mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
         });
         openMenuItem.addActionListener(e -> {
-            int returnValue = jFileChooser.showOpenDialog(this);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
+            if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 clearContext();
-                mainContext.setTextFile(jFileChooser.getSelectedFile());
+                mainContext.setTextFile(textFileChooser.getSelectedFile());
                 updateUI();
             }
         });
         saveMenuItem.addActionListener(e -> {
-            FormatType[] formatTypes = FormatType.values();
-            int choice = CommonGUIUtil.showQuestionDialog(
-                    this,
-                    TextConstant.INFORMATION_MESSAGE_CHOOSE_SAVING_FORMAT,
-                    TextConstant.TITLE_SAVE_AS,
-                    FormatType.values());
-            if (choice != JOptionPane.CLOSED_OPTION) {
-                switch (formatTypes[choice]) {
-                    case TEXT: {
-
-                        break;
-                    }
-                    case EXCEL: {
-
-                        break;
+            try {
+                FormatType[] formatTypes = FormatType.values();
+                int choice = CommonGUIUtil.showQuestionDialog(
+                        this,
+                        TextConstant.INFORMATION_MESSAGE_CHOOSE_SAVING_FORMAT,
+                        TextConstant.TITLE_SAVE_AS,
+                        FormatType.values());
+                if (choice != JOptionPane.CLOSED_OPTION) {
+                    switch (formatTypes[choice]) {
+                        case TEXT_FILES: {
+                            if (directoryChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                                File directory = directoryChooser.getSelectedFile();
+                                if (directory.exists()) {
+                                    if (CommonGUIUtil.showWarningConfirmDialog(
+                                            this,
+                                            String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, directory.getName())
+                                    ) != JOptionPane.YES_OPTION) {
+                                        return;
+                                    }
+                                }
+                                CommonUtil.saveStatisticsToTextFiles(directory, linguisticNetworkContext);
+                            }
+                            break;
+                        }
+                        case EXCEL_FILE: {
+                            if (xlsxFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                                File file = xlsxFileChooser.getSelectedFile();
+                                String filePath = file.getAbsolutePath();
+                                if (!filePath.endsWith(".xlsx")) {
+                                    file = new File(filePath + ".xlsx");
+                                }
+                                if (file.exists()) {
+                                    if (CommonGUIUtil.showWarningConfirmDialog(
+                                            this,
+                                            String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
+                                    ) != JOptionPane.YES_OPTION) {
+                                        return;
+                                    }
+                                }
+                                CommonUtil.saveStatisticsToXlsxFile(file, linguisticNetworkContext);
+                            }
+                            break;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                CommonGUIUtil.showErrorMessageDialog(this, ex);
             }
         });
         linguisticMetricsMenuItem.addActionListener(e -> {
@@ -267,7 +301,7 @@ public class MainFrame extends JFrame {
             }
 
             if (!mainContext.isConsiderSentenceBounds() && !mainContext.isUseRange()) {
-                int choice = CommonGUIUtil.showConfirmDialog(this, TextConstant.WARNING_MESSAGE_NOT_SELECTED_OPTIONS);
+                int choice = CommonGUIUtil.showWarningConfirmDialog(this, TextConstant.WARNING_MESSAGE_NOT_SELECTED_OPTIONS);
                 if (choice != JOptionPane.YES_OPTION) {
                     return;
                 }
@@ -393,7 +427,7 @@ public class MainFrame extends JFrame {
 
     private void configureDefaultSubFrame(JFrame frame, String title, int width, int height) {
         frame.setTitle(title);
-        frame.setIconImage(new ImageIcon(getClass().getResource("/icon/networkIcon.png")).getImage());
+        frame.setIconImage(CommonGUIUtil.ICON.getImage());
         frame.setMinimumSize(new Dimension(width, height));
         frame.setPreferredSize(new Dimension(width, height));
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -413,7 +447,7 @@ public class MainFrame extends JFrame {
         filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
 
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Rank", "Element", "Frequency", "NeighborsCount"};
+        String[] columnIdentifiers = {"Rank", "Element", "Frequency", "Neighbors count"};
         defaultTableModel = new DefaultTableModel(0, 4) {
             final Class<?>[] types = {Integer.class, String.class, Integer.class, Integer.class};
 

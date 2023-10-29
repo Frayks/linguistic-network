@@ -1,6 +1,8 @@
 package org.andyou.linguistic_network.gui;
 
 import org.andyou.linguistic_network.gui.frame.MainFrame;
+import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
+import org.andyou.linguistic_network.lib.util.CommonUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +13,7 @@ public class Main {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         MainFrame mainFrame = new MainFrame();
         mainFrame.setTitle("Linguistic Network");
-        mainFrame.setIconImage(new ImageIcon(Main.class.getResource("/icon/networkIcon.png")).getImage());
+        mainFrame.setIconImage(CommonGUIUtil.ICON.getImage());
         mainFrame.setMinimumSize(new Dimension(800, 600));
         mainFrame.setPreferredSize(new Dimension(800, 600));
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

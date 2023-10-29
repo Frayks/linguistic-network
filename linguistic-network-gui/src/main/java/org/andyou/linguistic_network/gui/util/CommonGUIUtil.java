@@ -4,12 +4,20 @@ import org.andyou.linguistic_network.gui.api.constant.TextConstant;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.text.DecimalFormat;
 
 public class CommonGUIUtil {
 
+    public static final ImageIcon ICON = new ImageIcon(CommonGUIUtil.class.getResource("/icon/networkIcon.png"));
+
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00000");
+
+    public static final FileFilter TEXT_FILE_FILTER = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
+
+    public static final FileFilter XLSX_FILE_FILTER = new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx");
 
     public static void showErrorMessageDialog(Component parentComponent, Exception ex) {
         JOptionPane.showMessageDialog(
@@ -29,12 +37,13 @@ public class CommonGUIUtil {
         );
     }
 
-    public static int showConfirmDialog(Component parentComponent, String message) {
+    public static int showWarningConfirmDialog(Component parentComponent, String message) {
         return JOptionPane.showConfirmDialog(
                 parentComponent,
                 message,
-                TextConstant.TITLE_CONFIRMATION,
-                JOptionPane.YES_NO_OPTION
+                TextConstant.TITLE_WARNING,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
         );
     }
 

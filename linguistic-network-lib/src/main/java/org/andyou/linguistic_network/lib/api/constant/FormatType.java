@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum FormatType {
-    TEXT("Text"),
-    EXCEL("Excel");
+    TEXT_FILES("Text files"),
+    EXCEL_FILE("Excel file");
 
     private String name;
 
