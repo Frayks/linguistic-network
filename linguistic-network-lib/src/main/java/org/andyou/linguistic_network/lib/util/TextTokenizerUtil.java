@@ -1,6 +1,7 @@
 package org.andyou.linguistic_network.lib.util;
 
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,46 +11,43 @@ import java.util.List;
 
 public class TextTokenizerUtil {
 
-    public static String[][] createElementGroups(String text, NGramType nGramType, boolean caseSensitive, boolean considerSentenceBounds) {
+    // https://www.regular-expressions.info/unicode.html
+
+    public static String[][] createElementGroups(String text, NGramType nGramType, boolean caseSensitive, boolean includeSpaces, BoundsType boundsType, String sentenceDelimiters) {
         if (!caseSensitive) {
             text = text.toLowerCase();
         }
 
-        String[] sentences;
-        if (considerSentenceBounds) {
-            sentences = splitIntoSentences(text);
-        } else {
-            sentences = new String[]{text};
+        String[] parts = new String[0];
+        if (BoundsType.ABSENT.equals(boundsType)) {
+            parts = new String[]{text};
+        } else if (BoundsType.WORD.equals(boundsType)) {
+            parts = splitIntoWords(text);
+        } else if (BoundsType.SENTENCE.equals(boundsType)) {
+            parts = splitIntoSentences(text, sentenceDelimiters);
         }
 
-        return splitIntoElementGroups(sentences, nGramType);
+        return splitIntoElementGroups(parts, nGramType, includeSpaces);
     }
 
-    public static String[] splitIntoSentences(String text) {
-        return text.split("(\\.\\.\\.)|[.!?…]");
+    public static String[] splitIntoSentences(String text, String sentenceDelimiters) {
+        return StringUtils.split(text, sentenceDelimiters);
     }
 
-    public static String[][] splitIntoElementGroups(String[] sentences, NGramType nGramType) {
-        String[][] elementGroups = new String[sentences.length][];
+    public static String[][] splitIntoElementGroups(String[] parts, NGramType nGramType, boolean includeSpaces) {
+        String[][] elementGroups = new String[parts.length][];
 
-        switch (nGramType) {
-            case WORDS: {
-                for (int i = 0; i < sentences.length; i++) {
-                    elementGroups[i] = splitIntoWords(sentences[i]);
-                }
-                break;
+        if (NGramType.WORDS.equals(nGramType)) {
+            for (int i = 0; i < parts.length; i++) {
+                elementGroups[i] = splitIntoWords(parts[i]);
             }
-            case LETTERS_AND_NUMBERS: {
-                for (int i = 0; i < sentences.length; i++) {
-                    elementGroups[i] = splitIntoLettersAndNumbers(sentences[i]);
-                }
-                break;
+        } else if (NGramType.LETTERS_AND_NUMBERS.equals(nGramType)) {
+            for (int i = 0; i < parts.length; i++) {
+                elementGroups[i] = splitIntoLettersAndNumbers(parts[i]);
             }
-            case SYMBOLS: {
-                for (int i = 0; i < sentences.length; i++) {
-                    elementGroups[i] = splitIntoSymbols(sentences[i]);
-                }
-                break;
+        } else if (NGramType.SYMBOLS.equals(nGramType)) {
+            for (int i = 0; i < parts.length; i++) {
+                elementGroups[i] = splitIntoSymbols(parts[i], includeSpaces);
             }
         }
 
@@ -70,7 +68,12 @@ public class TextTokenizerUtil {
         return text.split("");
     }
 
-    public static String[] splitIntoSymbols(String text) {
+    public static String[] splitIntoSymbols(String text, boolean includeSpaces) {
+        text = text.replaceAll("[\t\\p{Zs}]", " ");
+        if (!includeSpaces) {
+            text = text.replace(" ", "");
+        }
+        text = text.replaceAll("\\p{C}", "");
         return text.split("");
     }
 

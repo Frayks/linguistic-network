@@ -2,6 +2,7 @@ package org.andyou.linguistic_network.lib.api.context;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
 
@@ -16,7 +17,9 @@ public class MainContext {
     private NGramType nGramType;
     private int nGramSize;
     private boolean caseSensitive;
-    private boolean considerSentenceBounds;
+    private boolean includeSpaces;
+    private BoundsType boundsType;
+    private String sentenceDelimiters;
     private boolean useRange;
     private int rangeSize;
     private boolean removeStopWords;

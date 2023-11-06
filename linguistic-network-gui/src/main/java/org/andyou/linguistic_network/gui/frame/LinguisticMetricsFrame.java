@@ -94,6 +94,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
             }
         });
 
+        clearContext();
         updateUI();
     }
 

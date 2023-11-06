@@ -8,10 +8,11 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 public class CommonGUIUtil {
 
-    public static final ImageIcon ICON = new ImageIcon(CommonGUIUtil.class.getResource("/icon/networkIcon.png"));
+    public static final ImageIcon ICON = new ImageIcon(Objects.requireNonNull(CommonGUIUtil.class.getResource("/icon/networkIcon.png")));
 
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00000");
 

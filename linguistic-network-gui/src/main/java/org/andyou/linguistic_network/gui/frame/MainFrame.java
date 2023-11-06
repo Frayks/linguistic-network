@@ -2,9 +2,11 @@ package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.constant.FrameKey;
 import org.andyou.linguistic_network.gui.api.constant.TextConstant;
+import org.andyou.linguistic_network.gui.api.frame.SimpleDocumentListener;
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.FormatType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
@@ -22,6 +24,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -42,7 +46,10 @@ public class MainFrame extends JFrame {
     private JComboBox<NGramType> nGramTypeComboBox;
     private JSpinner nGramSizeSpinner;
     private JCheckBox caseSensitiveCheckBox;
-    private JCheckBox considerSentenceBoundsCheckBox;
+    private JCheckBox includeSpacesCheckBox;
+    private JComboBox<BoundsType> boundsTypeComboBox;
+    private JLabel sentenceDelimitersLabel;
+    private JTextField sentenceDelimitersTextField;
     private JCheckBox useRangeCheckBox;
     private JLabel rangeLabel;
     private JSpinner rangeSizeSpinner;
@@ -91,7 +98,10 @@ public class MainFrame extends JFrame {
             if (!NGramType.WORDS.equals(nGramType)) {
                 mainContext.setRemoveStopWords(false);
             }
-            updateUI();
+            if (!NGramType.SYMBOLS.equals(nGramType)) {
+                mainContext.setIncludeSpaces(false);
+            }
+            updateUI(true);
         });
         nGramSizeSpinner.addChangeListener(e -> {
             mainContext.setNGramSize((int) nGramSizeSpinner.getValue());
@@ -99,38 +109,56 @@ public class MainFrame extends JFrame {
         caseSensitiveCheckBox.addActionListener(e -> {
             mainContext.setCaseSensitive(caseSensitiveCheckBox.isSelected());
         });
-        considerSentenceBoundsCheckBox.addActionListener(e -> {
-            mainContext.setConsiderSentenceBounds(considerSentenceBoundsCheckBox.isSelected());
+        includeSpacesCheckBox.addActionListener(e -> {
+            mainContext.setIncludeSpaces(includeSpacesCheckBox.isSelected());
+        });
+        boundsTypeComboBox.addActionListener(e -> {
+            BoundsType boundsType = (BoundsType) boundsTypeComboBox.getSelectedItem();
+            mainContext.setBoundsType(boundsType);
+            updateUI(false);
+        });
+        sentenceDelimitersTextField.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
+            mainContext.setSentenceDelimiters(sentenceDelimitersTextField.getText());
         });
         useRangeCheckBox.addActionListener(e -> {
             mainContext.setUseRange(useRangeCheckBox.isSelected());
-            updateUI();
+            updateUI(false);
         });
         rangeSizeSpinner.addChangeListener(e -> {
             mainContext.setRangeSize((int) rangeSizeSpinner.getValue());
         });
         removeStopWordsCheckBox.addActionListener(e -> {
             mainContext.setRemoveStopWords(removeStopWordsCheckBox.isSelected());
-            updateUI();
+            updateUI(false);
         });
         chooseStopWordsFileButton.addActionListener(e -> {
             if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 mainContext.setStopWordsFile(textFileChooser.getSelectedFile());
-                updateUI();
+                updateUI(false);
             }
         });
         filterByFrequencyCheckBox.addActionListener(e -> {
             mainContext.setFilterByFrequency(filterByFrequencyCheckBox.isSelected());
-            updateUI();
+            updateUI(false);
         });
         filterFrequencySpinner.addChangeListener(e -> {
             mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
         });
+
+        statisticTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    System.out.println(statisticTable.getValueAt(statisticTable.getSelectedRow(), 0));
+                }
+            }
+        });
+
         openMenuItem.addActionListener(e -> {
             if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 clearContext();
                 mainContext.setTextFile(textFileChooser.getSelectedFile());
-                updateUI();
+                updateUI(false);
             }
         });
         saveMenuItem.addActionListener(e -> {
@@ -142,40 +170,36 @@ public class MainFrame extends JFrame {
                         TextConstant.TITLE_SAVE_AS,
                         FormatType.values());
                 if (choice != JOptionPane.CLOSED_OPTION) {
-                    switch (formatTypes[choice]) {
-                        case TEXT_FILES: {
-                            if (directoryChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                                File directory = directoryChooser.getSelectedFile();
-                                if (directory.exists()) {
-                                    if (CommonGUIUtil.showWarningConfirmDialog(
-                                            this,
-                                            String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, directory.getName())
-                                    ) != JOptionPane.YES_OPTION) {
-                                        return;
-                                    }
+                    FormatType formatType = formatTypes[choice];
+                    if (FormatType.TEXT_FILES.equals(formatType)) {
+                        if (directoryChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                            File directory = directoryChooser.getSelectedFile();
+                            if (directory.exists()) {
+                                if (CommonGUIUtil.showWarningConfirmDialog(
+                                        this,
+                                        String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, directory.getName())
+                                ) != JOptionPane.YES_OPTION) {
+                                    return;
                                 }
-                                CommonUtil.saveStatisticsToTextFiles(directory, linguisticNetworkContext);
                             }
-                            break;
+                            CommonUtil.saveStatisticsToTextFiles(directory, linguisticNetworkContext);
                         }
-                        case EXCEL_FILE: {
-                            if (xlsxFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                                File file = xlsxFileChooser.getSelectedFile();
-                                String filePath = file.getAbsolutePath();
-                                if (!filePath.endsWith(".xlsx")) {
-                                    file = new File(filePath + ".xlsx");
-                                }
-                                if (file.exists()) {
-                                    if (CommonGUIUtil.showWarningConfirmDialog(
-                                            this,
-                                            String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
-                                    ) != JOptionPane.YES_OPTION) {
-                                        return;
-                                    }
-                                }
-                                CommonUtil.saveStatisticsToXlsxFile(file, linguisticNetworkContext);
+                    } else if (FormatType.EXCEL_FILE.equals(formatType)) {
+                        if (xlsxFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                            File file = xlsxFileChooser.getSelectedFile();
+                            String filePath = file.getAbsolutePath();
+                            if (!filePath.endsWith(".xlsx")) {
+                                file = new File(filePath + ".xlsx");
                             }
-                            break;
+                            if (file.exists()) {
+                                if (CommonGUIUtil.showWarningConfirmDialog(
+                                        this,
+                                        String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
+                                ) != JOptionPane.YES_OPTION) {
+                                    return;
+                                }
+                            }
+                            CommonUtil.saveStatisticsToXlsxFile(file, linguisticNetworkContext);
                         }
                     }
                 }
@@ -210,7 +234,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD);
                     }
                 });
-                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, "Keyword extraction \"Small-world\"", 700, 600);
+                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, "Keyword extraction \"Small-world\"", 900, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
                 keywordExtractionSmallWorldSubFrame.requestFocus();
@@ -221,14 +245,16 @@ public class MainFrame extends JFrame {
             try {
                 mainContext.setElementNodeGraph(null);
                 mainContext.setSpentTime(0);
-                updateUI();
+                updateUI(false);
 
                 File textFile = mainContext.getTextFile();
                 File stopWordsFile = mainContext.getStopWordsFile();
                 NGramType nGramType = mainContext.getNGramType();
                 int nGramSize = mainContext.getNGramSize();
                 boolean caseSensitive = mainContext.isCaseSensitive();
-                boolean considerSentenceBounds = mainContext.isConsiderSentenceBounds();
+                boolean includeSpaces = mainContext.isIncludeSpaces();
+                BoundsType boundsType = mainContext.getBoundsType();
+                String sentenceDelimiters = mainContext.getSentenceDelimiters();
                 boolean useRange = mainContext.isUseRange();
                 int rangeSize = mainContext.getRangeSize();
                 boolean removeStopWords = mainContext.isRemoveStopWords();
@@ -250,7 +276,7 @@ public class MainFrame extends JFrame {
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, blockSizes);
 
                 long startTime = System.currentTimeMillis();
-                String[][] elementGroups = TextTokenizerUtil.createElementGroups(text, nGramType, caseSensitive, considerSentenceBounds);
+                String[][] elementGroups = TextTokenizerUtil.createElementGroups(text, nGramType, caseSensitive, includeSpaces, boundsType, sentenceDelimiters);
                 progressBarProcessor.initAndFinishNextBlock();
 
                 if (removeStopWords) {
@@ -283,7 +309,7 @@ public class MainFrame extends JFrame {
                 ex.printStackTrace();
                 CommonGUIUtil.showErrorMessageDialog(this, ex);
             } finally {
-                updateUI(false);
+                updateUI(false, false);
                 elementNodeGraphChanged();
             }
         };
@@ -294,8 +320,8 @@ public class MainFrame extends JFrame {
                 return;
             }
 
-            if (!mainContext.isConsiderSentenceBounds() && !mainContext.isUseRange()) {
-                int choice = CommonGUIUtil.showWarningConfirmDialog(this, TextConstant.WARNING_MESSAGE_NOT_SELECTED_OPTIONS);
+            if (BoundsType.ABSENT.equals(mainContext.getBoundsType()) && !mainContext.isUseRange()) {
+                int choice = CommonGUIUtil.showWarningConfirmDialog(this, TextConstant.WARNING_MESSAGE_NO_RESTRICTIVE_OPTION_IS_SELECTED);
                 if (choice != JOptionPane.YES_OPTION) {
                     return;
                 }
@@ -311,7 +337,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-        updateUI();
+        initUI();
     }
 
     private void setComponentsFont(Component[] comp, Font font) {
@@ -332,7 +358,9 @@ public class MainFrame extends JFrame {
         mainContext.setNGramType((NGramType) nGramTypeComboBox.getSelectedItem());
         mainContext.setNGramSize((int) nGramSizeSpinner.getValue());
         mainContext.setCaseSensitive(caseSensitiveCheckBox.isSelected());
-        mainContext.setConsiderSentenceBounds(considerSentenceBoundsCheckBox.isSelected());
+        mainContext.setIncludeSpaces(includeSpacesCheckBox.isSelected());
+        mainContext.setBoundsType((BoundsType) boundsTypeComboBox.getSelectedItem());
+        mainContext.setSentenceDelimiters(sentenceDelimitersTextField.getText());
         mainContext.setUseRange(useRangeCheckBox.isSelected());
         mainContext.setRangeSize((int) rangeSizeSpinner.getValue());
         mainContext.setRemoveStopWords(removeStopWordsCheckBox.isSelected());
@@ -359,12 +387,16 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void updateUI() {
-        Thread thread = threadAtomicReference.get();
-        updateUI(thread != null && thread.isAlive());
+    private void initUI() {
+        updateUI(false, true);
     }
 
-    synchronized private void updateUI(boolean calculationStarted) {
+    private void updateUI(boolean changedNGramType) {
+        Thread thread = threadAtomicReference.get();
+        updateUI(thread != null && thread.isAlive(), changedNGramType);
+    }
+
+    synchronized private void updateUI(boolean calculationStarted, boolean changedNGramType) {
         if (mainContext.getTextFile() == null) {
             textFileTextField.setText("");
         } else {
@@ -374,13 +406,25 @@ public class MainFrame extends JFrame {
             }
         }
 
-        rangeLabel.setEnabled(mainContext.isUseRange());
-        rangeSizeSpinner.setEnabled(mainContext.isUseRange());
+        includeSpacesCheckBox.setVisible(NGramType.SYMBOLS.equals(mainContext.getNGramType()));
+        includeSpacesCheckBox.setSelected(mainContext.isIncludeSpaces());
 
-        removeStopWordsCheckBox.setEnabled(NGramType.WORDS.equals(mainContext.getNGramType()));
+        if (changedNGramType) {
+            updateBoundsTypeComboBox(mainContext.getNGramType());
+        }
+
+        boundsTypeComboBox.setSelectedItem(mainContext.getBoundsType());
+
+        sentenceDelimitersLabel.setVisible(BoundsType.SENTENCE.equals(mainContext.getBoundsType()));
+        sentenceDelimitersTextField.setVisible(BoundsType.SENTENCE.equals(mainContext.getBoundsType()));
+
+        rangeLabel.setVisible(mainContext.isUseRange());
+        rangeSizeSpinner.setVisible(mainContext.isUseRange());
+
+        removeStopWordsCheckBox.setVisible(NGramType.WORDS.equals(mainContext.getNGramType()));
         removeStopWordsCheckBox.setSelected(mainContext.isRemoveStopWords());
-        stopWordsFileTextField.setEnabled(mainContext.isRemoveStopWords());
-        chooseStopWordsFileButton.setEnabled(mainContext.isRemoveStopWords());
+        stopWordsFileTextField.setVisible(mainContext.isRemoveStopWords());
+        chooseStopWordsFileButton.setVisible(mainContext.isRemoveStopWords());
 
         if (mainContext.getStopWordsFile() == null) {
             stopWordsFileTextField.setText("");
@@ -391,15 +435,10 @@ public class MainFrame extends JFrame {
             }
         }
 
-        frequencyLabel.setEnabled(mainContext.isFilterByFrequency());
-        filterFrequencySpinner.setEnabled(mainContext.isFilterByFrequency());
+        frequencyLabel.setVisible(mainContext.isFilterByFrequency());
+        filterFrequencySpinner.setVisible(mainContext.isFilterByFrequency());
 
-        if (mainContext.getElementNodeGraph() == null) {
-            elementCountTextField.setText("0");
-        } else {
-            elementCountTextField.setText(String.valueOf(mainContext.getElementNodeGraph().size()));
-        }
-
+        elementCountTextField.setText(String.valueOf(mainContext.getElementNodeGraph() != null ? mainContext.getElementNodeGraph().size() : 0));
         spentTimeTextField.setText(CommonUtil.formatDuration(mainContext.getSpentTime()));
 
         if (mainContext.getElementNodeGraph() == null) {
@@ -418,6 +457,22 @@ public class MainFrame extends JFrame {
         }
     }
 
+    private void updateBoundsTypeComboBox(NGramType nGramType) {
+        boundsTypeComboBox.removeAllItems();
+
+        if (NGramType.WORDS.equals(nGramType)) {
+            boundsTypeComboBox.addItem(BoundsType.ABSENT);
+            boundsTypeComboBox.addItem(BoundsType.SENTENCE);
+        } else if (NGramType.LETTERS_AND_NUMBERS.equals(nGramType)) {
+            boundsTypeComboBox.addItem(BoundsType.ABSENT);
+            boundsTypeComboBox.addItem(BoundsType.SENTENCE);
+            boundsTypeComboBox.addItem(BoundsType.WORD);
+        } else if (NGramType.SYMBOLS.equals(nGramType)) {
+            boundsTypeComboBox.addItem(BoundsType.ABSENT);
+        }
+
+        boundsTypeComboBox.setSelectedItem(BoundsType.ABSENT);
+    }
 
     private void configureDefaultSubFrame(JFrame frame, String title, int width, int height) {
         frame.setTitle(title);
@@ -433,6 +488,8 @@ public class MainFrame extends JFrame {
     private void createUIComponents() {
         NGramType[] nGramTypes = {NGramType.WORDS, NGramType.LETTERS_AND_NUMBERS, NGramType.SYMBOLS};
         nGramTypeComboBox = new JComboBox<>(nGramTypes);
+
+        boundsTypeComboBox = new JComboBox<>();
 
         nGramSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
 
@@ -557,18 +614,6 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(caseSensitiveCheckBox, gbc);
-        considerSentenceBoundsCheckBox = new JCheckBox();
-        considerSentenceBoundsCheckBox.setEnabled(true);
-        Font considerSentenceBoundsCheckBoxFont = this.$$$getFont$$$(null, -1, 14, considerSentenceBoundsCheckBox.getFont());
-        if (considerSentenceBoundsCheckBoxFont != null) considerSentenceBoundsCheckBox.setFont(considerSentenceBoundsCheckBoxFont);
-        considerSentenceBoundsCheckBox.setText("Sentence bounds");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(2, 0, 2, 0);
-        panel5.add(considerSentenceBoundsCheckBox, gbc);
         useRangeCheckBox = new JCheckBox();
         useRangeCheckBox.setEnabled(true);
         Font useRangeCheckBoxFont = this.$$$getFont$$$(null, -1, 14, useRangeCheckBox.getFont());
@@ -577,7 +622,7 @@ public class MainFrame extends JFrame {
         useRangeCheckBox.setText("Use range");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
@@ -588,7 +633,7 @@ public class MainFrame extends JFrame {
         rangeLabel.setText("Range");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel5.add(rangeLabel, gbc);
@@ -597,7 +642,7 @@ public class MainFrame extends JFrame {
         if (rangeSizeSpinnerFont != null) rangeSizeSpinner.setFont(rangeSizeSpinnerFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 5);
         panel5.add(rangeSizeSpinner, gbc);
@@ -607,7 +652,7 @@ public class MainFrame extends JFrame {
         removeStopWordsCheckBox.setText("Remove stop words");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
@@ -616,7 +661,7 @@ public class MainFrame extends JFrame {
         panel6.setLayout(new BorderLayout(5, 0));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 9;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(2, 0, 2, 0);
@@ -642,7 +687,7 @@ public class MainFrame extends JFrame {
         filterByFrequencyCheckBox.setText("Filter by frequency");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 8;
+        gbc.gridy = 10;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
@@ -654,7 +699,7 @@ public class MainFrame extends JFrame {
         frequencyLabel.setText("Frequency");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 9;
+        gbc.gridy = 11;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel5.add(frequencyLabel, gbc);
@@ -663,14 +708,14 @@ public class MainFrame extends JFrame {
         if (filterFrequencySpinnerFont != null) filterFrequencySpinner.setFont(filterFrequencySpinnerFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 9;
+        gbc.gridy = 11;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 5);
         panel5.add(filterFrequencySpinner, gbc);
         final JPanel spacer1 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 10;
+        gbc.gridy = 12;
         gbc.gridwidth = 2;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
@@ -682,7 +727,7 @@ public class MainFrame extends JFrame {
         calculateButton.setText("Calculate");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 11;
+        gbc.gridy = 13;
         gbc.gridwidth = 2;
         panel5.add(calculateButton, gbc);
         Font nGramTypeComboBoxFont = this.$$$getFont$$$(null, -1, 14, nGramTypeComboBox.getFont());
@@ -721,6 +766,55 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 5);
         panel5.add(nGramSizeSpinner, gbc);
+        sentenceDelimitersLabel = new JLabel();
+        Font sentenceDelimitersLabelFont = this.$$$getFont$$$(null, -1, 14, sentenceDelimitersLabel.getFont());
+        if (sentenceDelimitersLabelFont != null) sentenceDelimitersLabel.setFont(sentenceDelimitersLabelFont);
+        sentenceDelimitersLabel.setText("Delimiters");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(2, 5, 2, 5);
+        panel5.add(sentenceDelimitersLabel, gbc);
+        sentenceDelimitersTextField = new JTextField();
+        Font sentenceDelimitersTextFieldFont = this.$$$getFont$$$(null, -1, 14, sentenceDelimitersTextField.getFont());
+        if (sentenceDelimitersTextFieldFont != null) sentenceDelimitersTextField.setFont(sentenceDelimitersTextFieldFont);
+        sentenceDelimitersTextField.setText(".!?…");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(2, 0, 2, 5);
+        panel5.add(sentenceDelimitersTextField, gbc);
+        includeSpacesCheckBox = new JCheckBox();
+        Font includeSpacesCheckBoxFont = this.$$$getFont$$$(null, -1, 14, includeSpacesCheckBox.getFont());
+        if (includeSpacesCheckBoxFont != null) includeSpacesCheckBox.setFont(includeSpacesCheckBoxFont);
+        includeSpacesCheckBox.setSelected(false);
+        includeSpacesCheckBox.setText("Include spaces");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(2, 0, 2, 0);
+        panel5.add(includeSpacesCheckBox, gbc);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(2, 0, 2, 5);
+        panel5.add(boundsTypeComboBox, gbc);
+        final JLabel label4 = new JLabel();
+        Font label4Font = this.$$$getFont$$$(null, -1, 14, label4.getFont());
+        if (label4Font != null) label4.setFont(label4Font);
+        label4.setText("Bounds");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(2, 5, 2, 5);
+        panel5.add(label4, gbc);
         final JPanel panel7 = new JPanel();
         panel7.setLayout(new BorderLayout(0, 0));
         panel3.add(panel7, BorderLayout.CENTER);
@@ -728,16 +822,16 @@ public class MainFrame extends JFrame {
         panel8.setLayout(new GridBagLayout());
         panel7.add(panel8, BorderLayout.SOUTH);
         panel8.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        final JLabel label4 = new JLabel();
-        Font label4Font = this.$$$getFont$$$(null, -1, 14, label4.getFont());
-        if (label4Font != null) label4.setFont(label4Font);
-        label4.setText("Element count");
+        final JLabel label5 = new JLabel();
+        Font label5Font = this.$$$getFont$$$(null, -1, 14, label5.getFont());
+        if (label5Font != null) label5.setFont(label5Font);
+        label5.setText("Element count");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 5, 5);
-        panel8.add(label4, gbc);
+        panel8.add(label5, gbc);
         final JPanel spacer2 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 2;
@@ -757,16 +851,16 @@ public class MainFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 0, 5, 0);
         panel8.add(elementCountTextField, gbc);
-        final JLabel label5 = new JLabel();
-        Font label5Font = this.$$$getFont$$$(null, -1, 14, label5.getFont());
-        if (label5Font != null) label5.setFont(label5Font);
-        label5.setText("Spent time");
+        final JLabel label6 = new JLabel();
+        Font label6Font = this.$$$getFont$$$(null, -1, 14, label6.getFont());
+        if (label6Font != null) label6.setFont(label6Font);
+        label6.setText("Spent time");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 0, 5);
-        panel8.add(label5, gbc);
+        panel8.add(label6, gbc);
         spentTimeTextField = new JTextField();
         spentTimeTextField.setColumns(10);
         spentTimeTextField.setEditable(false);

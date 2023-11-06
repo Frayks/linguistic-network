@@ -7,7 +7,7 @@ public enum FormatType {
     TEXT_FILES("Text files"),
     EXCEL_FILE("Excel file");
 
-    private String name;
+    private final String name;
 
     FormatType(String name) {
         this.name = name;

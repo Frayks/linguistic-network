@@ -3,14 +3,14 @@ package org.andyou.linguistic_network.lib.api.constant;
 import lombok.Getter;
 
 @Getter
-public enum NGramType {
-    WORDS("Words"),
-    LETTERS_AND_NUMBERS("Letters and numbers"),
-    SYMBOLS("Symbols");
+public enum BoundsType {
+    ABSENT("Absent"),
+    WORD("Word"),
+    SENTENCE("Sentence");
 
     private final String name;
 
-    NGramType(String name) {
+    BoundsType(String name) {
         this.name = name;
     }
 

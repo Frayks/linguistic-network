@@ -3,14 +3,15 @@ package org.andyou.linguistic_network.lib.util;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.api.node.SWNode;
 
 import java.util.*;
 
 public class LinguisticNetworkUtil {
 
-    public static Map<ElementNode, Double> calcKeywordStatisticsSmallWorld(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
+    public static List<SWNode> calcKeywordStatisticsSmallWorld(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
         elementNodeGraph = ElementNodeGraphUtil.clone(elementNodeGraph);
-        Map<ElementNode, Double> keywordStatistics = new HashMap<>();
+        List<SWNode> swNodes = new ArrayList<>();
 
         if (progressBarProcessor != null) {
             int stepsCount = elementNodeGraph.size();
@@ -23,8 +24,8 @@ public class LinguisticNetworkUtil {
             ElementNodeGraphUtil.removeElementNode(elementNodeGraph, elementNode);
 
             double l = calcAveragePathLength(elementNodeGraph, true, null);
-            double sw = l - gl;
-            keywordStatistics.put(elementNode, sw);
+            double dirtyContribution = l - gl;
+            swNodes.add(new SWNode(elementNode, dirtyContribution));
 
             ElementNodeGraphUtil.addElementNode(elementNodeGraph, elementNode);
 
@@ -33,7 +34,13 @@ public class LinguisticNetworkUtil {
             }
         }
 
-        return keywordStatistics;
+        double dirtyContributionMin = swNodes.stream().mapToDouble(SWNode::getDirtyContribution).min().orElse(0);
+        swNodes.forEach(swNode -> swNode.setContribution(swNode.getDirtyContribution() - dirtyContributionMin));
+
+        double contributionSum = swNodes.stream().mapToDouble(SWNode::getContribution).sum();
+        swNodes.forEach(swNode -> swNode.setNormalizedContribution(swNode.getContribution() / contributionSum));
+
+        return swNodes;
     }
 
     public static List<CDFNode> calcCDFNodes(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {

@@ -7,6 +7,7 @@ import org.andyou.linguistic_network.lib.api.context.KeywordExtractionSmallWorld
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.api.node.SWNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
@@ -54,19 +55,22 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Collections.singletonList(100));
 
                 long startTime = System.currentTimeMillis();
-                Map<ElementNode, Double> keywordStatistics = LinguisticNetworkUtil.calcKeywordStatisticsSmallWorld(elementNodeGraph, progressBarProcessor);
+                List<SWNode> swNodes = LinguisticNetworkUtil.calcKeywordStatisticsSmallWorld(elementNodeGraph, progressBarProcessor);
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
-                keywordExtractionSmallWorldContext.setKeywordStatistics(keywordStatistics);
+                keywordExtractionSmallWorldContext.setSwNodes(swNodes);
                 keywordExtractionSmallWorldContext.setSpentTime(endTime - startTime);
 
-                List<Map.Entry<ElementNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
-                entries.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-                for (int i = 0; i < entries.size(); i++) {
-                    Map.Entry<ElementNode, Double> entry = entries.get(i);
+                swNodes.sort(Comparator.comparingDouble(SWNode::getContribution)
+                        .thenComparing(swNode -> swNode.getElementNode().getNeighborCount())
+                        .thenComparing(swNode -> swNode.getElementNode().getFrequency())
+                        .thenComparing(swNode -> swNode.getElementNode().getElement())
+                        .reversed());
+                for (int i = 0; i < swNodes.size(); i++) {
+                    SWNode swNode = swNodes.get(i);
                     int rank = i + 1;
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{entry.getKey().getIndex(), rank, entry.getKey().getElement(), entry.getKey().getFrequency(), entry.getKey().getNeighborCount(), entry.getValue()}));
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{swNode.getElementNode().getIndex(), rank, swNode.getElementNode().getElement(), swNode.getElementNode().getFrequency(), swNode.getElementNode().getNeighborCount(), swNode.getDirtyContribution(), swNode.getContribution(), swNode.getNormalizedContribution()}));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -87,6 +91,7 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
             }
         });
 
+        clearContext();
         updateUI();
     }
 
@@ -98,7 +103,7 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
 
     @Override
     public void clearContext() {
-        keywordExtractionSmallWorldContext.setKeywordStatistics(null);
+        keywordExtractionSmallWorldContext.setSwNodes(null);
         keywordExtractionSmallWorldContext.setSpentTime(0);
     }
 
@@ -111,7 +116,7 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
     synchronized public void updateUI(boolean calculationStarted) {
         spentTimeTextField.setText(CommonUtil.formatDuration(keywordExtractionSmallWorldContext.getSpentTime()));
 
-        if (keywordExtractionSmallWorldContext.getKeywordStatistics() == null) {
+        if (keywordExtractionSmallWorldContext.getSwNodes() == null) {
             defaultTableModel.setRowCount(0);
         }
 
@@ -121,9 +126,9 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Rank", "Element", "Frequency", "Neighbors count", "CB"};
+        String[] columnIdentifiers = {"Index", "Rank", "Element", "Frequency", "Neighbors count", "CB_0", "CB", "Norm. CB"};
         defaultTableModel = new DefaultTableModel(0, 6) {
-            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class};
+            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
