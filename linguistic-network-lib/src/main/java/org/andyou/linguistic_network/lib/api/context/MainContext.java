@@ -3,7 +3,7 @@ package org.andyou.linguistic_network.lib.api.context;
 import lombok.Getter;
 import lombok.Setter;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 
 import java.io.File;
 import java.util.Set;
@@ -23,7 +23,7 @@ public class MainContext {
     private File stopWordsFile;
     private boolean filterByFrequency;
     private int filterFrequency;
-    private Set<SWNode> swNodeGraph;
+    private Set<ElementNode> elementNodeGraph;
     private long spentTime;
 
 }

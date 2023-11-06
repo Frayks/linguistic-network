@@ -6,7 +6,7 @@ import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionSmallWorldContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
@@ -49,24 +49,24 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
                 clearContext();
                 updateUI();
 
-                Set<SWNode> swNodeGraph = mainContext.getSwNodeGraph();
+                Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
 
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Collections.singletonList(100));
 
                 long startTime = System.currentTimeMillis();
-                Map<SWNode, Double> keywordStatistics = LinguisticNetworkUtil.calcKeywordStatisticsSmallWorld(swNodeGraph, progressBarProcessor);
+                Map<ElementNode, Double> keywordStatistics = LinguisticNetworkUtil.calcKeywordStatisticsSmallWorld(elementNodeGraph, progressBarProcessor);
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
                 keywordExtractionSmallWorldContext.setKeywordStatistics(keywordStatistics);
                 keywordExtractionSmallWorldContext.setSpentTime(endTime - startTime);
 
-                List<Map.Entry<SWNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
+                List<Map.Entry<ElementNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
                 entries.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
                 for (int i = 0; i < entries.size(); i++) {
-                    Map.Entry<SWNode, Double> entry = entries.get(i);
+                    Map.Entry<ElementNode, Double> entry = entries.get(i);
                     int rank = i + 1;
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{rank, entry.getKey().getElement(), entry.getValue()}));
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{entry.getKey().getIndex(), rank, entry.getKey().getElement(), entry.getKey().getFrequency(), entry.getKey().getNeighborCount(), entry.getValue()}));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -91,7 +91,7 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
     }
 
     @Override
-    public void swNodeGraphChanged() {
+    public void elementNodeGraphChanged() {
         clearContext();
         updateUI();
     }
@@ -115,15 +115,15 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
             defaultTableModel.setRowCount(0);
         }
 
-        calculateButton.setEnabled(!calculationStarted && mainContext.getSwNodeGraph() != null);
+        calculateButton.setEnabled(!calculationStarted && mainContext.getElementNodeGraph() != null);
         terminateCalculationButton.setEnabled(calculationStarted);
     }
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Rank", "Element", "CB"};
-        defaultTableModel = new DefaultTableModel(0, 3) {
-            final Class<?>[] types = {Integer.class, String.class, Double.class};
+        String[] columnIdentifiers = {"Index", "Rank", "Element", "Frequency", "Neighbors count", "CB"};
+        defaultTableModel = new DefaultTableModel(0, 6) {
+            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {

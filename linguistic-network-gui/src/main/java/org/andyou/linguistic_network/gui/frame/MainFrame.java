@@ -9,9 +9,9 @@ import org.andyou.linguistic_network.lib.api.constant.FormatType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
-import org.andyou.linguistic_network.lib.util.SWNodeGraphUtil;
+import org.andyou.linguistic_network.lib.util.ElementNodeGraphUtil;
 import org.andyou.linguistic_network.lib.util.TextTokenizerUtil;
 
 import javax.swing.*;
@@ -210,7 +210,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD);
                     }
                 });
-                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, "Keyword extraction \"Small-world\"", 500, 600);
+                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, "Keyword extraction \"Small-world\"", 700, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
                 keywordExtractionSmallWorldSubFrame.requestFocus();
@@ -219,7 +219,7 @@ public class MainFrame extends JFrame {
 
         Runnable task = () -> {
             try {
-                mainContext.setSwNodeGraph(null);
+                mainContext.setElementNodeGraph(null);
                 mainContext.setSpentTime(0);
                 updateUI();
 
@@ -263,34 +263,28 @@ public class MainFrame extends JFrame {
                 TextTokenizerUtil.combineIntoNGrams(elementGroups, nGramSize, separator);
                 progressBarProcessor.initAndFinishNextBlock();
 
-                Set<SWNode> swNodeGraph = SWNodeGraphUtil.createSWNodeGraph(elementGroups, useRange, rangeSize, progressBarProcessor);
+                Set<ElementNode> elementNodeGraph = ElementNodeGraphUtil.createElementNodeGraph(elementGroups, useRange, rangeSize, progressBarProcessor);
 
                 if (filterByFrequency) {
-                    SWNodeGraphUtil.filterByFrequency(swNodeGraph, filterFrequency);
+                    ElementNodeGraphUtil.filterByFrequency(elementNodeGraph, filterFrequency);
                     progressBarProcessor.initAndFinishNextBlock();
                 }
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
-                mainContext.setSwNodeGraph(swNodeGraph);
+                mainContext.setElementNodeGraph(elementNodeGraph);
                 mainContext.setSpentTime(endTime - startTime);
 
-                List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
-                swNodes.sort(Comparator.comparingInt(SWNode::getFrequency)
-                        .thenComparing(SWNode::getNeighborCount)
-                        .thenComparing(SWNode::getElement)
-                        .reversed());
-                for (int i = 0; i < swNodes.size(); i++) {
-                    SWNode swNode = swNodes.get(i);
-                    int rank = i + 1;
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{rank, swNode.getElement(), swNode.getFrequency(), swNode.getNeighborCount()}));
+                List<ElementNode> elementNodes = ElementNodeGraphUtil.sortAndSetIndex(elementNodeGraph);
+                for (ElementNode elementNode : elementNodes) {
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{elementNode.getIndex(), elementNode.getElement(), elementNode.getFrequency(), elementNode.getNeighborCount()}));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
                 CommonGUIUtil.showErrorMessageDialog(this, ex);
             } finally {
                 updateUI(false);
-                swNodeGraphChanged();
+                elementNodeGraphChanged();
             }
         };
 
@@ -346,17 +340,17 @@ public class MainFrame extends JFrame {
         mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
     }
 
-    private void swNodeGraphChanged() {
+    private void elementNodeGraphChanged() {
         for (JFrame subFrame : subFrameMap.values()) {
             if (subFrame instanceof SubFrame) {
-                ((SubFrame) subFrame).swNodeGraphChanged();
+                ((SubFrame) subFrame).elementNodeGraphChanged();
             }
         }
     }
 
     private void clearContext() {
         mainContext.setTextFile(null);
-        mainContext.setSwNodeGraph(null);
+        mainContext.setElementNodeGraph(null);
         mainContext.setSpentTime(0);
         for (JFrame subFrame : subFrameMap.values()) {
             if (subFrame instanceof SubFrame) {
@@ -400,20 +394,20 @@ public class MainFrame extends JFrame {
         frequencyLabel.setEnabled(mainContext.isFilterByFrequency());
         filterFrequencySpinner.setEnabled(mainContext.isFilterByFrequency());
 
-        if (mainContext.getSwNodeGraph() == null) {
+        if (mainContext.getElementNodeGraph() == null) {
             elementCountTextField.setText("0");
         } else {
-            elementCountTextField.setText(String.valueOf(mainContext.getSwNodeGraph().size()));
+            elementCountTextField.setText(String.valueOf(mainContext.getElementNodeGraph().size()));
         }
 
         spentTimeTextField.setText(CommonUtil.formatDuration(mainContext.getSpentTime()));
 
-        if (mainContext.getSwNodeGraph() == null) {
+        if (mainContext.getElementNodeGraph() == null) {
             defaultTableModel.setRowCount(0);
         }
 
         openMenuItem.setEnabled(!calculationStarted);
-        saveMenuItem.setEnabled(!calculationStarted && mainContext.getSwNodeGraph() != null);
+        saveMenuItem.setEnabled(!calculationStarted && mainContext.getElementNodeGraph() != null);
         calculateButton.setEnabled(!calculationStarted && mainContext.getTextFile() != null);
         terminateCalculationButton.setEnabled(calculationStarted);
 
@@ -447,7 +441,7 @@ public class MainFrame extends JFrame {
         filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
 
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Rank", "Element", "Frequency", "Neighbors count"};
+        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Neighbors count"};
         defaultTableModel = new DefaultTableModel(0, 4) {
             final Class<?>[] types = {Integer.class, String.class, Integer.class, Integer.class};
 

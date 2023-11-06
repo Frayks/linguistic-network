@@ -7,7 +7,7 @@ import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
@@ -53,15 +53,15 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
                 clearContext();
                 updateUI();
 
-                Set<SWNode> swNodeGraph = mainContext.getSwNodeGraph();
+                Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
 
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Arrays.asList(1, 13, 85, 1));
 
                 long startTime = System.currentTimeMillis();
-                List<CDFNode> cdfNodes = LinguisticNetworkUtil.calcCDFNodes(swNodeGraph, progressBarProcessor);
-                double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(swNodeGraph, progressBarProcessor);
-                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(swNodeGraph, false, progressBarProcessor);
-                double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(swNodeGraph);
+                List<CDFNode> cdfNodes = LinguisticNetworkUtil.calcCDFNodes(elementNodeGraph, progressBarProcessor);
+                double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(elementNodeGraph, progressBarProcessor);
+                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(elementNodeGraph, false, progressBarProcessor);
+                double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(elementNodeGraph);
                 progressBarProcessor.initAndFinishNextBlock();
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
@@ -98,7 +98,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     }
 
     @Override
-    public void swNodeGraphChanged() {
+    public void elementNodeGraphChanged() {
         clearContext();
         updateUI();
     }
@@ -128,7 +128,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
             defaultTableModel.setRowCount(0);
         }
 
-        calculateButton.setEnabled(!calculationStarted && mainContext.getSwNodeGraph() != null);
+        calculateButton.setEnabled(!calculationStarted && mainContext.getElementNodeGraph() != null);
         terminateCalculationButton.setEnabled(calculationStarted);
     }
 

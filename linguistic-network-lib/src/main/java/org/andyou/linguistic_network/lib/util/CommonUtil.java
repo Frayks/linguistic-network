@@ -5,7 +5,7 @@ import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -29,21 +29,21 @@ public class CommonUtil {
         }
 
         MainContext mainContext = context.getMainContext();
-        if (mainContext != null && mainContext.getSwNodeGraph() != null) {
+        if (mainContext != null && mainContext.getElementNodeGraph() != null) {
             File file = new File(directory, "linguistic_network.txt");
             PrintWriter printWriter = new PrintWriter(new FileWriter(file));
             printWriter.println("Text file: " + mainContext.getTextFile().getAbsolutePath());
-            printWriter.println("Element count: " + mainContext.getSwNodeGraph().size());
+            printWriter.println("Element count: " + mainContext.getElementNodeGraph().size());
             printWriter.println("Spent time: " + CommonUtil.formatDuration(mainContext.getSpentTime()));
 
-            Set<SWNode> swNodeGraph = mainContext.getSwNodeGraph();
-            List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
-            swNodes.sort(Comparator.comparingInt(SWNode::getFrequency).thenComparing(SWNode::getNeighborCount).thenComparing(SWNode::getElement).reversed());
+            Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
+            List<ElementNode> elementNodes = new ArrayList<>(elementNodeGraph);
+            elementNodes.sort(Comparator.comparingInt(ElementNode::getFrequency).thenComparing(ElementNode::getNeighborCount).thenComparing(ElementNode::getElement).reversed());
             printWriter.printf("\nRank\tElement\tFrequency\tNeighbors count\n");
-            for (int i = 0; i < swNodes.size(); i++) {
-                SWNode swNode = swNodes.get(i);
+            for (int i = 0; i < elementNodes.size(); i++) {
+                ElementNode elementNode = elementNodes.get(i);
                 int rank = i + 1;
-                printWriter.printf("%d\t%s\t%d\t%d\n", rank, swNode.getElement(), swNode.getFrequency(), swNode.getNeighborCount());
+                printWriter.printf("%d\t%s\t%d\t%d\n", rank, elementNode.getElement(), elementNode.getFrequency(), elementNode.getNeighborCount());
             }
             printWriter.close();
         }
@@ -73,12 +73,12 @@ public class CommonUtil {
             printWriter.println("Text file: " + mainContext.getTextFile().getAbsolutePath());
             printWriter.println("Spent time: " + CommonUtil.formatDuration(keywordExtractionSmallWorldContext.getSpentTime()));
 
-            Map<SWNode, Double> keywordStatistics = keywordExtractionSmallWorldContext.getKeywordStatistics();
-            List<Map.Entry<SWNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
+            Map<ElementNode, Double> keywordStatistics = keywordExtractionSmallWorldContext.getKeywordStatistics();
+            List<Map.Entry<ElementNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
             entries.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
             printWriter.printf("\nRank\tElement\tCB\n");
             for (int i = 0; i < entries.size(); i++) {
-                Map.Entry<SWNode, Double> entry = entries.get(i);
+                Map.Entry<ElementNode, Double> entry = entries.get(i);
                 int rank = i + 1;
                 printWriter.printf("%d\t%s\t%f\n", rank, entry.getKey().getElement(), entry.getValue());
             }
@@ -95,7 +95,7 @@ public class CommonUtil {
         leftCellStyle.setAlignment(HorizontalAlignment.LEFT);
 
         MainContext mainContext = context.getMainContext();
-        if (mainContext != null && mainContext.getSwNodeGraph() != null) {
+        if (mainContext != null && mainContext.getElementNodeGraph() != null) {
             Sheet sheet = workbook.createSheet("linguistic_network");
 
             Row row4 = sheet.createRow(4);
@@ -104,18 +104,18 @@ public class CommonUtil {
             row4.createCell(2).setCellValue("Frequency");
             row4.createCell(3).setCellValue("Neighbors count");
 
-            Set<SWNode> swNodeGraph = mainContext.getSwNodeGraph();
-            List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
-            swNodes.sort(Comparator.comparingInt(SWNode::getFrequency).thenComparing(SWNode::getNeighborCount).thenComparing(SWNode::getElement).reversed());
+            Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
+            List<ElementNode> elementNodes = new ArrayList<>(elementNodeGraph);
+            elementNodes.sort(Comparator.comparingInt(ElementNode::getFrequency).thenComparing(ElementNode::getNeighborCount).thenComparing(ElementNode::getElement).reversed());
             int rowShift = 5;
-            for (int i = 0; i < swNodes.size(); i++) {
-                SWNode swNode = swNodes.get(i);
+            for (int i = 0; i < elementNodes.size(); i++) {
+                ElementNode elementNode = elementNodes.get(i);
                 int rank = i + 1;
                 Row row = sheet.createRow(rowShift + i);
                 row.createCell(0).setCellValue(rank);
-                row.createCell(1).setCellValue(swNode.getElement());
-                row.createCell(2).setCellValue(swNode.getFrequency());
-                row.createCell(3).setCellValue(swNode.getNeighborCount());
+                row.createCell(1).setCellValue(elementNode.getElement());
+                row.createCell(2).setCellValue(elementNode.getFrequency());
+                row.createCell(3).setCellValue(elementNode.getNeighborCount());
             }
             sheet.autoSizeColumn(1);
 
@@ -125,7 +125,7 @@ public class CommonUtil {
 
             Row row1 = sheet.createRow(1);
             row1.createCell(0).setCellValue("Element count");
-            row1.createCell(1).setCellValue(mainContext.getSwNodeGraph().size());
+            row1.createCell(1).setCellValue(mainContext.getElementNodeGraph().size());
 
             Row row2 = sheet.createRow(2);
             row2.createCell(0).setCellValue("Spent time");
@@ -183,12 +183,12 @@ public class CommonUtil {
             row3.createCell(1).setCellValue("Element");
             row3.createCell(2).setCellValue("CB");
 
-            Map<SWNode, Double> keywordStatistics = keywordExtractionSmallWorldContext.getKeywordStatistics();
-            List<Map.Entry<SWNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
+            Map<ElementNode, Double> keywordStatistics = keywordExtractionSmallWorldContext.getKeywordStatistics();
+            List<Map.Entry<ElementNode, Double>> entries = new ArrayList<>(keywordStatistics.entrySet());
             entries.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
             int rowShift = 4;
             for (int i = 0; i < entries.size(); i++) {
-                Map.Entry<SWNode, Double> entry = entries.get(i);
+                Map.Entry<ElementNode, Double> entry = entries.get(i);
                 int rank = i + 1;
                 Row row = sheet.createRow(rowShift + i);
                 row.createCell(0).setCellValue(rank);

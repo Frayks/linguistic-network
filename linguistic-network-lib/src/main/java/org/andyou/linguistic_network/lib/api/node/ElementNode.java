@@ -8,21 +8,23 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class SWNode {
+public class ElementNode {
 
+    private int index;
     private String element;
     private int frequency;
-    private Set<SWNode> neighbors;
+    private Set<ElementNode> neighbors;
 
-    public SWNode(String element, int frequency) {
+    public ElementNode(String element, int frequency) {
         this.element = element;
         this.frequency = frequency;
         this.neighbors = new HashSet<>();
     }
 
-    public SWNode(SWNode swNode) {
-        this.element = swNode.element;
-        this.frequency = swNode.frequency;
+    public ElementNode(ElementNode elementNode) {
+        this.index = elementNode.index;
+        this.element = elementNode.element;
+        this.frequency = elementNode.frequency;
         this.neighbors = new HashSet<>();
     }
 

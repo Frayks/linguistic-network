@@ -2,7 +2,7 @@ package org.andyou.linguistic_network.lib.api.context;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import java.util.Map;
 @Setter
 public class KeywordExtractionSmallWorldContext {
 
-    private Map<SWNode, Double> keywordStatistics;
+    private Map<ElementNode, Double> keywordStatistics;
     private long spentTime;
 
 }

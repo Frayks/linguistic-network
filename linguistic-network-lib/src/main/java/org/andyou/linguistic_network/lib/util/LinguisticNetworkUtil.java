@@ -2,31 +2,31 @@ package org.andyou.linguistic_network.lib.util;
 
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 
 import java.util.*;
 
 public class LinguisticNetworkUtil {
 
-    public static Map<SWNode, Double> calcKeywordStatisticsSmallWorld(Set<SWNode> swNodeGraph, ProgressBarProcessor progressBarProcessor) {
-        swNodeGraph = SWNodeGraphUtil.clone(swNodeGraph);
-        Map<SWNode, Double> keywordStatistics = new HashMap<>();
+    public static Map<ElementNode, Double> calcKeywordStatisticsSmallWorld(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
+        elementNodeGraph = ElementNodeGraphUtil.clone(elementNodeGraph);
+        Map<ElementNode, Double> keywordStatistics = new HashMap<>();
 
         if (progressBarProcessor != null) {
-            int stepsCount = swNodeGraph.size();
+            int stepsCount = elementNodeGraph.size();
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
-        double gl = calcAveragePathLength(swNodeGraph, true, null);
-        List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
-        for (SWNode swNode : swNodes) {
-            SWNodeGraphUtil.removeSWNode(swNodeGraph, swNode);
+        double gl = calcAveragePathLength(elementNodeGraph, true, null);
+        List<ElementNode> elementNodes = new ArrayList<>(elementNodeGraph);
+        for (ElementNode elementNode : elementNodes) {
+            ElementNodeGraphUtil.removeElementNode(elementNodeGraph, elementNode);
 
-            double l = calcAveragePathLength(swNodeGraph, true, null);
+            double l = calcAveragePathLength(elementNodeGraph, true, null);
             double sw = l - gl;
-            keywordStatistics.put(swNode, sw);
+            keywordStatistics.put(elementNode, sw);
 
-            SWNodeGraphUtil.addSWNode(swNodeGraph, swNode);
+            ElementNodeGraphUtil.addElementNode(elementNodeGraph, elementNode);
 
             if (progressBarProcessor != null) {
                 progressBarProcessor.walk();
@@ -36,11 +36,11 @@ public class LinguisticNetworkUtil {
         return keywordStatistics;
     }
 
-    public static List<CDFNode> calcCDFNodes(Set<SWNode> swNodeGraph, ProgressBarProcessor progressBarProcessor) {
+    public static List<CDFNode> calcCDFNodes(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
         Map<Integer, CDFNode> cdfNodeMap = new HashMap<>();
 
-        for (SWNode swNode : swNodeGraph) {
-            int neighborCount = swNode.getNeighborCount();
+        for (ElementNode elementNode : elementNodeGraph) {
+            int neighborCount = elementNode.getNeighborCount();
             CDFNode cdfNode = cdfNodeMap.computeIfAbsent(neighborCount, key -> new CDFNode(key, 0));
             cdfNode.setN(cdfNode.getN() + 1);
         }
@@ -55,7 +55,7 @@ public class LinguisticNetworkUtil {
 
         for (int i = 0; i < cdfNodes.size(); i++) {
             CDFNode cdfNode = cdfNodes.get(i);
-            cdfNode.setPdf((double) cdfNode.getN() / swNodeGraph.size());
+            cdfNode.setPdf((double) cdfNode.getN() / elementNodeGraph.size());
             if (i == 0) {
                 cdfNode.setCdf(1);
             } else {
@@ -71,21 +71,21 @@ public class LinguisticNetworkUtil {
         return cdfNodes;
     }
 
-    public static double calcAverageClusteringCoefficient(Set<SWNode> swNodeGraph, ProgressBarProcessor progressBarProcessor) {
+    public static double calcAverageClusteringCoefficient(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
         if (progressBarProcessor != null) {
-            int stepsCount = swNodeGraph.size();
+            int stepsCount = elementNodeGraph.size();
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
-        return swNodeGraph.parallelStream()
-                .mapToDouble(swNode -> {
+        return elementNodeGraph.parallelStream()
+                .mapToDouble(elementNode -> {
                     try {
-                        if (swNode.getNeighborCount() > 1) {
+                        if (elementNode.getNeighborCount() > 1) {
                             int n = 0;
-                            Set<SWNode> neighbors = swNode.getNeighbors();
-                            Set<SWNode> visited = new HashSet<>();
-                            for (SWNode neighbor : neighbors) {
-                                Set<SWNode> relatedElements = new HashSet<>(neighbor.getNeighbors());
+                            Set<ElementNode> neighbors = elementNode.getNeighbors();
+                            Set<ElementNode> visited = new HashSet<>();
+                            for (ElementNode neighbor : neighbors) {
+                                Set<ElementNode> relatedElements = new HashSet<>(neighbor.getNeighbors());
 
                                 relatedElements.retainAll(neighbors);
                                 relatedElements.removeAll(visited);
@@ -94,7 +94,7 @@ public class LinguisticNetworkUtil {
                                 visited.add(neighbor);
                             }
 
-                            int k = swNode.getNeighborCount();
+                            int k = elementNode.getNeighborCount();
                             return (double) (2 * n) / (k * (k - 1));
                         } else {
                             return 0;
@@ -108,21 +108,21 @@ public class LinguisticNetworkUtil {
                 .average().orElse(0);
     }
 
-    public static double calcAveragePathLength(Set<SWNode> swNodeGraph, boolean considerLostConnections, ProgressBarProcessor progressBarProcessor) {
+    public static double calcAveragePathLength(Set<ElementNode> elementNodeGraph, boolean considerLostConnections, ProgressBarProcessor progressBarProcessor) {
         if (progressBarProcessor != null) {
-            int stepsCount = swNodeGraph.size();
+            int stepsCount = elementNodeGraph.size();
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
-        return swNodeGraph.parallelStream()
-                .mapToDouble(swNode -> {
+        return elementNodeGraph.parallelStream()
+                .mapToDouble(elementNode -> {
                     try {
-                        List<Integer> pathLengths = BFSUtil.calcPathLengths(swNode);
+                        List<Integer> pathLengths = BFSUtil.calcPathLengths(elementNode);
 
                         if (considerLostConnections) {
-                            int lostConnectionsNumber = swNodeGraph.size() - pathLengths.size() - 1;
+                            int lostConnectionsNumber = elementNodeGraph.size() - pathLengths.size() - 1;
                             if (lostConnectionsNumber > 0) {
-                                pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, swNodeGraph.size() - 1));
+                                pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, elementNodeGraph.size() - 1));
                             }
                         }
 
@@ -138,9 +138,9 @@ public class LinguisticNetworkUtil {
                 .average().orElse(0);
     }
 
-    public static double calcAverageNeighbourCount(Set<SWNode> swNodeGraph) {
-        return swNodeGraph.parallelStream()
-                .mapToInt(SWNode::getNeighborCount)
+    public static double calcAverageNeighbourCount(Set<ElementNode> elementNodeGraph) {
+        return elementNodeGraph.parallelStream()
+                .mapToInt(ElementNode::getNeighborCount)
                 .average().orElse(0);
     }
 

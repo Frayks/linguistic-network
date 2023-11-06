@@ -1,21 +1,21 @@
 package org.andyou.linguistic_network.lib.util;
 
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.ElementNode;
 
 import java.util.*;
 
 public class BFSUtil {
 
-    public static List<Integer> calcPathLengths(SWNode targetSWNode) {
-        Map<SWNode, SWNode> connectionMap = createConnectionMap(targetSWNode);
+    public static List<Integer> calcPathLengths(ElementNode targetElementNode) {
+        Map<ElementNode, ElementNode> connectionMap = createConnectionMap(targetElementNode);
 
         List<Integer> pathLengths = new ArrayList<>();
 
-        for (SWNode currentSWNode : connectionMap.keySet()) {
+        for (ElementNode currentElementNode : connectionMap.keySet()) {
             int pathLength = 0;
-            while (!targetSWNode.equals(currentSWNode)) {
+            while (!targetElementNode.equals(currentElementNode)) {
                 pathLength += 1;
-                currentSWNode = connectionMap.get(currentSWNode);
+                currentElementNode = connectionMap.get(currentElementNode);
             }
             pathLengths.add(pathLength);
         }
@@ -23,20 +23,20 @@ public class BFSUtil {
         return pathLengths;
     }
 
-    private static Map<SWNode, SWNode> createConnectionMap(SWNode targetSWNode) {
-        Set<SWNode> visited = new HashSet<>();
-        Queue<SWNode> queue = new ArrayDeque<>();
-        Map<SWNode, SWNode> connectionMap = new HashMap<>();
+    private static Map<ElementNode, ElementNode> createConnectionMap(ElementNode targetElementNode) {
+        Set<ElementNode> visited = new HashSet<>();
+        Queue<ElementNode> queue = new ArrayDeque<>();
+        Map<ElementNode, ElementNode> connectionMap = new HashMap<>();
 
-        visited.add(targetSWNode);
-        queue.add(targetSWNode);
+        visited.add(targetElementNode);
+        queue.add(targetElementNode);
         while (!queue.isEmpty()) {
-            SWNode currentSWNode = queue.poll();
-            for (SWNode relatedSWNode : currentSWNode.getNeighbors()) {
-                if (!visited.contains(relatedSWNode)) {
-                    visited.add(relatedSWNode);
-                    queue.add(relatedSWNode);
-                    connectionMap.put(relatedSWNode, currentSWNode);
+            ElementNode currentElementNode = queue.poll();
+            for (ElementNode relatedElementNode : currentElementNode.getNeighbors()) {
+                if (!visited.contains(relatedElementNode)) {
+                    visited.add(relatedElementNode);
+                    queue.add(relatedElementNode);
+                    connectionMap.put(relatedElementNode, currentElementNode);
                 }
             }
         }
