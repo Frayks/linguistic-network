@@ -60,10 +60,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
                 long startTime = System.currentTimeMillis();
                 List<CDFNode> cdfNodes = LinguisticNetworkUtil.calcCDFNodes(swNodeGraph, progressBarProcessor);
                 double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(swNodeGraph, progressBarProcessor);
-                // TODO
-                int swNodeGraphSize = swNodeGraph.size();
-                //int swNodeGraphSize = 0;
-                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(swNodeGraph, swNodeGraphSize, progressBarProcessor);
+                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(swNodeGraph, false, progressBarProcessor);
                 double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(swNodeGraph);
                 progressBarProcessor.initAndFinishNextBlock();
                 progressBarProcessor.completed();

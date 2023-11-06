@@ -17,15 +17,12 @@ public class LinguisticNetworkUtil {
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
-        // TODO
-        int swNodeGraphSize = swNodeGraph.size();
-        //int swNodeGraphSize = 0;
-        double gl = calcAveragePathLength(swNodeGraph, swNodeGraphSize, null);
+        double gl = calcAveragePathLength(swNodeGraph, true, null);
         List<SWNode> swNodes = new ArrayList<>(swNodeGraph);
         for (SWNode swNode : swNodes) {
             SWNodeGraphUtil.removeSWNode(swNodeGraph, swNode);
 
-            double l = calcAveragePathLength(swNodeGraph, swNodeGraphSize, null);
+            double l = calcAveragePathLength(swNodeGraph, true, null);
             double sw = l - gl;
             keywordStatistics.put(swNode, sw);
 
@@ -111,7 +108,7 @@ public class LinguisticNetworkUtil {
                 .average().orElse(0);
     }
 
-    public static double calcAveragePathLength(Set<SWNode> swNodeGraph, int maxLength, ProgressBarProcessor progressBarProcessor) {
+    public static double calcAveragePathLength(Set<SWNode> swNodeGraph, boolean considerLostConnections, ProgressBarProcessor progressBarProcessor) {
         if (progressBarProcessor != null) {
             int stepsCount = swNodeGraph.size();
             progressBarProcessor.initNextBlock(stepsCount);
@@ -122,8 +119,12 @@ public class LinguisticNetworkUtil {
                     try {
                         List<Integer> pathLengths = BFSUtil.calcPathLengths(swNode);
 
-                        int missingConnectionsNumber = swNodeGraph.size() - pathLengths.size() - 1;
-                        pathLengths.addAll(Collections.nCopies(missingConnectionsNumber, maxLength));
+                        if (considerLostConnections) {
+                            int lostConnectionsNumber = swNodeGraph.size() - pathLengths.size() - 1;
+                            if (lostConnectionsNumber > 0) {
+                                pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, swNodeGraph.size() - 1));
+                            }
+                        }
 
                         return pathLengths.stream()
                                 .mapToInt(Integer::intValue)
