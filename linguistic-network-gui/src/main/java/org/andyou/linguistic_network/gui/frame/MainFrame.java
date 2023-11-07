@@ -205,7 +205,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.LINGUISTIC_METRICS);
                     }
                 });
-                configureDefaultSubFrame(linguisticMetricsFrame, 500, 600);
+                CommonGUIUtil.configureDefaultSubFrame(linguisticMetricsFrame, 500, 600);
                 subFrameMap.put(FrameKey.LINGUISTIC_METRICS, linguisticMetricsFrame);
             } else {
                 linguisticMetricsSubFrame.requestFocus();
@@ -221,7 +221,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD);
                     }
                 });
-                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, 900, 600);
+                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionSmallWorldFrame, 900, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
                 keywordExtractionSmallWorldSubFrame.requestFocus();
@@ -237,7 +237,7 @@ public class MainFrame extends JFrame {
                         ElementNode elementNode = ElementNodeGraphUtil.getElementNodeByIndex(mainContext.getElementNodeGraph(), index);
                         if (elementNode != null) {
                             ElementNodeInfoFrame elementNodeInfoFrame = new ElementNodeInfoFrame(elementNode);
-                            configureDefaultSubFrame(elementNodeInfoFrame, 400, 600);
+                            CommonGUIUtil.configureDefaultSubFrame(elementNodeInfoFrame, 400, 400);
                         }
                     }
                 }
@@ -475,16 +475,6 @@ public class MainFrame extends JFrame {
         }
 
         boundsTypeComboBox.setSelectedItem(BoundsType.ABSENT);
-    }
-
-    private void configureDefaultSubFrame(JFrame frame, int width, int height) {
-        frame.setIconImage(CommonGUIUtil.ICON.getImage());
-        frame.setMinimumSize(new Dimension(width, height));
-        frame.setPreferredSize(new Dimension(width, height));
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 
     private void createUIComponents() {

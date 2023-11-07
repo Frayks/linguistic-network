@@ -20,6 +20,16 @@ public class CommonGUIUtil {
 
     public static final FileFilter XLSX_FILE_FILTER = new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx");
 
+    public static void configureDefaultSubFrame(JFrame frame, int width, int height) {
+        frame.setIconImage(CommonGUIUtil.ICON.getImage());
+        frame.setMinimumSize(new Dimension(width, height));
+        frame.setPreferredSize(new Dimension(width, height));
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
     public static void showErrorMessageDialog(Component parentComponent, Exception ex) {
         JOptionPane.showMessageDialog(
                 parentComponent,

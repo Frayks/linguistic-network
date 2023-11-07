@@ -32,7 +32,7 @@ public class BFSUtil {
         queue.add(targetElementNode);
         while (!queue.isEmpty()) {
             ElementNode currentElementNode = queue.poll();
-            for (ElementNode relatedElementNode : currentElementNode.getNeighbors()) {
+            for (ElementNode relatedElementNode : currentElementNode.getNeighbors().keySet()) {
                 if (!visited.contains(relatedElementNode)) {
                     visited.add(relatedElementNode);
                     queue.add(relatedElementNode);

@@ -31,7 +31,7 @@ public class ElementNodeGraphUtil {
 
                 ElementNode elementNode = elementNodeMap.get(element);
                 for (String neighborElement : neighborElements) {
-                    elementNode.getNeighbors().add(elementNodeMap.get(neighborElement));
+                    elementNode.getNeighbors().merge(elementNodeMap.get(neighborElement), 1, Integer::sum);
                 }
                 if (progressBarProcessor != null) {
                     progressBarProcessor.walk();
@@ -120,9 +120,9 @@ public class ElementNodeGraphUtil {
             ElementNode elementNode1 = elementNodeGraph.get(random.nextInt(elementNodeGraph.size()));
             ElementNode elementNode2 = elementNodeGraph.get(random.nextInt(elementNodeGraph.size()));
 
-            if (!elementNode1.equals(elementNode2) && !elementNode1.getNeighbors().contains(elementNode2)) {
-                elementNode1.getNeighbors().add(elementNode2);
-                elementNode2.getNeighbors().add(elementNode1);
+            if (!elementNode1.equals(elementNode2) && !elementNode1.getNeighbors().containsKey(elementNode2)) {
+                elementNode1.getNeighbors().merge(elementNode2, 1, Integer::sum);
+                elementNode2.getNeighbors().merge(elementNode1, 1, Integer::sum);
                 i++;
             }
         }
@@ -138,8 +138,8 @@ public class ElementNodeGraphUtil {
         }
         for (ElementNode elementNode : elementNodeGraph) {
             ElementNode elementNodeClone = elementNodeCloneMap.get(elementNode);
-            for (ElementNode neighbor : elementNode.getNeighbors()) {
-                elementNodeClone.getNeighbors().add(elementNodeCloneMap.get(neighbor));
+            for (Map.Entry<ElementNode, Integer> neighbor : elementNode.getNeighbors().entrySet()) {
+                elementNodeClone.getNeighbors().put(elementNodeCloneMap.get(neighbor.getKey()), neighbor.getValue());
             }
         }
 
@@ -152,7 +152,7 @@ public class ElementNodeGraphUtil {
     }
 
     private static void removeFromNeighbors(ElementNode elementNode) {
-        for (ElementNode neighbor : elementNode.getNeighbors()) {
+        for (ElementNode neighbor : elementNode.getNeighbors().keySet()) {
             neighbor.getNeighbors().remove(elementNode);
         }
     }
@@ -163,8 +163,8 @@ public class ElementNodeGraphUtil {
     }
 
     private static void addToNeighbors(ElementNode elementNode) {
-        for (ElementNode neighbor : elementNode.getNeighbors()) {
-            neighbor.getNeighbors().add(elementNode);
+        for (Map.Entry<ElementNode, Integer> neighbor : elementNode.getNeighbors().entrySet()) {
+            neighbor.getKey().getNeighbors().put(elementNode, neighbor.getValue());
         }
     }
 

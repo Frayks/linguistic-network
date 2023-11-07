@@ -89,10 +89,10 @@ public class LinguisticNetworkUtil {
                     try {
                         if (elementNode.getNeighborCount() > 1) {
                             int n = 0;
-                            Set<ElementNode> neighbors = elementNode.getNeighbors();
+                            Set<ElementNode> neighbors = elementNode.getNeighbors().keySet();
                             Set<ElementNode> visited = new HashSet<>();
                             for (ElementNode neighbor : neighbors) {
-                                Set<ElementNode> relatedElements = new HashSet<>(neighbor.getNeighbors());
+                                Set<ElementNode> relatedElements = new HashSet<>(neighbor.getNeighbors().keySet());
 
                                 relatedElements.retainAll(neighbors);
                                 relatedElements.removeAll(visited);

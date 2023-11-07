@@ -1,6 +1,8 @@
 package org.andyou.linguistic_network.gui.frame;
 
+import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.util.ElementNodeGraphUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -10,6 +12,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
 
@@ -21,26 +25,41 @@ public class ElementNodeInfoFrame extends JFrame {
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
 
-    private ElementNode elementNode;
+    private ElementNode mainElementNode;
 
-    public ElementNodeInfoFrame(ElementNode elementNode) throws HeadlessException {
-        this.elementNode = elementNode;
+    public ElementNodeInfoFrame(ElementNode mainElementNode) throws HeadlessException {
+        this.mainElementNode = mainElementNode;
 
         $$$setupUI$$$();
-        setTitle(String.format("Element \"%s\"", elementNode.getElement()));
+        setTitle(String.format("Element \"%s\"", mainElementNode.getElement()));
         setContentPane(mainPanel);
 
-        List<ElementNode> neighbors = new ArrayList<>(elementNode.getNeighbors());
-        neighbors.sort(Comparator.comparingInt(ElementNode::getFrequency).reversed());
-        for (ElementNode neighbor : neighbors) {
-            SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{neighbor.getIndex(), neighbor.getElement(), neighbor.getFrequency()}));
-        }
+        statisticTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Integer index = (Integer) statisticTable.getValueAt(statisticTable.getSelectedRow(), 0);
+                    if (index != null) {
+                        ElementNode elementNode = ElementNodeGraphUtil.getElementNodeByIndex(mainElementNode.getNeighbors().keySet(), index);
+                        if (elementNode != null) {
+                            ElementNodeInfoFrame elementNodeInfoFrame = new ElementNodeInfoFrame(elementNode);
+                            CommonGUIUtil.configureDefaultSubFrame(elementNodeInfoFrame, 400, 400);
+                        }
+                    }
+                }
+            }
+        });
 
+        List<Map.Entry<ElementNode, Integer>> neighbors = new ArrayList<>(mainElementNode.getNeighbors().entrySet());
+        neighbors.sort(Map.Entry.<ElementNode, Integer>comparingByValue().reversed());
+        for (Map.Entry<ElementNode, Integer> neighbor : neighbors) {
+            SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{neighbor.getKey().getIndex(), neighbor.getKey().getElement(), neighbor.getValue()}));
+        }
     }
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Neighbor", "Frequency"};
+        String[] columnIdentifiers = {"Index", "Neighbor", "Neighbor count"};
         defaultTableModel = new DefaultTableModel(0, 3) {
             final Class<?>[] types = {Integer.class, String.class, Integer.class};
 
