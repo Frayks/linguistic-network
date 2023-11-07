@@ -12,7 +12,6 @@ public class Main {
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         MainFrame mainFrame = new MainFrame();
-        mainFrame.setTitle("Linguistic Network");
         mainFrame.setIconImage(CommonGUIUtil.ICON.getImage());
         mainFrame.setMinimumSize(new Dimension(800, 600));
         mainFrame.setPreferredSize(new Dimension(800, 600));

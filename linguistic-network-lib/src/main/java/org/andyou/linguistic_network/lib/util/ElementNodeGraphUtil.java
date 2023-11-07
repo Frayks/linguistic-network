@@ -71,6 +71,12 @@ public class ElementNodeGraphUtil {
         return neighborElements;
     }
 
+    public static ElementNode getElementNodeByIndex(Set<ElementNode> elementNodeGraph, int index) {
+        return elementNodeGraph.stream()
+                .filter(elementNode -> elementNode.getIndex() == index)
+                .findFirst().orElse(null);
+    }
+
     public static void filterByFrequency(Set<ElementNode> elementNodeGraph, int frequency) {
         elementNodeGraph.removeIf(elementNode -> {
             if (elementNode.getFrequency() <= frequency) {

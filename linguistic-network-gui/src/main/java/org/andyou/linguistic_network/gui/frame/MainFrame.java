@@ -7,7 +7,6 @@ import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.constant.BoundsType;
-import org.andyou.linguistic_network.lib.api.constant.FormatType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
@@ -38,8 +37,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public class MainFrame extends JFrame {
 
     private JPanel mainPanel;
-    private JMenuItem saveMenuItem;
     private JMenuItem openMenuItem;
+    private JMenu saveAsMenu;
+    private JMenuItem excelFileMenuItem;
+    private JMenuItem textFilesMenuItem;
     private JMenuItem linguisticMetricsMenuItem;
     private JMenuItem keywordExtractionSmallWorldMenuItem;
     private JTextField textFileTextField;
@@ -74,6 +75,7 @@ public class MainFrame extends JFrame {
 
     public MainFrame() {
         $$$setupUI$$$();
+        setTitle("Linguistic Network");
         setContentPane(mainPanel);
 
         subFrameMap = new HashMap<>();
@@ -144,16 +146,6 @@ public class MainFrame extends JFrame {
         filterFrequencySpinner.addChangeListener(e -> {
             mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
         });
-
-        statisticTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    System.out.println(statisticTable.getValueAt(statisticTable.getSelectedRow(), 0));
-                }
-            }
-        });
-
         openMenuItem.addActionListener(e -> {
             if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 clearContext();
@@ -161,47 +153,42 @@ public class MainFrame extends JFrame {
                 updateUI(false);
             }
         });
-        saveMenuItem.addActionListener(e -> {
+        excelFileMenuItem.addActionListener(e -> {
             try {
-                FormatType[] formatTypes = FormatType.values();
-                int choice = CommonGUIUtil.showQuestionDialog(
-                        this,
-                        TextConstant.INFORMATION_MESSAGE_CHOOSE_SAVING_FORMAT,
-                        TextConstant.TITLE_SAVE_AS,
-                        FormatType.values());
-                if (choice != JOptionPane.CLOSED_OPTION) {
-                    FormatType formatType = formatTypes[choice];
-                    if (FormatType.TEXT_FILES.equals(formatType)) {
-                        if (directoryChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                            File directory = directoryChooser.getSelectedFile();
-                            if (directory.exists()) {
-                                if (CommonGUIUtil.showWarningConfirmDialog(
-                                        this,
-                                        String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, directory.getName())
-                                ) != JOptionPane.YES_OPTION) {
-                                    return;
-                                }
-                            }
-                            CommonUtil.saveStatisticsToTextFiles(directory, linguisticNetworkContext);
-                        }
-                    } else if (FormatType.EXCEL_FILE.equals(formatType)) {
-                        if (xlsxFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                            File file = xlsxFileChooser.getSelectedFile();
-                            String filePath = file.getAbsolutePath();
-                            if (!filePath.endsWith(".xlsx")) {
-                                file = new File(filePath + ".xlsx");
-                            }
-                            if (file.exists()) {
-                                if (CommonGUIUtil.showWarningConfirmDialog(
-                                        this,
-                                        String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
-                                ) != JOptionPane.YES_OPTION) {
-                                    return;
-                                }
-                            }
-                            CommonUtil.saveStatisticsToXlsxFile(file, linguisticNetworkContext);
+                if (xlsxFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    File file = xlsxFileChooser.getSelectedFile();
+                    String filePath = file.getAbsolutePath();
+                    if (!filePath.endsWith(".xlsx")) {
+                        file = new File(filePath + ".xlsx");
+                    }
+                    if (file.exists()) {
+                        if (CommonGUIUtil.showWarningConfirmDialog(
+                                this,
+                                String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
+                        ) != JOptionPane.YES_OPTION) {
+                            return;
                         }
                     }
+                    CommonUtil.saveStatisticsToXlsxFile(file, linguisticNetworkContext);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                CommonGUIUtil.showErrorMessageDialog(this, ex);
+            }
+        });
+        textFilesMenuItem.addActionListener(e -> {
+            try {
+                if (directoryChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    File directory = directoryChooser.getSelectedFile();
+                    if (directory.exists()) {
+                        if (CommonGUIUtil.showWarningConfirmDialog(
+                                this,
+                                String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, directory.getName())
+                        ) != JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                    CommonUtil.saveStatisticsToTextFiles(directory, linguisticNetworkContext);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -218,7 +205,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.LINGUISTIC_METRICS);
                     }
                 });
-                configureDefaultSubFrame(linguisticMetricsFrame, "Linguistic Metrics", 500, 600);
+                configureDefaultSubFrame(linguisticMetricsFrame, 500, 600);
                 subFrameMap.put(FrameKey.LINGUISTIC_METRICS, linguisticMetricsFrame);
             } else {
                 linguisticMetricsSubFrame.requestFocus();
@@ -234,10 +221,26 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD);
                     }
                 });
-                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, "Keyword extraction \"Small-world\"", 900, 600);
+                configureDefaultSubFrame(keywordExtractionSmallWorldFrame, 900, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
                 keywordExtractionSmallWorldSubFrame.requestFocus();
+            }
+        });
+
+        statisticTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Integer index = (Integer) statisticTable.getValueAt(statisticTable.getSelectedRow(), 0);
+                    if (index != null) {
+                        ElementNode elementNode = ElementNodeGraphUtil.getElementNodeByIndex(mainContext.getElementNodeGraph(), index);
+                        if (elementNode != null) {
+                            ElementNodeInfoFrame elementNodeInfoFrame = new ElementNodeInfoFrame(elementNode);
+                            configureDefaultSubFrame(elementNodeInfoFrame, 400, 600);
+                        }
+                    }
+                }
             }
         });
 
@@ -446,7 +449,7 @@ public class MainFrame extends JFrame {
         }
 
         openMenuItem.setEnabled(!calculationStarted);
-        saveMenuItem.setEnabled(!calculationStarted && mainContext.getElementNodeGraph() != null);
+        saveAsMenu.setEnabled(!calculationStarted && mainContext.getElementNodeGraph() != null);
         calculateButton.setEnabled(!calculationStarted && mainContext.getTextFile() != null);
         terminateCalculationButton.setEnabled(calculationStarted);
 
@@ -474,8 +477,7 @@ public class MainFrame extends JFrame {
         boundsTypeComboBox.setSelectedItem(BoundsType.ABSENT);
     }
 
-    private void configureDefaultSubFrame(JFrame frame, String title, int width, int height) {
-        frame.setTitle(title);
+    private void configureDefaultSubFrame(JFrame frame, int width, int height) {
         frame.setIconImage(CommonGUIUtil.ICON.getImage());
         frame.setMinimumSize(new Dimension(width, height));
         frame.setPreferredSize(new Dimension(width, height));
@@ -543,13 +545,28 @@ public class MainFrame extends JFrame {
         menu1.setText("File");
         menuBar1.add(menu1);
         openMenuItem = new JMenuItem();
+        Font openMenuItemFont = this.$$$getFont$$$(null, -1, 14, openMenuItem.getFont());
+        if (openMenuItemFont != null) openMenuItem.setFont(openMenuItemFont);
         openMenuItem.setIcon(new ImageIcon(getClass().getResource("/javax/swing/plaf/metal/icons/ocean/file.gif")));
         openMenuItem.setText("Open");
         menu1.add(openMenuItem);
-        saveMenuItem = new JMenuItem();
-        saveMenuItem.setIcon(new ImageIcon(getClass().getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
-        saveMenuItem.setText("Save");
-        menu1.add(saveMenuItem);
+        saveAsMenu = new JMenu();
+        saveAsMenu.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        Font saveAsMenuFont = this.$$$getFont$$$(null, -1, 14, saveAsMenu.getFont());
+        if (saveAsMenuFont != null) saveAsMenu.setFont(saveAsMenuFont);
+        saveAsMenu.setIcon(new ImageIcon(getClass().getResource("/javax/swing/plaf/metal/icons/ocean/floppy.gif")));
+        saveAsMenu.setText("Save As");
+        menu1.add(saveAsMenu);
+        excelFileMenuItem = new JMenuItem();
+        Font excelFileMenuItemFont = this.$$$getFont$$$(null, -1, 14, excelFileMenuItem.getFont());
+        if (excelFileMenuItemFont != null) excelFileMenuItem.setFont(excelFileMenuItemFont);
+        excelFileMenuItem.setText("Excel file");
+        saveAsMenu.add(excelFileMenuItem);
+        textFilesMenuItem = new JMenuItem();
+        Font textFilesMenuItemFont = this.$$$getFont$$$(null, -1, 14, textFilesMenuItem.getFont());
+        if (textFilesMenuItemFont != null) textFilesMenuItem.setFont(textFilesMenuItemFont);
+        textFilesMenuItem.setText("Text files");
+        saveAsMenu.add(textFilesMenuItem);
         final JMenu menu2 = new JMenu();
         menu2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         Font menu2Font = this.$$$getFont$$$(null, -1, 14, menu2.getFont());
@@ -562,12 +579,18 @@ public class MainFrame extends JFrame {
         linguisticMetricsMenuItem.setText("Linguistic Metrics");
         menu2.add(linguisticMetricsMenuItem);
         keywordExtractionSmallWorldMenuItem = new JMenuItem();
+        Font keywordExtractionSmallWorldMenuItemFont = this.$$$getFont$$$(null, -1, 14, keywordExtractionSmallWorldMenuItem.getFont());
+        if (keywordExtractionSmallWorldMenuItemFont != null) keywordExtractionSmallWorldMenuItem.setFont(keywordExtractionSmallWorldMenuItemFont);
         keywordExtractionSmallWorldMenuItem.setText("Keyword extraction \"Small-world\"");
         menu2.add(keywordExtractionSmallWorldMenuItem);
         final JMenuItem menuItem1 = new JMenuItem();
+        Font menuItem1Font = this.$$$getFont$$$(null, -1, 14, menuItem1.getFont());
+        if (menuItem1Font != null) menuItem1.setFont(menuItem1Font);
         menuItem1.setText("Keyword extraction \"TextRank\"");
         menu2.add(menuItem1);
         final JMenuItem menuItem2 = new JMenuItem();
+        Font menuItem2Font = this.$$$getFont$$$(null, -1, 14, menuItem2.getFont());
+        if (menuItem2Font != null) menuItem2.setFont(menuItem2Font);
         menuItem2.setText("Keyword extraction \"Centrality Measures\"");
         menu2.add(menuItem2);
         final JPanel panel1 = new JPanel();

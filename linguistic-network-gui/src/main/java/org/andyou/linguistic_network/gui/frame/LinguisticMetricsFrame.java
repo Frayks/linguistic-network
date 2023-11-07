@@ -41,10 +41,12 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     private AtomicReference<Thread> threadAtomicReference;
 
     public LinguisticMetricsFrame(LinguisticNetworkContext linguisticNetworkContext) {
-        $$$setupUI$$$();
-        setContentPane(mainPanel);
         this.mainContext = linguisticNetworkContext.getMainContext();
         this.linguisticMetricsContext = linguisticNetworkContext.getLinguisticMetricsContext();
+
+        $$$setupUI$$$();
+        setTitle("Linguistic Metrics");
+        setContentPane(mainPanel);
 
         threadAtomicReference = new AtomicReference<>();
 

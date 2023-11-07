@@ -24,17 +24,36 @@
               <component id="e9b3d" class="javax.swing.JMenuItem" binding="openMenuItem">
                 <constraints/>
                 <properties>
+                  <font size="14"/>
                   <icon value="javax/swing/plaf/metal/icons/ocean/file.gif"/>
                   <text value="Open"/>
                 </properties>
               </component>
-              <component id="ce2b8" class="javax.swing.JMenuItem" binding="saveMenuItem">
+              <grid id="6f4f0" class="javax.swing.JMenu" binding="saveAsMenu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
                 <constraints/>
                 <properties>
+                  <font size="14"/>
                   <icon value="javax/swing/plaf/metal/icons/ocean/floppy.gif"/>
-                  <text value="Save"/>
+                  <text value="Save As"/>
                 </properties>
-              </component>
+                <border type="none"/>
+                <children>
+                  <component id="27dbc" class="javax.swing.JMenuItem" binding="excelFileMenuItem">
+                    <constraints/>
+                    <properties>
+                      <font size="14"/>
+                      <text value="Excel file"/>
+                    </properties>
+                  </component>
+                  <component id="71a47" class="javax.swing.JMenuItem" binding="textFilesMenuItem">
+                    <constraints/>
+                    <properties>
+                      <font size="14"/>
+                      <text value="Text files"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
             </children>
           </grid>
           <grid id="44507" class="javax.swing.JMenu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
@@ -55,18 +74,21 @@
               <component id="c88e7" class="javax.swing.JMenuItem" binding="keywordExtractionSmallWorldMenuItem">
                 <constraints/>
                 <properties>
+                  <font size="14"/>
                   <text value="Keyword extraction &quot;Small-world&quot;"/>
                 </properties>
               </component>
               <component id="88b71" class="javax.swing.JMenuItem">
                 <constraints/>
                 <properties>
+                  <font size="14"/>
                   <text value="Keyword extraction &quot;TextRank&quot;"/>
                 </properties>
               </component>
               <component id="b0dd8" class="javax.swing.JMenuItem">
                 <constraints/>
                 <properties>
+                  <font size="14"/>
                   <text value="Keyword extraction &quot;Centrality Measures&quot;"/>
                 </properties>
               </component>

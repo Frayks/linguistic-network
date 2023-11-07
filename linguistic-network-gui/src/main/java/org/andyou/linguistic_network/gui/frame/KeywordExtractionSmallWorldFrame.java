@@ -38,10 +38,12 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
     private AtomicReference<Thread> threadAtomicReference;
 
     public KeywordExtractionSmallWorldFrame(LinguisticNetworkContext linguisticNetworkContext) {
-        $$$setupUI$$$();
-        setContentPane(mainPanel);
         this.mainContext = linguisticNetworkContext.getMainContext();
         this.keywordExtractionSmallWorldContext = linguisticNetworkContext.getKeywordExtractionSmallWorldContext();
+
+        $$$setupUI$$$();
+        setTitle("Keyword extraction \"Small-world\"");
+        setContentPane(mainPanel);
 
         threadAtomicReference = new AtomicReference<>();
 
