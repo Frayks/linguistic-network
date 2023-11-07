@@ -24,9 +24,14 @@ public class MainContext {
     private int rangeSize;
     private boolean removeStopWords;
     private File stopWordsFile;
+    private boolean restrictedGraph;
+    private double jaccardCoefficient;
     private boolean filterByFrequency;
     private int filterFrequency;
     private Set<ElementNode> elementNodeGraph;
+    private double averageClusteringCoefficient;
+    private double averagePathLength;
+    private double averageNeighbourCount;
     private long spentTime;
 
 }

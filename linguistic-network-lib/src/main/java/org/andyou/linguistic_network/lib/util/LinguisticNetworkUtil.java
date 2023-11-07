@@ -87,6 +87,7 @@ public class LinguisticNetworkUtil {
         return elementNodeGraph.parallelStream()
                 .mapToDouble(elementNode -> {
                     try {
+                        double clusteringCoefficient = 0;
                         if (elementNode.getNeighborCount() > 1) {
                             int n = 0;
                             Set<ElementNode> neighbors = elementNode.getNeighbors().keySet();
@@ -102,10 +103,10 @@ public class LinguisticNetworkUtil {
                             }
 
                             int k = elementNode.getNeighborCount();
-                            return (double) (2 * n) / (k * (k - 1));
-                        } else {
-                            return 0;
+                            clusteringCoefficient = (double) (2 * n) / (k * (k - 1));
                         }
+                        elementNode.setClusteringCoefficient(clusteringCoefficient);
+                        return clusteringCoefficient;
                     } finally {
                         if (progressBarProcessor != null) {
                             progressBarProcessor.walk();
@@ -133,9 +134,11 @@ public class LinguisticNetworkUtil {
                             }
                         }
 
-                        return pathLengths.stream()
+                        double averagePathLength = pathLengths.stream()
                                 .mapToInt(Integer::intValue)
                                 .average().orElse(0);
+                        elementNode.setAveragePathLength(averagePathLength);
+                        return averagePathLength;
                     } finally {
                         if (progressBarProcessor != null) {
                             progressBarProcessor.walk();

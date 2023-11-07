@@ -2,7 +2,6 @@ package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.constant.FrameKey;
 import org.andyou.linguistic_network.gui.api.constant.TextConstant;
-import org.andyou.linguistic_network.gui.api.frame.SimpleDocumentListener;
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.ProgressBarProcessor;
@@ -13,6 +12,7 @@ import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.ElementNodeGraphUtil;
+import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 import org.andyou.linguistic_network.lib.util.TextTokenizerUtil;
 
 import javax.swing.*;
@@ -23,10 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,8 +52,11 @@ public class MainFrame extends JFrame {
     private JLabel rangeLabel;
     private JSpinner rangeSizeSpinner;
     private JCheckBox removeStopWordsCheckBox;
+    private JPanel stopWordsPanel;
     private JTextField stopWordsFileTextField;
     private JButton chooseStopWordsFileButton;
+    private JCheckBox restrictedGraphCheckBox;
+    private JLabel jaccardCoefficientLabel;
     private JCheckBox filterByFrequencyCheckBox;
     private JLabel frequencyLabel;
     private JSpinner filterFrequencySpinner;
@@ -64,9 +64,14 @@ public class MainFrame extends JFrame {
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
     private JTextField elementCountTextField;
+    private JTextField averageClusteringCoefficientTextField;
+    private JTextField averagePathLengthTextField;
+    private JTextField averageNeighbourCountTextField;
     private JTextField spentTimeTextField;
     private JProgressBar progressBar;
     private JButton terminateCalculationButton;
+    private JFormattedTextField jaccardCoefficientTextField;
+
 
     private Map<FrameKey, JFrame> subFrameMap;
     private AtomicReference<Thread> threadAtomicReference;
@@ -119,8 +124,11 @@ public class MainFrame extends JFrame {
             mainContext.setBoundsType(boundsType);
             updateUI(false);
         });
-        sentenceDelimitersTextField.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
-            mainContext.setSentenceDelimiters(sentenceDelimitersTextField.getText());
+        sentenceDelimitersTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                mainContext.setSentenceDelimiters(sentenceDelimitersTextField.getText());
+            }
         });
         useRangeCheckBox.addActionListener(e -> {
             mainContext.setUseRange(useRangeCheckBox.isSelected());
@@ -137,6 +145,16 @@ public class MainFrame extends JFrame {
             if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 mainContext.setStopWordsFile(textFileChooser.getSelectedFile());
                 updateUI(false);
+            }
+        });
+        restrictedGraphCheckBox.addActionListener(e -> {
+            mainContext.setRestrictedGraph(restrictedGraphCheckBox.isSelected());
+            updateUI(false);
+        });
+        jaccardCoefficientTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                mainContext.setJaccardCoefficient((Double) jaccardCoefficientTextField.getValue());
             }
         });
         filterByFrequencyCheckBox.addActionListener(e -> {
@@ -205,7 +223,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.LINGUISTIC_METRICS);
                     }
                 });
-                CommonGUIUtil.configureDefaultSubFrame(linguisticMetricsFrame, 500, 600);
+                CommonGUIUtil.configureDefaultSubFrame(linguisticMetricsFrame, 400, 400);
                 subFrameMap.put(FrameKey.LINGUISTIC_METRICS, linguisticMetricsFrame);
             } else {
                 linguisticMetricsSubFrame.requestFocus();
@@ -247,6 +265,9 @@ public class MainFrame extends JFrame {
         Runnable task = () -> {
             try {
                 mainContext.setElementNodeGraph(null);
+                mainContext.setAverageClusteringCoefficient(0.0);
+                mainContext.setAveragePathLength(0.0);
+                mainContext.setAverageNeighbourCount(0.0);
                 mainContext.setSpentTime(0);
                 updateUI(false);
 
@@ -261,6 +282,8 @@ public class MainFrame extends JFrame {
                 boolean useRange = mainContext.isUseRange();
                 int rangeSize = mainContext.getRangeSize();
                 boolean removeStopWords = mainContext.isRemoveStopWords();
+                boolean restrictedGraph = mainContext.isRestrictedGraph();
+                double jaccardCoefficient = mainContext.getJaccardCoefficient();
                 boolean filterByFrequency = mainContext.isFilterByFrequency();
                 int filterFrequency = mainContext.getFilterFrequency();
 
@@ -269,13 +292,19 @@ public class MainFrame extends JFrame {
                 List<Integer> blockSizes = new ArrayList<>();
                 blockSizes.add(1);
                 if (removeStopWords) {
-                    blockSizes.add(5);
+                    blockSizes.add(3);
                 }
                 blockSizes.add(2);
-                blockSizes.add(90);
+                blockSizes.add(18);
+                if (restrictedGraph) {
+                    blockSizes.add(2);
+                }
                 if (filterByFrequency) {
                     blockSizes.add(2);
                 }
+                blockSizes.add(20);
+                blockSizes.add(50);
+                blockSizes.add(2);
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, blockSizes);
 
                 long startTime = System.currentTimeMillis();
@@ -294,19 +323,33 @@ public class MainFrame extends JFrame {
 
                 Set<ElementNode> elementNodeGraph = ElementNodeGraphUtil.createElementNodeGraph(elementGroups, useRange, rangeSize, progressBarProcessor);
 
+                if (restrictedGraph) {
+                    ElementNodeGraphUtil.filterByJaccardCoefficient(elementNodeGraph, jaccardCoefficient);
+                    progressBarProcessor.initAndFinishNextBlock();
+                }
+
                 if (filterByFrequency) {
                     ElementNodeGraphUtil.filterByFrequency(elementNodeGraph, filterFrequency);
                     progressBarProcessor.initAndFinishNextBlock();
                 }
+
+                double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(elementNodeGraph, progressBarProcessor);
+                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(elementNodeGraph, false, progressBarProcessor);
+                double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(elementNodeGraph);
+                progressBarProcessor.initAndFinishNextBlock();
+
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
                 mainContext.setElementNodeGraph(elementNodeGraph);
+                mainContext.setAverageClusteringCoefficient(averageClusteringCoefficient);
+                mainContext.setAveragePathLength(averagePathLength);
+                mainContext.setAverageNeighbourCount(averageNeighbourCount);
                 mainContext.setSpentTime(endTime - startTime);
 
                 List<ElementNode> elementNodes = ElementNodeGraphUtil.sortAndSetIndex(elementNodeGraph);
                 for (ElementNode elementNode : elementNodes) {
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{elementNode.getIndex(), elementNode.getElement(), elementNode.getFrequency(), elementNode.getNeighborCount()}));
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{elementNode.getIndex(), elementNode.getElement(), elementNode.getFrequency(), elementNode.getClusteringCoefficient(), elementNode.getAveragePathLength(), elementNode.getNeighborCount()}));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -367,6 +410,8 @@ public class MainFrame extends JFrame {
         mainContext.setUseRange(useRangeCheckBox.isSelected());
         mainContext.setRangeSize((int) rangeSizeSpinner.getValue());
         mainContext.setRemoveStopWords(removeStopWordsCheckBox.isSelected());
+        mainContext.setRestrictedGraph(restrictedGraphCheckBox.isSelected());
+        mainContext.setJaccardCoefficient((Double) jaccardCoefficientTextField.getValue());
         mainContext.setFilterByFrequency(filterByFrequencyCheckBox.isSelected());
         mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
     }
@@ -382,6 +427,9 @@ public class MainFrame extends JFrame {
     private void clearContext() {
         mainContext.setTextFile(null);
         mainContext.setElementNodeGraph(null);
+        mainContext.setAverageClusteringCoefficient(0.0);
+        mainContext.setAveragePathLength(0.0);
+        mainContext.setAverageNeighbourCount(0.0);
         mainContext.setSpentTime(0);
         for (JFrame subFrame : subFrameMap.values()) {
             if (subFrame instanceof SubFrame) {
@@ -426,8 +474,7 @@ public class MainFrame extends JFrame {
 
         removeStopWordsCheckBox.setVisible(NGramType.WORDS.equals(mainContext.getNGramType()));
         removeStopWordsCheckBox.setSelected(mainContext.isRemoveStopWords());
-        stopWordsFileTextField.setVisible(mainContext.isRemoveStopWords());
-        chooseStopWordsFileButton.setVisible(mainContext.isRemoveStopWords());
+        stopWordsPanel.setVisible(mainContext.isRemoveStopWords());
 
         if (mainContext.getStopWordsFile() == null) {
             stopWordsFileTextField.setText("");
@@ -438,10 +485,16 @@ public class MainFrame extends JFrame {
             }
         }
 
+        jaccardCoefficientLabel.setVisible(mainContext.isRestrictedGraph());
+        jaccardCoefficientTextField.setVisible(mainContext.isRestrictedGraph());
+
         frequencyLabel.setVisible(mainContext.isFilterByFrequency());
         filterFrequencySpinner.setVisible(mainContext.isFilterByFrequency());
 
         elementCountTextField.setText(String.valueOf(mainContext.getElementNodeGraph() != null ? mainContext.getElementNodeGraph().size() : 0));
+        averageClusteringCoefficientTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAverageClusteringCoefficient()));
+        averagePathLengthTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAveragePathLength()));
+        averageNeighbourCountTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAverageNeighbourCount()));
         spentTimeTextField.setText(CommonUtil.formatDuration(mainContext.getSpentTime()));
 
         if (mainContext.getElementNodeGraph() == null) {
@@ -489,10 +542,12 @@ public class MainFrame extends JFrame {
 
         filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
 
+        jaccardCoefficientTextField = new JFormattedTextField(2.0);
+
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Neighbors count"};
-        defaultTableModel = new DefaultTableModel(0, 4) {
-            final Class<?>[] types = {Integer.class, String.class, Integer.class, Integer.class};
+        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbors Count"};
+        defaultTableModel = new DefaultTableModel(0, 6) {
+            final Class<?>[] types = {Integer.class, String.class, Integer.class, Double.class, Double.class, Integer.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
@@ -507,10 +562,22 @@ public class MainFrame extends JFrame {
         defaultTableModel.setColumnIdentifiers(columnIdentifiers);
         statisticTable.setModel(defaultTableModel);
 
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        double[] columnWidth = {0.09, 0.17, 0.13, 0.21, 0.2, 0.2};
+        CommonGUIUtil.setTableColumnWidth(this, statisticTable, columnWidth);
+
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof Double) {
+                    value = CommonGUIUtil.DECIMAL_FORMAT.format(value);
+                }
+
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        };
+        renderer.setHorizontalAlignment(SwingConstants.LEFT);
         List<TableColumn> tableColumns = Collections.list(statisticTable.getColumnModel().getColumns());
-        tableColumns.forEach(tableColumn -> tableColumn.setCellRenderer(leftRenderer));
+        tableColumns.forEach(tableColumn -> tableColumn.setCellRenderer(renderer));
     }
 
     /**
@@ -670,29 +737,29 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
         panel5.add(removeStopWordsCheckBox, gbc);
-        final JPanel panel6 = new JPanel();
-        panel6.setLayout(new BorderLayout(5, 0));
+        stopWordsPanel = new JPanel();
+        stopWordsPanel.setLayout(new BorderLayout(5, 0));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 9;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(2, 0, 2, 0);
-        panel5.add(panel6, gbc);
-        panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel5.add(stopWordsPanel, gbc);
+        stopWordsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         stopWordsFileTextField = new JTextField();
         stopWordsFileTextField.setColumns(10);
         stopWordsFileTextField.setEditable(false);
         stopWordsFileTextField.setEnabled(true);
         Font stopWordsFileTextFieldFont = this.$$$getFont$$$(null, -1, 14, stopWordsFileTextField.getFont());
         if (stopWordsFileTextFieldFont != null) stopWordsFileTextField.setFont(stopWordsFileTextFieldFont);
-        panel6.add(stopWordsFileTextField, BorderLayout.CENTER);
+        stopWordsPanel.add(stopWordsFileTextField, BorderLayout.CENTER);
         chooseStopWordsFileButton = new JButton();
         chooseStopWordsFileButton.setEnabled(true);
         Font chooseStopWordsFileButtonFont = this.$$$getFont$$$(null, -1, 14, chooseStopWordsFileButton.getFont());
         if (chooseStopWordsFileButtonFont != null) chooseStopWordsFileButton.setFont(chooseStopWordsFileButtonFont);
         chooseStopWordsFileButton.setText("File");
-        panel6.add(chooseStopWordsFileButton, BorderLayout.EAST);
+        stopWordsPanel.add(chooseStopWordsFileButton, BorderLayout.EAST);
         filterByFrequencyCheckBox = new JCheckBox();
         filterByFrequencyCheckBox.setEnabled(true);
         Font filterByFrequencyCheckBoxFont = this.$$$getFont$$$(null, -1, 14, filterByFrequencyCheckBox.getFont());
@@ -700,7 +767,7 @@ public class MainFrame extends JFrame {
         filterByFrequencyCheckBox.setText("Filter by frequency");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 10;
+        gbc.gridy = 12;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 0);
@@ -712,7 +779,7 @@ public class MainFrame extends JFrame {
         frequencyLabel.setText("Frequency");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 11;
+        gbc.gridy = 13;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel5.add(frequencyLabel, gbc);
@@ -721,14 +788,14 @@ public class MainFrame extends JFrame {
         if (filterFrequencySpinnerFont != null) filterFrequencySpinner.setFont(filterFrequencySpinnerFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 11;
+        gbc.gridy = 13;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 0, 2, 5);
         panel5.add(filterFrequencySpinner, gbc);
         final JPanel spacer1 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 12;
+        gbc.gridy = 14;
         gbc.gridwidth = 2;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
@@ -740,7 +807,7 @@ public class MainFrame extends JFrame {
         calculateButton.setText("Calculate");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 13;
+        gbc.gridy = 15;
         gbc.gridwidth = 2;
         panel5.add(calculateButton, gbc);
         Font nGramTypeComboBoxFont = this.$$$getFont$$$(null, -1, 14, nGramTypeComboBox.getFont());
@@ -828,13 +895,44 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel5.add(label4, gbc);
+        restrictedGraphCheckBox = new JCheckBox();
+        Font restrictedGraphCheckBoxFont = this.$$$getFont$$$(null, -1, 14, restrictedGraphCheckBox.getFont());
+        if (restrictedGraphCheckBoxFont != null) restrictedGraphCheckBox.setFont(restrictedGraphCheckBoxFont);
+        restrictedGraphCheckBox.setText("Restricted graph");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 10;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(2, 0, 2, 0);
+        panel5.add(restrictedGraphCheckBox, gbc);
+        jaccardCoefficientLabel = new JLabel();
+        Font jaccardCoefficientLabelFont = this.$$$getFont$$$(null, -1, 14, jaccardCoefficientLabel.getFont());
+        if (jaccardCoefficientLabelFont != null) jaccardCoefficientLabel.setFont(jaccardCoefficientLabelFont);
+        jaccardCoefficientLabel.setText("Jaccard coef.");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 11;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(2, 5, 2, 5);
+        panel5.add(jaccardCoefficientLabel, gbc);
+        Font jaccardCoefficientTextFieldFont = this.$$$getFont$$$(null, -1, 14, jaccardCoefficientTextField.getFont());
+        if (jaccardCoefficientTextFieldFont != null) jaccardCoefficientTextField.setFont(jaccardCoefficientTextFieldFont);
+        jaccardCoefficientTextField.setHorizontalAlignment(4);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 11;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(2, 0, 2, 5);
+        panel5.add(jaccardCoefficientTextField, gbc);
+        final JPanel panel6 = new JPanel();
+        panel6.setLayout(new BorderLayout(0, 0));
+        panel3.add(panel6, BorderLayout.CENTER);
         final JPanel panel7 = new JPanel();
-        panel7.setLayout(new BorderLayout(0, 0));
-        panel3.add(panel7, BorderLayout.CENTER);
-        final JPanel panel8 = new JPanel();
-        panel8.setLayout(new GridBagLayout());
-        panel7.add(panel8, BorderLayout.SOUTH);
-        panel8.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel7.setLayout(new GridBagLayout());
+        panel6.add(panel7, BorderLayout.SOUTH);
+        panel7.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final JLabel label5 = new JLabel();
         Font label5Font = this.$$$getFont$$$(null, -1, 14, label5.getFont());
         if (label5Font != null) label5.setFont(label5Font);
@@ -844,14 +942,14 @@ public class MainFrame extends JFrame {
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 5, 5);
-        panel8.add(label5, gbc);
+        panel7.add(label5, gbc);
         final JPanel spacer2 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 2;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel8.add(spacer2, gbc);
+        panel7.add(spacer2, gbc);
         elementCountTextField = new JTextField();
         elementCountTextField.setColumns(10);
         elementCountTextField.setEditable(false);
@@ -863,17 +961,17 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 0, 5, 0);
-        panel8.add(elementCountTextField, gbc);
+        panel7.add(elementCountTextField, gbc);
         final JLabel label6 = new JLabel();
         Font label6Font = this.$$$getFont$$$(null, -1, 14, label6.getFont());
         if (label6Font != null) label6.setFont(label6Font);
         label6.setText("Spent time");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 0, 5);
-        panel8.add(label6, gbc);
+        panel7.add(label6, gbc);
         spentTimeTextField = new JTextField();
         spentTimeTextField.setColumns(10);
         spentTimeTextField.setEditable(false);
@@ -881,30 +979,96 @@ public class MainFrame extends JFrame {
         if (spentTimeTextFieldFont != null) spentTimeTextField.setFont(spentTimeTextFieldFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel7.add(spentTimeTextField, gbc);
+        final JLabel label7 = new JLabel();
+        Font label7Font = this.$$$getFont$$$(null, -1, 14, label7.getFont());
+        if (label7Font != null) label7.setFont(label7Font);
+        label7.setText("Average Clustering Coefficient");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 5, 5);
+        panel7.add(label7, gbc);
+        averageClusteringCoefficientTextField = new JTextField();
+        averageClusteringCoefficientTextField.setColumns(10);
+        averageClusteringCoefficientTextField.setEditable(false);
+        Font averageClusteringCoefficientTextFieldFont = this.$$$getFont$$$(null, -1, 14, averageClusteringCoefficientTextField.getFont());
+        if (averageClusteringCoefficientTextFieldFont != null) averageClusteringCoefficientTextField.setFont(averageClusteringCoefficientTextFieldFont);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel8.add(spentTimeTextField, gbc);
+        gbc.insets = new Insets(0, 0, 5, 0);
+        panel7.add(averageClusteringCoefficientTextField, gbc);
+        final JLabel label8 = new JLabel();
+        Font label8Font = this.$$$getFont$$$(null, -1, 14, label8.getFont());
+        if (label8Font != null) label8.setFont(label8Font);
+        label8.setText("Average Path Length");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 5, 5);
+        panel7.add(label8, gbc);
+        averagePathLengthTextField = new JTextField();
+        averagePathLengthTextField.setColumns(10);
+        averagePathLengthTextField.setEditable(false);
+        Font averagePathLengthTextFieldFont = this.$$$getFont$$$(null, -1, 14, averagePathLengthTextField.getFont());
+        if (averagePathLengthTextFieldFont != null) averagePathLengthTextField.setFont(averagePathLengthTextFieldFont);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        panel7.add(averagePathLengthTextField, gbc);
+        final JLabel label9 = new JLabel();
+        Font label9Font = this.$$$getFont$$$(null, -1, 14, label9.getFont());
+        if (label9Font != null) label9.setFont(label9Font);
+        label9.setText("Average Neighbour Count");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 5, 5);
+        panel7.add(label9, gbc);
+        averageNeighbourCountTextField = new JTextField();
+        averageNeighbourCountTextField.setColumns(10);
+        averageNeighbourCountTextField.setEditable(false);
+        Font averageNeighbourCountTextFieldFont = this.$$$getFont$$$(null, -1, 14, averageNeighbourCountTextField.getFont());
+        if (averageNeighbourCountTextFieldFont != null) averageNeighbourCountTextField.setFont(averageNeighbourCountTextFieldFont);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        panel7.add(averageNeighbourCountTextField, gbc);
         final JScrollPane scrollPane1 = new JScrollPane();
-        panel7.add(scrollPane1, BorderLayout.CENTER);
+        panel6.add(scrollPane1, BorderLayout.CENTER);
         statisticTable.setAutoCreateRowSorter(true);
         statisticTable.setCellSelectionEnabled(true);
         Font statisticTableFont = this.$$$getFont$$$(null, -1, 14, statisticTable.getFont());
         if (statisticTableFont != null) statisticTable.setFont(statisticTableFont);
         scrollPane1.setViewportView(statisticTable);
-        final JPanel panel9 = new JPanel();
-        panel9.setLayout(new BorderLayout(5, 0));
-        panel1.add(panel9, BorderLayout.SOUTH);
-        panel9.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JPanel panel8 = new JPanel();
+        panel8.setLayout(new BorderLayout(5, 0));
+        panel1.add(panel8, BorderLayout.SOUTH);
+        panel8.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         progressBar = new JProgressBar();
         progressBar.setMaximum(1000);
-        panel9.add(progressBar, BorderLayout.CENTER);
+        panel8.add(progressBar, BorderLayout.CENTER);
         terminateCalculationButton = new JButton();
         terminateCalculationButton.setEnabled(true);
         terminateCalculationButton.setIcon(new ImageIcon(getClass().getResource("/icon/terminatedlaunchIcon.png")));
         terminateCalculationButton.setPreferredSize(new Dimension(30, 30));
         terminateCalculationButton.setText("");
-        panel9.add(terminateCalculationButton, BorderLayout.EAST);
+        panel8.add(terminateCalculationButton, BorderLayout.EAST);
     }
 
     /**

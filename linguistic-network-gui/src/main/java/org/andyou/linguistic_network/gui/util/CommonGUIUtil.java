@@ -6,7 +6,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -28,6 +32,22 @@ public class CommonGUIUtil {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    public static void setTableColumnWidth(JFrame frame, JTable table, double[] columnWidth) {
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                TableColumnModel tableColumnModel = table.getColumnModel();
+                int totalColumnWidth = tableColumnModel.getTotalColumnWidth();
+                int columnCount = tableColumnModel.getColumnCount();
+                for (int i = 0; i < columnCount; i++) {
+                    TableColumn column = tableColumnModel.getColumn(i);
+                    int preferredWidth = (int) Math.round(columnWidth[i] * totalColumnWidth);
+                    column.setPreferredWidth(preferredWidth);
+                }
+            }
+        });
     }
 
     public static void showErrorMessageDialog(Component parentComponent, Exception ex) {

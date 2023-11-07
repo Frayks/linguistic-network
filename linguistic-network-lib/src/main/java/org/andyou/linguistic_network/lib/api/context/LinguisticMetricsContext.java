@@ -11,9 +11,6 @@ import java.util.List;
 public class LinguisticMetricsContext {
 
     private List<CDFNode> cdfNodes;
-    private double averageClusteringCoefficient;
-    private double averagePathLength;
-    private double averageNeighbourCount;
     private long spentTime;
 
 }

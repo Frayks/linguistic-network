@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -15,6 +13,8 @@ public class ElementNode {
     private int index;
     private String element;
     private int frequency;
+    private double clusteringCoefficient;
+    private double averagePathLength;
     private Map<ElementNode, Integer> neighbors;
 
     public ElementNode(String element, int frequency) {
@@ -27,6 +27,8 @@ public class ElementNode {
         this.index = elementNode.index;
         this.element = elementNode.element;
         this.frequency = elementNode.frequency;
+        this.clusteringCoefficient = elementNode.clusteringCoefficient;
+        this.averagePathLength = elementNode.averagePathLength;
         this.neighbors = new HashMap<>();
     }
 

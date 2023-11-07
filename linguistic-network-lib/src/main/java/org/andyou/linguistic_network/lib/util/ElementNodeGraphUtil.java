@@ -77,6 +77,23 @@ public class ElementNodeGraphUtil {
                 .findFirst().orElse(null);
     }
 
+    public static void filterByJaccardCoefficient(Set<ElementNode> elementNodeGraph, double minJaccardCoefficient) {
+        int totalElementCount = elementNodeGraph.stream().mapToInt(ElementNode::getFrequency).sum();
+
+        for (ElementNode elementNode : elementNodeGraph) {
+            elementNode.getNeighbors().entrySet().removeIf(neighbor -> {
+                ElementNode neighborElementNode = neighbor.getKey();
+                int neighborCount = neighbor.getValue();
+                double jaccardCoefficient = (double) neighborCount * totalElementCount / (elementNode.getFrequency() * neighborElementNode.getFrequency());
+                if (jaccardCoefficient < minJaccardCoefficient) {
+                    neighborElementNode.getNeighbors().remove(elementNode);
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
     public static void filterByFrequency(Set<ElementNode> elementNodeGraph, int frequency) {
         elementNodeGraph.removeIf(elementNode -> {
             if (elementNode.getFrequency() <= frequency) {
