@@ -2,7 +2,6 @@ package org.andyou.linguistic_network.gui;
 
 import org.andyou.linguistic_network.gui.frame.MainFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.util.CommonUtil;
 
 import javax.swing.*;
 import java.awt.*;

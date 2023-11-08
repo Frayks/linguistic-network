@@ -53,11 +53,12 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
                 updateUI();
 
                 Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
+                boolean weightedGraph = mainContext.isWeightedGraph();
 
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Collections.singletonList(100));
 
                 long startTime = System.currentTimeMillis();
-                List<SWNode> swNodes = LinguisticNetworkUtil.calcKeywordStatisticsSmallWorld(elementNodeGraph, progressBarProcessor);
+                List<SWNode> swNodes = LinguisticNetworkUtil.calcKeywordStatisticsSmallWorld(elementNodeGraph, weightedGraph, progressBarProcessor);
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 

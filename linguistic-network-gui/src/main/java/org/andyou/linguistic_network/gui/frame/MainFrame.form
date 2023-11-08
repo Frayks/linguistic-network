@@ -262,13 +262,13 @@
                       </component>
                       <vspacer id="aeb9c">
                         <constraints>
-                          <grid row="14" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                          <grid row="15" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="1.0"/>
                         </constraints>
                       </vspacer>
                       <component id="c0017" class="javax.swing.JButton" binding="calculateButton">
                         <constraints>
-                          <grid row="15" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="16" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -395,6 +395,15 @@
                         <properties>
                           <font size="14"/>
                           <horizontalAlignment value="4"/>
+                        </properties>
+                      </component>
+                      <component id="681b4" class="javax.swing.JCheckBox" binding="weightedGraphCheckBox" default-binding="true">
+                        <constraints>
+                          <grid row="14" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <text value="Weighted graph"/>
                         </properties>
                       </component>
                     </children>

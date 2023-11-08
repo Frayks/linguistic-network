@@ -28,6 +28,7 @@ public class MainContext {
     private double jaccardCoefficient;
     private boolean filterByFrequency;
     private int filterFrequency;
+    private boolean weightedGraph;
     private Set<ElementNode> elementNodeGraph;
     private double averageClusteringCoefficient;
     private double averagePathLength;

@@ -57,9 +57,11 @@ public class MainFrame extends JFrame {
     private JButton chooseStopWordsFileButton;
     private JCheckBox restrictedGraphCheckBox;
     private JLabel jaccardCoefficientLabel;
+    private JFormattedTextField jaccardCoefficientTextField;
     private JCheckBox filterByFrequencyCheckBox;
     private JLabel frequencyLabel;
     private JSpinner filterFrequencySpinner;
+    private JCheckBox weightedGraphCheckBox;
     private JButton calculateButton;
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
@@ -70,7 +72,6 @@ public class MainFrame extends JFrame {
     private JTextField spentTimeTextField;
     private JProgressBar progressBar;
     private JButton terminateCalculationButton;
-    private JFormattedTextField jaccardCoefficientTextField;
 
 
     private Map<FrameKey, JFrame> subFrameMap;
@@ -163,6 +164,9 @@ public class MainFrame extends JFrame {
         });
         filterFrequencySpinner.addChangeListener(e -> {
             mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
+        });
+        weightedGraphCheckBox.addActionListener(e -> {
+            mainContext.setWeightedGraph(weightedGraphCheckBox.isSelected());
         });
         openMenuItem.addActionListener(e -> {
             if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -286,6 +290,7 @@ public class MainFrame extends JFrame {
                 double jaccardCoefficient = mainContext.getJaccardCoefficient();
                 boolean filterByFrequency = mainContext.isFilterByFrequency();
                 int filterFrequency = mainContext.getFilterFrequency();
+                boolean weightedGraph = mainContext.isWeightedGraph();
 
                 String text = new String(Files.readAllBytes(textFile.toPath()), StandardCharsets.UTF_8);
 
@@ -334,7 +339,7 @@ public class MainFrame extends JFrame {
                 }
 
                 double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(elementNodeGraph, progressBarProcessor);
-                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(elementNodeGraph, false, progressBarProcessor);
+                double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(elementNodeGraph, weightedGraph, false, progressBarProcessor);
                 double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(elementNodeGraph);
                 progressBarProcessor.initAndFinishNextBlock();
 
@@ -414,6 +419,7 @@ public class MainFrame extends JFrame {
         mainContext.setJaccardCoefficient((Double) jaccardCoefficientTextField.getValue());
         mainContext.setFilterByFrequency(filterByFrequencyCheckBox.isSelected());
         mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
+        mainContext.setWeightedGraph(weightedGraphCheckBox.isSelected());
     }
 
     private void elementNodeGraphChanged() {
@@ -545,7 +551,7 @@ public class MainFrame extends JFrame {
         jaccardCoefficientTextField = new JFormattedTextField(2.0);
 
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbors Count"};
+        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbor Count"};
         defaultTableModel = new DefaultTableModel(0, 6) {
             final Class<?>[] types = {Integer.class, String.class, Integer.class, Double.class, Double.class, Integer.class};
 
@@ -795,7 +801,7 @@ public class MainFrame extends JFrame {
         final JPanel spacer1 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 14;
+        gbc.gridy = 15;
         gbc.gridwidth = 2;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
@@ -807,7 +813,7 @@ public class MainFrame extends JFrame {
         calculateButton.setText("Calculate");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 15;
+        gbc.gridy = 16;
         gbc.gridwidth = 2;
         panel5.add(calculateButton, gbc);
         Font nGramTypeComboBoxFont = this.$$$getFont$$$(null, -1, 14, nGramTypeComboBox.getFont());
@@ -926,6 +932,14 @@ public class MainFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 0, 2, 5);
         panel5.add(jaccardCoefficientTextField, gbc);
+        weightedGraphCheckBox = new JCheckBox();
+        weightedGraphCheckBox.setText("Weighted graph");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 14;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel5.add(weightedGraphCheckBox, gbc);
         final JPanel panel6 = new JPanel();
         panel6.setLayout(new BorderLayout(0, 0));
         panel3.add(panel6, BorderLayout.CENTER);

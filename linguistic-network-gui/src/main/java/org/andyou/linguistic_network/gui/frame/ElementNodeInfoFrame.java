@@ -59,7 +59,7 @@ public class ElementNodeInfoFrame extends JFrame {
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Neighbor", "Neighbor Count"};
+        String[] columnIdentifiers = {"Index", "Neighbor", "Multiplicity"};
         defaultTableModel = new DefaultTableModel(0, 3) {
             final Class<?>[] types = {Integer.class, String.class, Integer.class};
 

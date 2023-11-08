@@ -9,7 +9,7 @@ import java.util.*;
 
 public class LinguisticNetworkUtil {
 
-    public static List<SWNode> calcKeywordStatisticsSmallWorld(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
+    public static List<SWNode> calcKeywordStatisticsSmallWorld(Set<ElementNode> elementNodeGraph, boolean weightedGraph, ProgressBarProcessor progressBarProcessor) {
         elementNodeGraph = ElementNodeGraphUtil.clone(elementNodeGraph);
         List<SWNode> swNodes = new ArrayList<>();
 
@@ -18,12 +18,12 @@ public class LinguisticNetworkUtil {
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
-        double gl = calcAveragePathLength(elementNodeGraph, true, null);
+        double gl = calcAveragePathLength(elementNodeGraph, weightedGraph, true, null);
         List<ElementNode> elementNodes = new ArrayList<>(elementNodeGraph);
         for (ElementNode elementNode : elementNodes) {
             ElementNodeGraphUtil.removeElementNode(elementNodeGraph, elementNode);
 
-            double l = calcAveragePathLength(elementNodeGraph, true, null);
+            double l = calcAveragePathLength(elementNodeGraph, weightedGraph, true, null);
             double dirtyContribution = l - gl;
             swNodes.add(new SWNode(elementNode, dirtyContribution));
 
@@ -116,7 +116,7 @@ public class LinguisticNetworkUtil {
                 .average().orElse(0);
     }
 
-    public static double calcAveragePathLength(Set<ElementNode> elementNodeGraph, boolean considerLostConnections, ProgressBarProcessor progressBarProcessor) {
+    public static double calcAveragePathLength(Set<ElementNode> elementNodeGraph, boolean weightedGraph, boolean considerLostConnections, ProgressBarProcessor progressBarProcessor) {
         if (progressBarProcessor != null) {
             int stepsCount = elementNodeGraph.size();
             progressBarProcessor.initNextBlock(stepsCount);
@@ -125,18 +125,30 @@ public class LinguisticNetworkUtil {
         return elementNodeGraph.parallelStream()
                 .mapToDouble(elementNode -> {
                     try {
-                        List<Integer> pathLengths = BFSUtil.calcPathLengths(elementNode);
+                        double averagePathLength;
 
-                        if (considerLostConnections) {
-                            int lostConnectionsNumber = elementNodeGraph.size() - pathLengths.size() - 1;
-                            if (lostConnectionsNumber > 0) {
-                                pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, elementNodeGraph.size() - 1));
+                        if (weightedGraph) {
+                            List<Double> pathLengths = DijkstraUtil.calcPathLengths(elementNode);
+                            if (considerLostConnections) {
+
                             }
+                            averagePathLength = pathLengths.stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .average().orElse(0);
+
+                        } else {
+                            List<Integer> pathLengths = BFSUtil.calcPathLengths(elementNode);
+                            if (considerLostConnections) {
+                                int lostConnectionsNumber = elementNodeGraph.size() - pathLengths.size() - 1;
+                                if (lostConnectionsNumber > 0) {
+                                    pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, elementNodeGraph.size() - 1));
+                                }
+                            }
+                            averagePathLength = pathLengths.stream()
+                                    .mapToInt(Integer::intValue)
+                                    .average().orElse(0);
                         }
 
-                        double averagePathLength = pathLengths.stream()
-                                .mapToInt(Integer::intValue)
-                                .average().orElse(0);
                         elementNode.setAveragePathLength(averagePathLength);
                         return averagePathLength;
                     } finally {
