@@ -13,6 +13,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.text.DecimalFormat;
 import java.util.Objects;
+import java.util.stream.DoubleStream;
 
 public class CommonGUIUtil {
 
@@ -34,16 +35,24 @@ public class CommonGUIUtil {
         frame.setVisible(true);
     }
 
-    public static void setTableColumnWidth(JFrame frame, JTable table, double[] columnWidth) {
+    public static void setTableColumnWidth(JFrame frame, JTable table, double[] columnWidthPercentage) {
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 TableColumnModel tableColumnModel = table.getColumnModel();
-                int totalColumnWidth = tableColumnModel.getTotalColumnWidth();
                 int columnCount = tableColumnModel.getColumnCount();
+                int totalColumnWidth = tableColumnModel.getTotalColumnWidth();
+
+                double autoColumnWidthPercentage = 0.0;
+                if (columnWidthPercentage.length < columnCount) {
+                    double unassignedColumnWidthPercentage = 1.0 - Math.min(1.0, DoubleStream.of(columnWidthPercentage).sum());
+                    autoColumnWidthPercentage = unassignedColumnWidthPercentage / (columnCount - columnWidthPercentage.length);
+                }
+
                 for (int i = 0; i < columnCount; i++) {
                     TableColumn column = tableColumnModel.getColumn(i);
-                    int preferredWidth = (int) Math.round(columnWidth[i] * totalColumnWidth);
+                    double percentage = i < columnWidthPercentage.length ? columnWidthPercentage[i] : autoColumnWidthPercentage;
+                    int preferredWidth = (int) Math.round(percentage * totalColumnWidth);
                     column.setPreferredWidth(preferredWidth);
                 }
             }

@@ -243,7 +243,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD);
                     }
                 });
-                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionSmallWorldFrame, 900, 600);
+                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionSmallWorldFrame, 1200, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
                 keywordExtractionSmallWorldSubFrame.requestFocus();

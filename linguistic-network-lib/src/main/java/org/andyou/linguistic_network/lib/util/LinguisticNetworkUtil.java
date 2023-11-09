@@ -18,14 +18,19 @@ public class LinguisticNetworkUtil {
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
-        double gl = calcAveragePathLength(elementNodeGraph, weightedGraph, true, null);
+        double cg = calcAverageClusteringCoefficient(elementNodeGraph, null);
+        double lg = calcAveragePathLength(elementNodeGraph, weightedGraph, true, null);
         List<ElementNode> elementNodes = new ArrayList<>(elementNodeGraph);
         for (ElementNode elementNode : elementNodes) {
             ElementNodeGraphUtil.removeElementNode(elementNodeGraph, elementNode);
 
             double l = calcAveragePathLength(elementNodeGraph, weightedGraph, true, null);
-            double dirtyContribution = l - gl;
-            swNodes.add(new SWNode(elementNode, dirtyContribution));
+            double c = calcAverageClusteringCoefficient(elementNodeGraph, null);
+            double contribution1 = l - lg;
+            double contribution2 = (cg / lg) / (c / l);
+            double contribution3 = (cg / lg) - (c / l);
+
+            swNodes.add(new SWNode(elementNode, contribution1, contribution2, contribution3));
 
             ElementNodeGraphUtil.addElementNode(elementNodeGraph, elementNode);
 
@@ -34,11 +39,18 @@ public class LinguisticNetworkUtil {
             }
         }
 
-        double dirtyContributionMin = swNodes.stream().mapToDouble(SWNode::getDirtyContribution).min().orElse(0);
-        swNodes.forEach(swNode -> swNode.setContribution(swNode.getDirtyContribution() - dirtyContributionMin));
+        double minContribution1 = swNodes.stream().mapToDouble(SWNode::getContribution1).min().orElse(0);
+        swNodes.forEach(swNode -> swNode.setAdjustedContribution1(swNode.getContribution1() - minContribution1));
+        double sumContribution1 = swNodes.stream().mapToDouble(SWNode::getAdjustedContribution1).sum();
+        swNodes.forEach(swNode -> swNode.setNormalizedContribution1(swNode.getAdjustedContribution1() / sumContribution1));
 
-        double contributionSum = swNodes.stream().mapToDouble(SWNode::getContribution).sum();
-        swNodes.forEach(swNode -> swNode.setNormalizedContribution(swNode.getContribution() / contributionSum));
+        double sumContribution2 = swNodes.stream().mapToDouble(SWNode::getContribution2).sum();
+        swNodes.forEach(swNode -> swNode.setNormalizedContribution2(swNode.getContribution2() / sumContribution2));
+
+        double minContribution3 = swNodes.stream().mapToDouble(SWNode::getContribution3).min().orElse(0);
+        swNodes.forEach(swNode -> swNode.setAdjustedContribution3(swNode.getContribution3() - minContribution3));
+        double sumContribution3 = swNodes.stream().mapToDouble(SWNode::getAdjustedContribution3).sum();
+        swNodes.forEach(swNode -> swNode.setNormalizedContribution3(swNode.getAdjustedContribution3() / sumContribution3));
 
         return swNodes;
     }
