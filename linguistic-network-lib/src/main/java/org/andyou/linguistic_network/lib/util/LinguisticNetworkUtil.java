@@ -122,6 +122,11 @@ public class LinguisticNetworkUtil {
             progressBarProcessor.initNextBlock(stepsCount);
         }
 
+        double weightedPathLength = elementNodeGraph.stream()
+                .mapToDouble(elementNode -> elementNode.getNeighbors().values().stream()
+                        .mapToDouble(value -> 1.0 / value).average().orElse(0))
+                .sum();
+
         return elementNodeGraph.parallelStream()
                 .mapToDouble(elementNode -> {
                     try {
@@ -130,7 +135,10 @@ public class LinguisticNetworkUtil {
                         if (weightedGraph) {
                             List<Double> pathLengths = DijkstraUtil.calcPathLengths(elementNode);
                             if (considerLostConnections) {
-
+                                int lostConnectionsNumber = elementNodeGraph.size() - pathLengths.size() - 1;
+                                if (lostConnectionsNumber > 0) {
+                                    pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, weightedPathLength));
+                                }
                             }
                             averagePathLength = pathLengths.stream()
                                     .mapToDouble(Double::doubleValue)
@@ -141,7 +149,7 @@ public class LinguisticNetworkUtil {
                             if (considerLostConnections) {
                                 int lostConnectionsNumber = elementNodeGraph.size() - pathLengths.size() - 1;
                                 if (lostConnectionsNumber > 0) {
-                                    pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, elementNodeGraph.size() - 1));
+                                    pathLengths.addAll(Collections.nCopies(lostConnectionsNumber, elementNodeGraph.size()));
                                 }
                             }
                             averagePathLength = pathLengths.stream()

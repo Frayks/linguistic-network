@@ -643,7 +643,8 @@ public class MainFrame extends JFrame {
         menu2.add(linguisticMetricsMenuItem);
         keywordExtractionSmallWorldMenuItem = new JMenuItem();
         Font keywordExtractionSmallWorldMenuItemFont = this.$$$getFont$$$(null, -1, 14, keywordExtractionSmallWorldMenuItem.getFont());
-        if (keywordExtractionSmallWorldMenuItemFont != null) keywordExtractionSmallWorldMenuItem.setFont(keywordExtractionSmallWorldMenuItemFont);
+        if (keywordExtractionSmallWorldMenuItemFont != null)
+            keywordExtractionSmallWorldMenuItem.setFont(keywordExtractionSmallWorldMenuItemFont);
         keywordExtractionSmallWorldMenuItem.setText("Keyword extraction \"Small-world\"");
         menu2.add(keywordExtractionSmallWorldMenuItem);
         final JMenuItem menuItem1 = new JMenuItem();
@@ -864,7 +865,8 @@ public class MainFrame extends JFrame {
         panel5.add(sentenceDelimitersLabel, gbc);
         sentenceDelimitersTextField = new JTextField();
         Font sentenceDelimitersTextFieldFont = this.$$$getFont$$$(null, -1, 14, sentenceDelimitersTextField.getFont());
-        if (sentenceDelimitersTextFieldFont != null) sentenceDelimitersTextField.setFont(sentenceDelimitersTextFieldFont);
+        if (sentenceDelimitersTextFieldFont != null)
+            sentenceDelimitersTextField.setFont(sentenceDelimitersTextFieldFont);
         sentenceDelimitersTextField.setText(".!?…");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -923,7 +925,8 @@ public class MainFrame extends JFrame {
         gbc.insets = new Insets(2, 5, 2, 5);
         panel5.add(jaccardCoefficientLabel, gbc);
         Font jaccardCoefficientTextFieldFont = this.$$$getFont$$$(null, -1, 14, jaccardCoefficientTextField.getFont());
-        if (jaccardCoefficientTextFieldFont != null) jaccardCoefficientTextField.setFont(jaccardCoefficientTextFieldFont);
+        if (jaccardCoefficientTextFieldFont != null)
+            jaccardCoefficientTextField.setFont(jaccardCoefficientTextFieldFont);
         jaccardCoefficientTextField.setHorizontalAlignment(4);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -1011,7 +1014,8 @@ public class MainFrame extends JFrame {
         averageClusteringCoefficientTextField.setColumns(10);
         averageClusteringCoefficientTextField.setEditable(false);
         Font averageClusteringCoefficientTextFieldFont = this.$$$getFont$$$(null, -1, 14, averageClusteringCoefficientTextField.getFont());
-        if (averageClusteringCoefficientTextFieldFont != null) averageClusteringCoefficientTextField.setFont(averageClusteringCoefficientTextFieldFont);
+        if (averageClusteringCoefficientTextFieldFont != null)
+            averageClusteringCoefficientTextField.setFont(averageClusteringCoefficientTextFieldFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -1055,7 +1059,8 @@ public class MainFrame extends JFrame {
         averageNeighbourCountTextField.setColumns(10);
         averageNeighbourCountTextField.setEditable(false);
         Font averageNeighbourCountTextFieldFont = this.$$$getFont$$$(null, -1, 14, averageNeighbourCountTextField.getFont());
-        if (averageNeighbourCountTextFieldFont != null) averageNeighbourCountTextField.setFont(averageNeighbourCountTextFieldFont);
+        if (averageNeighbourCountTextFieldFont != null)
+            averageNeighbourCountTextField.setFont(averageNeighbourCountTextFieldFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 3;
