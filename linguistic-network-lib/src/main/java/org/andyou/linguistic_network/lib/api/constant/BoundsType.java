@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum BoundsType {
+
     ABSENT("Absent"),
     WORD("Word"),
     SENTENCE("Sentence");

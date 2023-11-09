@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.andyou.linguistic_network.gui.frame.MainFrame">
   <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="500" height="668"/>
+      <xy x="20" y="20" width="503" height="668"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -42,6 +42,7 @@
                     <constraints/>
                     <properties>
                       <font size="14"/>
+                      <icon value="icon/xlsxFileIcon.png"/>
                       <text value="Excel file"/>
                     </properties>
                   </component>
@@ -49,6 +50,7 @@
                     <constraints/>
                     <properties>
                       <font size="14"/>
+                      <icon value="icon/txtFileIcon.png"/>
                       <text value="Text files"/>
                     </properties>
                   </component>

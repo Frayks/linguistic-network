@@ -21,12 +21,24 @@ public class CommonGUIUtil {
 
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00000");
 
-    public static final FileFilter TEXT_FILE_FILTER = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
+    public static final FileFilter TXT_FILE_FILTER = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
 
     public static final FileFilter XLSX_FILE_FILTER = new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx");
 
+    public static void setComponentsFont(Component[] comp, Font font) {
+        for (Component component : comp) {
+            if (component instanceof Container) {
+                setComponentsFont(((Container) component).getComponents(), font);
+            }
+            try {
+                component.setFont(font);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     public static void configureDefaultSubFrame(JFrame frame, int width, int height) {
-        frame.setIconImage(CommonGUIUtil.ICON.getImage());
+        frame.setIconImage(ICON.getImage());
         frame.setMinimumSize(new Dimension(width, height));
         frame.setPreferredSize(new Dimension(width, height));
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

@@ -27,6 +27,7 @@
                 <constraints/>
                 <properties>
                   <font size="14"/>
+                  <icon value="icon/xlsxFileIcon.png"/>
                   <text value="Excel file"/>
                 </properties>
               </component>
@@ -34,6 +35,7 @@
                 <constraints/>
                 <properties>
                   <font size="14"/>
+                  <icon value="icon/txtFileIcon.png"/>
                   <text value="Text file"/>
                 </properties>
               </component>

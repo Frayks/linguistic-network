@@ -17,11 +17,8 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,8 +74,8 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
                     SWNode swNode = swNodes.get(i);
                     int rank = i + 1;
                     SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{
-                            swNode.getElementNode().getIndex(),
                             rank,
+                            swNode.getElementNode().getIndex(),
                             swNode.getElementNode().getElement(),
                             swNode.getElementNode().getFrequency(),
                             swNode.getElementNode().getNeighborCount(),
@@ -146,7 +143,7 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Rank", "Element", "Frequency", "Neighbors count", "CB1", "CB1 Adj.", "CB1 Norm.", "CB2", "CB2 Norm.", "CB3", "CB3 Adj.", "CB3 Norm."};
+        String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "CB1", "CB1 Adj.", "CB1 Norm.", "CB2", "CB2 Norm.", "CB3", "CB3 Adj.", "CB3 Norm."};
         defaultTableModel = new DefaultTableModel(0, 13) {
             final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class};
 

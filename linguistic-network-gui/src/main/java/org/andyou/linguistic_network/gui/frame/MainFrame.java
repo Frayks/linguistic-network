@@ -88,17 +88,17 @@ public class MainFrame extends JFrame {
         threadAtomicReference = new AtomicReference<>();
         initContext();
 
-        JFileChooser textFileChooser = new JFileChooser();
-        textFileChooser.setFileFilter(CommonGUIUtil.TEXT_FILE_FILTER);
+        JFileChooser txtFileChooser = new JFileChooser();
+        txtFileChooser.setFileFilter(CommonGUIUtil.TXT_FILE_FILTER);
         JFileChooser xlsxFileChooser = new JFileChooser();
         xlsxFileChooser.setFileFilter(CommonGUIUtil.XLSX_FILE_FILTER);
         JFileChooser directoryChooser = new JFileChooser();
         directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         Font font = new JLabel().getFont().deriveFont(14f);
-        setComponentsFont(textFileChooser.getComponents(), font);
-        setComponentsFont(xlsxFileChooser.getComponents(), font);
-        setComponentsFont(directoryChooser.getComponents(), font);
+        CommonGUIUtil.setComponentsFont(txtFileChooser.getComponents(), font);
+        CommonGUIUtil.setComponentsFont(xlsxFileChooser.getComponents(), font);
+        CommonGUIUtil.setComponentsFont(directoryChooser.getComponents(), font);
 
         nGramTypeComboBox.addActionListener(e -> {
             NGramType nGramType = (NGramType) nGramTypeComboBox.getSelectedItem();
@@ -143,8 +143,8 @@ public class MainFrame extends JFrame {
             updateUI(false);
         });
         chooseStopWordsFileButton.addActionListener(e -> {
-            if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                mainContext.setStopWordsFile(textFileChooser.getSelectedFile());
+            if (txtFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                mainContext.setStopWordsFile(txtFileChooser.getSelectedFile());
                 updateUI(false);
             }
         });
@@ -169,9 +169,9 @@ public class MainFrame extends JFrame {
             mainContext.setWeightedGraph(weightedGraphCheckBox.isSelected());
         });
         openMenuItem.addActionListener(e -> {
-            if (textFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            if (txtFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 clearContext();
-                mainContext.setTextFile(textFileChooser.getSelectedFile());
+                mainContext.setTextFile(txtFileChooser.getSelectedFile());
                 updateUI(false);
             }
         });
@@ -389,18 +389,6 @@ public class MainFrame extends JFrame {
         });
 
         initUI();
-    }
-
-    private void setComponentsFont(Component[] comp, Font font) {
-        for (Component component : comp) {
-            if (component instanceof Container) {
-                setComponentsFont(((Container) component).getComponents(), font);
-            }
-            try {
-                component.setFont(font);
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     private void initContext() {
@@ -623,11 +611,13 @@ public class MainFrame extends JFrame {
         excelFileMenuItem = new JMenuItem();
         Font excelFileMenuItemFont = this.$$$getFont$$$(null, -1, 14, excelFileMenuItem.getFont());
         if (excelFileMenuItemFont != null) excelFileMenuItem.setFont(excelFileMenuItemFont);
+        excelFileMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/xlsxFileIcon.png")));
         excelFileMenuItem.setText("Excel file");
         saveAsMenu.add(excelFileMenuItem);
         textFilesMenuItem = new JMenuItem();
         Font textFilesMenuItemFont = this.$$$getFont$$$(null, -1, 14, textFilesMenuItem.getFont());
         if (textFilesMenuItemFont != null) textFilesMenuItem.setFont(textFilesMenuItemFont);
+        textFilesMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/txtFileIcon.png")));
         textFilesMenuItem.setText("Text files");
         saveAsMenu.add(textFilesMenuItem);
         final JMenu menu2 = new JMenu();

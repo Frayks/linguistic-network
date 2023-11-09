@@ -1,7 +1,9 @@
 package org.andyou.linguistic_network.gui.frame;
 
+import org.andyou.linguistic_network.gui.api.constant.TextConstant;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.ElementNodeGraphUtil;
 
 import javax.swing.*;
@@ -14,6 +16,7 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.List;
 import java.util.*;
 
@@ -25,14 +28,67 @@ public class ElementNodeInfoFrame extends JFrame {
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
 
-    private ElementNode mainElementNode;
-
     public ElementNodeInfoFrame(ElementNode mainElementNode) throws HeadlessException {
-        this.mainElementNode = mainElementNode;
 
         $$$setupUI$$$();
-        setTitle(String.format("Element \"%s\"", mainElementNode.getElement()));
+        setTitle(String.format("Element %d \"%s\"", mainElementNode.getIndex(), mainElementNode.getElement()));
         setContentPane(mainPanel);
+
+        JFileChooser txtFileChooser = new JFileChooser();
+        txtFileChooser.setFileFilter(CommonGUIUtil.TXT_FILE_FILTER);
+        JFileChooser xlsxFileChooser = new JFileChooser();
+        xlsxFileChooser.setFileFilter(CommonGUIUtil.XLSX_FILE_FILTER);
+
+        Font font = new JLabel().getFont().deriveFont(14f);
+        CommonGUIUtil.setComponentsFont(txtFileChooser.getComponents(), font);
+        CommonGUIUtil.setComponentsFont(xlsxFileChooser.getComponents(), font);
+
+        excelFileMenuItem.addActionListener(e -> {
+            try {
+                if (xlsxFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    File file = xlsxFileChooser.getSelectedFile();
+                    String filePath = file.getAbsolutePath();
+                    if (!filePath.endsWith(".xlsx")) {
+                        file = new File(filePath + ".xlsx");
+                    }
+                    if (file.exists()) {
+                        if (CommonGUIUtil.showWarningConfirmDialog(
+                                this,
+                                String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
+                        ) != JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                    CommonUtil.saveStatisticsToXlsxFile(file, mainElementNode);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                CommonGUIUtil.showErrorMessageDialog(this, ex);
+            }
+        });
+        textFileMenuItem.addActionListener(e -> {
+            try {
+                if (txtFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    File file = txtFileChooser.getSelectedFile();
+                    String filePath = file.getAbsolutePath();
+                    if (!filePath.endsWith(".txt")) {
+                        file = new File(filePath + ".txt");
+                    }
+                    if (file.exists()) {
+                        if (CommonGUIUtil.showWarningConfirmDialog(
+                                this,
+                                String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
+                        ) != JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                    CommonUtil.saveStatisticsToTextFile(file, mainElementNode);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                CommonGUIUtil.showErrorMessageDialog(this, ex);
+            }
+        });
 
         statisticTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -106,11 +162,13 @@ public class ElementNodeInfoFrame extends JFrame {
         excelFileMenuItem = new JMenuItem();
         Font excelFileMenuItemFont = this.$$$getFont$$$(null, -1, 14, excelFileMenuItem.getFont());
         if (excelFileMenuItemFont != null) excelFileMenuItem.setFont(excelFileMenuItemFont);
+        excelFileMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/xlsxFileIcon.png")));
         excelFileMenuItem.setText("Excel file");
         saveAsMenu.add(excelFileMenuItem);
         textFileMenuItem = new JMenuItem();
         Font textFileMenuItemFont = this.$$$getFont$$$(null, -1, 14, textFileMenuItem.getFont());
         if (textFileMenuItemFont != null) textFileMenuItem.setFont(textFileMenuItemFont);
+        textFileMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/txtFileIcon.png")));
         textFileMenuItem.setText("Text file");
         saveAsMenu.add(textFileMenuItem);
         final JPanel panel1 = new JPanel();
