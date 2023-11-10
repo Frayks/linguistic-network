@@ -2,7 +2,7 @@ package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionSmallWorldContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;

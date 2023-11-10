@@ -80,14 +80,14 @@
                   <text value="Keyword extraction &quot;Small-world&quot;"/>
                 </properties>
               </component>
-              <component id="88b71" class="javax.swing.JMenuItem">
+              <component id="88b71" class="javax.swing.JMenuItem" binding="keywordExtractionTextRankMenuItem">
                 <constraints/>
                 <properties>
                   <font size="14"/>
                   <text value="Keyword extraction &quot;TextRank&quot;"/>
                 </properties>
               </component>
-              <component id="b0dd8" class="javax.swing.JMenuItem">
+              <component id="b0dd8" class="javax.swing.JMenuItem" binding="keywordExtractionCentralityMeasuresMenuItem">
                 <constraints/>
                 <properties>
                   <font size="14"/>

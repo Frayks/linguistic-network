@@ -2,14 +2,11 @@ package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
-import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
+import org.andyou.linguistic_network.lib.api.context.KeywordExtractionCentralityMeasuresContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.CDFNode;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
-import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -19,30 +16,31 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class LinguisticMetricsFrame extends JFrame implements SubFrame {
-
+public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements SubFrame {
     private JPanel mainPanel;
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
+    private JTextField spentTimeTextField;
     private JButton calculateButton;
     private JProgressBar progressBar;
     private JButton terminateCalculationButton;
-    private JTextField spentTimeTextField;
 
     private MainContext mainContext;
-    private LinguisticMetricsContext linguisticMetricsContext;
+    private KeywordExtractionCentralityMeasuresContext keywordExtractionCentralityMeasuresContext;
     private AtomicReference<Thread> threadAtomicReference;
 
-    public LinguisticMetricsFrame(LinguisticNetworkContext linguisticNetworkContext) {
+    public KeywordExtractionCentralityMeasuresFrame(LinguisticNetworkContext linguisticNetworkContext) {
         this.mainContext = linguisticNetworkContext.getMainContext();
-        this.linguisticMetricsContext = linguisticNetworkContext.getLinguisticMetricsContext();
+        this.keywordExtractionCentralityMeasuresContext = linguisticNetworkContext.getKeywordExtractionCentralityMeasuresContext();
 
         $$$setupUI$$$();
-        setTitle("Linguistic Metrics");
+        setTitle("Keyword extraction \"Centrality Measures\"");
         setContentPane(mainPanel);
 
         threadAtomicReference = new AtomicReference<>();
@@ -53,22 +51,8 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
                 updateUI();
 
                 Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
+                boolean weightedGraph = mainContext.isWeightedGraph();
 
-                ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Arrays.asList(1, 13, 85, 1));
-
-                long startTime = System.currentTimeMillis();
-                List<CDFNode> cdfNodes = LinguisticNetworkUtil.calcCDFNodes(elementNodeGraph, progressBarProcessor);
-
-                progressBarProcessor.initAndFinishNextBlock();
-                progressBarProcessor.completed();
-                long endTime = System.currentTimeMillis();
-
-                linguisticMetricsContext.setCdfNodes(cdfNodes);
-                linguisticMetricsContext.setSpentTime(endTime - startTime);
-
-                for (CDFNode cdfNode : cdfNodes) {
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{cdfNode.getK(), cdfNode.getN(), cdfNode.getPdf(), cdfNode.getCdf()}));
-                }
             } catch (Exception ex) {
                 ex.printStackTrace();
                 CommonGUIUtil.showErrorMessageDialog(this, ex);
@@ -92,6 +76,7 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         updateUI();
     }
 
+
     @Override
     public void elementNodeGraphChanged() {
         clearContext();
@@ -100,8 +85,8 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
 
     @Override
     public void clearContext() {
-        linguisticMetricsContext.setCdfNodes(null);
-        linguisticMetricsContext.setSpentTime(0);
+        keywordExtractionCentralityMeasuresContext.setCmNodes(null);
+        keywordExtractionCentralityMeasuresContext.setSpentTime(0);
     }
 
     @Override
@@ -111,9 +96,9 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
     }
 
     synchronized public void updateUI(boolean calculationStarted) {
-        spentTimeTextField.setText(CommonUtil.formatDuration(linguisticMetricsContext.getSpentTime()));
+        spentTimeTextField.setText(CommonUtil.formatDuration(keywordExtractionCentralityMeasuresContext.getSpentTime()));
 
-        if (linguisticMetricsContext.getCdfNodes() == null) {
+        if (keywordExtractionCentralityMeasuresContext.getCmNodes() == null) {
             defaultTableModel.setRowCount(0);
         }
 
@@ -123,10 +108,9 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
 
     private void createUIComponents() {
         statisticTable = new JTable();
-
-        String[] columnIdentifiers = {"K", "N", "PDF", "CDF"};
-        defaultTableModel = new DefaultTableModel(0, 4) {
-            final Class<?>[] types = {Integer.class, Integer.class, Double.class, Double.class};
+        String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count"};
+        defaultTableModel = new DefaultTableModel(0, 5) {
+            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
@@ -141,6 +125,9 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         defaultTableModel.setColumnIdentifiers(columnIdentifiers);
         statisticTable.setModel(defaultTableModel);
 
+        double[] columnWidth = {0.05, 0.05, 0.1, 0.07, 0.1};
+        CommonGUIUtil.setTableColumnWidth(this, statisticTable, columnWidth);
+
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -154,7 +141,6 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         renderer.setHorizontalAlignment(SwingConstants.LEFT);
         List<TableColumn> tableColumns = Collections.list(statisticTable.getColumnModel().getColumns());
         tableColumns.forEach(tableColumn -> tableColumn.setCellRenderer(renderer));
-
     }
 
     /**
@@ -180,11 +166,41 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         panel1.setLayout(new GridBagLayout());
         mainPanel.add(panel1, BorderLayout.SOUTH);
         panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JLabel label1 = new JLabel();
+        Font label1Font = this.$$$getFont$$$(null, -1, 14, label1.getFont());
+        if (label1Font != null) label1.setFont(label1Font);
+        label1.setText("Spent time");
+        GridBagConstraints gbc;
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 5, 5);
+        panel1.add(label1, gbc);
+        spentTimeTextField = new JTextField();
+        spentTimeTextField.setColumns(10);
+        spentTimeTextField.setEditable(false);
+        Font spentTimeTextFieldFont = this.$$$getFont$$$(null, -1, 14, spentTimeTextField.getFont());
+        if (spentTimeTextFieldFont != null) spentTimeTextField.setFont(spentTimeTextFieldFont);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        panel1.add(spentTimeTextField, gbc);
+        final JPanel spacer1 = new JPanel();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.weightx = 4.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel1.add(spacer1, gbc);
         calculateButton = new JButton();
+        calculateButton.setEnabled(true);
         Font calculateButtonFont = this.$$$getFont$$$(null, -1, 14, calculateButton.getFont());
         if (calculateButtonFont != null) calculateButton.setFont(calculateButtonFont);
         calculateButton.setText("Calculate");
-        GridBagConstraints gbc;
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -207,34 +223,6 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         terminateCalculationButton.setPreferredSize(new Dimension(30, 30));
         terminateCalculationButton.setText("");
         panel2.add(terminateCalculationButton, BorderLayout.EAST);
-        final JLabel label1 = new JLabel();
-        Font label1Font = this.$$$getFont$$$(null, -1, 14, label1.getFont());
-        if (label1Font != null) label1.setFont(label1Font);
-        label1.setText("Spent time");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(0, 0, 5, 5);
-        panel1.add(label1, gbc);
-        spentTimeTextField = new JTextField();
-        spentTimeTextField.setEditable(false);
-        Font spentTimeTextFieldFont = this.$$$getFont$$$(null, -1, 14, spentTimeTextField.getFont());
-        if (spentTimeTextFieldFont != null) spentTimeTextField.setFont(spentTimeTextFieldFont);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 0, 5, 0);
-        panel1.add(spentTimeTextField, gbc);
-        final JPanel spacer1 = new JPanel();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel1.add(spacer1, gbc);
     }
 
     /**

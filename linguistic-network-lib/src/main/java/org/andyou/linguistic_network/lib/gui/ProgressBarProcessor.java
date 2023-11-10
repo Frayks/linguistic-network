@@ -1,4 +1,4 @@
-package org.andyou.linguistic_network.lib;
+package org.andyou.linguistic_network.lib.gui;
 
 import javax.swing.*;
 import java.util.ArrayDeque;

@@ -10,11 +10,15 @@ public class LinguisticNetworkContext {
     private MainContext mainContext;
     private LinguisticMetricsContext linguisticMetricsContext;
     private KeywordExtractionSmallWorldContext keywordExtractionSmallWorldContext;
+    private KeywordExtractionTextRankContext keywordExtractionTextRankContext;
+    private KeywordExtractionCentralityMeasuresContext keywordExtractionCentralityMeasuresContext;
 
     public LinguisticNetworkContext() {
         mainContext = new MainContext();
         linguisticMetricsContext = new LinguisticMetricsContext();
         keywordExtractionSmallWorldContext = new KeywordExtractionSmallWorldContext();
+        keywordExtractionTextRankContext = new KeywordExtractionTextRankContext();
+        keywordExtractionCentralityMeasuresContext = new KeywordExtractionCentralityMeasuresContext();
     }
 
 }

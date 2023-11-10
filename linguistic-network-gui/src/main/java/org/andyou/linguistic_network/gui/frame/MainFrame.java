@@ -4,7 +4,7 @@ import org.andyou.linguistic_network.gui.api.constant.FrameKey;
 import org.andyou.linguistic_network.gui.api.constant.TextConstant;
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
@@ -40,6 +40,9 @@ public class MainFrame extends JFrame {
     private JMenuItem textFilesMenuItem;
     private JMenuItem linguisticMetricsMenuItem;
     private JMenuItem keywordExtractionSmallWorldMenuItem;
+    private JMenuItem keywordExtractionTextRankMenuItem;
+    private JMenuItem keywordExtractionCentralityMeasuresMenuItem;
+
     private JTextField textFileTextField;
     private JComboBox<NGramType> nGramTypeComboBox;
     private JSpinner nGramSizeSpinner;
@@ -72,7 +75,6 @@ public class MainFrame extends JFrame {
     private JTextField spentTimeTextField;
     private JProgressBar progressBar;
     private JButton terminateCalculationButton;
-
 
     private Map<FrameKey, JFrame> subFrameMap;
     private AtomicReference<Thread> threadAtomicReference;
@@ -247,6 +249,38 @@ public class MainFrame extends JFrame {
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
                 keywordExtractionSmallWorldSubFrame.requestFocus();
+            }
+        });
+        keywordExtractionTextRankMenuItem.addActionListener(e -> {
+            JFrame keywordExtractionTextRankSubFrame = subFrameMap.get(FrameKey.KEYWORD_EXTRACTION_TEXT_RANK);
+            if (keywordExtractionTextRankSubFrame == null) {
+                KeywordExtractionTextRankFrame keywordExtractionTextRankFrame = new KeywordExtractionTextRankFrame(linguisticNetworkContext);
+                keywordExtractionTextRankFrame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_TEXT_RANK);
+                    }
+                });
+                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionTextRankFrame, 1000, 600);
+                subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_TEXT_RANK, keywordExtractionTextRankFrame);
+            } else {
+                keywordExtractionTextRankSubFrame.requestFocus();
+            }
+        });
+        keywordExtractionCentralityMeasuresMenuItem.addActionListener(e -> {
+            JFrame keywordExtractionCentralityMeasuresSubFrame = subFrameMap.get(FrameKey.KEYWORD_EXTRACTION_CENTRALITY_MEASURES);
+            if (keywordExtractionCentralityMeasuresSubFrame == null) {
+                KeywordExtractionCentralityMeasuresFrame keywordExtractionCentralityMeasuresFrame = new KeywordExtractionCentralityMeasuresFrame(linguisticNetworkContext);
+                keywordExtractionCentralityMeasuresFrame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_CENTRALITY_MEASURES);
+                    }
+                });
+                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionCentralityMeasuresFrame, 1000, 600);
+                subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_CENTRALITY_MEASURES, keywordExtractionCentralityMeasuresFrame);
+            } else {
+                keywordExtractionCentralityMeasuresSubFrame.requestFocus();
             }
         });
 
@@ -637,16 +671,18 @@ public class MainFrame extends JFrame {
             keywordExtractionSmallWorldMenuItem.setFont(keywordExtractionSmallWorldMenuItemFont);
         keywordExtractionSmallWorldMenuItem.setText("Keyword extraction \"Small-world\"");
         menu2.add(keywordExtractionSmallWorldMenuItem);
-        final JMenuItem menuItem1 = new JMenuItem();
-        Font menuItem1Font = this.$$$getFont$$$(null, -1, 14, menuItem1.getFont());
-        if (menuItem1Font != null) menuItem1.setFont(menuItem1Font);
-        menuItem1.setText("Keyword extraction \"TextRank\"");
-        menu2.add(menuItem1);
-        final JMenuItem menuItem2 = new JMenuItem();
-        Font menuItem2Font = this.$$$getFont$$$(null, -1, 14, menuItem2.getFont());
-        if (menuItem2Font != null) menuItem2.setFont(menuItem2Font);
-        menuItem2.setText("Keyword extraction \"Centrality Measures\"");
-        menu2.add(menuItem2);
+        keywordExtractionTextRankMenuItem = new JMenuItem();
+        Font keywordExtractionTextRankMenuItemFont = this.$$$getFont$$$(null, -1, 14, keywordExtractionTextRankMenuItem.getFont());
+        if (keywordExtractionTextRankMenuItemFont != null)
+            keywordExtractionTextRankMenuItem.setFont(keywordExtractionTextRankMenuItemFont);
+        keywordExtractionTextRankMenuItem.setText("Keyword extraction \"TextRank\"");
+        menu2.add(keywordExtractionTextRankMenuItem);
+        keywordExtractionCentralityMeasuresMenuItem = new JMenuItem();
+        Font keywordExtractionCentralityMeasuresMenuItemFont = this.$$$getFont$$$(null, -1, 14, keywordExtractionCentralityMeasuresMenuItem.getFont());
+        if (keywordExtractionCentralityMeasuresMenuItemFont != null)
+            keywordExtractionCentralityMeasuresMenuItem.setFont(keywordExtractionCentralityMeasuresMenuItemFont);
+        keywordExtractionCentralityMeasuresMenuItem.setText("Keyword extraction \"Centrality Measures\"");
+        menu2.add(keywordExtractionCentralityMeasuresMenuItem);
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new BorderLayout(0, 0));
         mainPanel.add(panel1, BorderLayout.CENTER);
