@@ -2,12 +2,12 @@ package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
@@ -67,7 +67,12 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
                 linguisticMetricsContext.setSpentTime(endTime - startTime);
 
                 for (CDFNode cdfNode : cdfNodes) {
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{cdfNode.getK(), cdfNode.getN(), cdfNode.getPdf(), cdfNode.getCdf()}));
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{
+                            cdfNode.getK(),
+                            cdfNode.getN(),
+                            cdfNode.getPdf(),
+                            cdfNode.getCdf()
+                    }));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -8,10 +8,12 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.InternationalFormatter;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.stream.DoubleStream;
 
@@ -24,6 +26,15 @@ public class CommonGUIUtil {
     public static final FileFilter TXT_FILE_FILTER = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
 
     public static final FileFilter XLSX_FILE_FILTER = new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx");
+
+    public static final JFormattedTextField.AbstractFormatterFactory DOUBLE_FORMATTER_FACTORY = new JFormattedTextField.AbstractFormatterFactory() {
+        @Override
+        public JFormattedTextField.AbstractFormatter getFormatter(JFormattedTextField tf) {
+            NumberFormat format = DecimalFormat.getInstance();
+            format.setMaximumFractionDigits(5);
+            return new InternationalFormatter(format);
+        }
+    };
 
     public static void setComponentsFont(Component[] comp, Font font) {
         for (Component component : comp) {

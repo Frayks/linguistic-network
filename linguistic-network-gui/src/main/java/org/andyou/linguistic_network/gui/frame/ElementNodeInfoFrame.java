@@ -109,7 +109,11 @@ public class ElementNodeInfoFrame extends JFrame {
         List<Map.Entry<ElementNode, Integer>> neighbors = new ArrayList<>(mainElementNode.getNeighbors().entrySet());
         neighbors.sort(Map.Entry.<ElementNode, Integer>comparingByValue().reversed());
         for (Map.Entry<ElementNode, Integer> neighbor : neighbors) {
-            SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{neighbor.getKey().getIndex(), neighbor.getKey().getElement(), neighbor.getValue()}));
+            SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{
+                    neighbor.getKey().getIndex(),
+                    neighbor.getKey().getElement(),
+                    neighbor.getValue()
+            }));
         }
     }
 

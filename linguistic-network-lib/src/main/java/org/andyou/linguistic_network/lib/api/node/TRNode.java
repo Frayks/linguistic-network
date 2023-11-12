@@ -8,5 +8,11 @@ import lombok.Setter;
 public class TRNode {
 
     private ElementNode elementNode;
+    private double importance;
+    private Double normalizedImportance;
 
+    public TRNode(ElementNode elementNode, double importance) {
+        this.elementNode = elementNode;
+        this.importance = importance;
+    }
 }

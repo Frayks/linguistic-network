@@ -1,9 +1,11 @@
 package org.andyou.linguistic_network.lib.util;
 
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
+import org.andyou.linguistic_network.lib.api.constant.StopConditionType;
 import org.andyou.linguistic_network.lib.api.node.CDFNode;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
 import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.node.TRNode;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 
 import java.util.*;
 
@@ -50,9 +52,22 @@ public class LinguisticNetworkUtil {
         double minContribution3 = swNodes.stream().mapToDouble(SWNode::getContribution3).min().orElse(0);
         swNodes.forEach(swNode -> swNode.setAdjustedContribution3(swNode.getContribution3() - minContribution3));
         double sumContribution3 = swNodes.stream().mapToDouble(SWNode::getAdjustedContribution3).sum();
-        swNodes.forEach(swNode -> swNode.setNormalizedContribution3(swNode.getAdjustedContribution3() / sumContribution3));
+        if (sumContribution3 == 0.0) {
+            swNodes.forEach(swNode -> swNode.setNormalizedContribution3(0.0));
+        } else {
+            swNodes.forEach(swNode -> swNode.setNormalizedContribution3(swNode.getAdjustedContribution3() / sumContribution3));
+        }
 
         return swNodes;
+    }
+
+    public static List<TRNode> calcKeywordStatisticsTextRank(Set<ElementNode> elementNodeGraph, StopConditionType stopConditionType, double accuracy, int iterationCount, double dampingFactor, boolean weightedGraph, ProgressBarProcessor progressBarProcessor) {
+        List<TRNode> trNodes = new ArrayList<>();
+        for (ElementNode elementNode : elementNodeGraph) {
+            trNodes.add(new TRNode(elementNode, 1.0));
+        }
+
+        return trNodes;
     }
 
     public static List<CDFNode> calcCDFNodes(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
@@ -187,4 +202,16 @@ public class LinguisticNetworkUtil {
     }
 
 
+    public static double calcAverageMultiplicity(Set<ElementNode> elementNodeGraph, boolean weightedGraph) {
+        return elementNodeGraph.stream().mapToInt(elementNode -> {
+            int multiplicity;
+            if (weightedGraph) {
+                multiplicity = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).sum();
+            } else {
+                multiplicity = elementNode.getNeighborCount();
+            }
+            elementNode.setMultiplicity(multiplicity);
+            return multiplicity;
+        }).average().orElse(0);
+    }
 }

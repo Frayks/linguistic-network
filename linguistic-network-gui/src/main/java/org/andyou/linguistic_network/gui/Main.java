@@ -12,7 +12,7 @@ public class Main {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         MainFrame mainFrame = new MainFrame();
         mainFrame.setIconImage(CommonGUIUtil.ICON.getImage());
-        mainFrame.setMinimumSize(new Dimension(1000, 600));
+        mainFrame.setMinimumSize(new Dimension(1100, 600));
         mainFrame.setPreferredSize(new Dimension(800, 600));
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.pack();

@@ -33,6 +33,7 @@ public class MainContext {
     private double averageClusteringCoefficient;
     private double averagePathLength;
     private double averageNeighbourCount;
+    private double averageMultiplicity;
     private long spentTime;
 
 }

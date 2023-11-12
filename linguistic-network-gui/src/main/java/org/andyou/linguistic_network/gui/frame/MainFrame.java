@@ -4,12 +4,12 @@ import org.andyou.linguistic_network.gui.api.constant.FrameKey;
 import org.andyou.linguistic_network.gui.api.constant.TextConstant;
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.ElementNodeGraphUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
@@ -72,6 +72,7 @@ public class MainFrame extends JFrame {
     private JTextField averageClusteringCoefficientTextField;
     private JTextField averagePathLengthTextField;
     private JTextField averageNeighbourCountTextField;
+    private JTextField averageMultiplicityTextField;
     private JTextField spentTimeTextField;
     private JProgressBar progressBar;
     private JButton terminateCalculationButton;
@@ -85,10 +86,10 @@ public class MainFrame extends JFrame {
         $$$setupUI$$$();
         setTitle("Linguistic Network");
         setContentPane(mainPanel);
+        initContext();
 
         subFrameMap = new HashMap<>();
         threadAtomicReference = new AtomicReference<>();
-        initContext();
 
         JFileChooser txtFileChooser = new JFileChooser();
         txtFileChooser.setFileFilter(CommonGUIUtil.TXT_FILE_FILTER);
@@ -157,7 +158,7 @@ public class MainFrame extends JFrame {
         jaccardCoefficientTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                mainContext.setJaccardCoefficient((Double) jaccardCoefficientTextField.getValue());
+                mainContext.setJaccardCoefficient((double) jaccardCoefficientTextField.getValue());
             }
         });
         filterByFrequencyCheckBox.addActionListener(e -> {
@@ -232,6 +233,7 @@ public class MainFrame extends JFrame {
                 CommonGUIUtil.configureDefaultSubFrame(linguisticMetricsFrame, 400, 400);
                 subFrameMap.put(FrameKey.LINGUISTIC_METRICS, linguisticMetricsFrame);
             } else {
+                linguisticMetricsSubFrame.setState(JFrame.NORMAL);
                 linguisticMetricsSubFrame.requestFocus();
             }
         });
@@ -248,6 +250,7 @@ public class MainFrame extends JFrame {
                 CommonGUIUtil.configureDefaultSubFrame(keywordExtractionSmallWorldFrame, 1200, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_SMALL_WORLD, keywordExtractionSmallWorldFrame);
             } else {
+                keywordExtractionSmallWorldSubFrame.setState(JFrame.NORMAL);
                 keywordExtractionSmallWorldSubFrame.requestFocus();
             }
         });
@@ -264,6 +267,7 @@ public class MainFrame extends JFrame {
                 CommonGUIUtil.configureDefaultSubFrame(keywordExtractionTextRankFrame, 1000, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_TEXT_RANK, keywordExtractionTextRankFrame);
             } else {
+                keywordExtractionTextRankSubFrame.setState(JFrame.NORMAL);
                 keywordExtractionTextRankSubFrame.requestFocus();
             }
         });
@@ -280,6 +284,7 @@ public class MainFrame extends JFrame {
                 CommonGUIUtil.configureDefaultSubFrame(keywordExtractionCentralityMeasuresFrame, 1000, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_CENTRALITY_MEASURES, keywordExtractionCentralityMeasuresFrame);
             } else {
+                keywordExtractionCentralityMeasuresSubFrame.setState(JFrame.NORMAL);
                 keywordExtractionCentralityMeasuresSubFrame.requestFocus();
             }
         });
@@ -306,6 +311,7 @@ public class MainFrame extends JFrame {
                 mainContext.setAverageClusteringCoefficient(0.0);
                 mainContext.setAveragePathLength(0.0);
                 mainContext.setAverageNeighbourCount(0.0);
+                mainContext.setAverageMultiplicity(0.0);
                 mainContext.setSpentTime(0);
                 updateUI(false);
 
@@ -375,6 +381,7 @@ public class MainFrame extends JFrame {
                 double averageClusteringCoefficient = LinguisticNetworkUtil.calcAverageClusteringCoefficient(elementNodeGraph, progressBarProcessor);
                 double averagePathLength = LinguisticNetworkUtil.calcAveragePathLength(elementNodeGraph, weightedGraph, false, progressBarProcessor);
                 double averageNeighbourCount = LinguisticNetworkUtil.calcAverageNeighbourCount(elementNodeGraph);
+                double averageMultiplicity = LinguisticNetworkUtil.calcAverageMultiplicity(elementNodeGraph, weightedGraph);
                 progressBarProcessor.initAndFinishNextBlock();
 
                 progressBarProcessor.completed();
@@ -384,11 +391,20 @@ public class MainFrame extends JFrame {
                 mainContext.setAverageClusteringCoefficient(averageClusteringCoefficient);
                 mainContext.setAveragePathLength(averagePathLength);
                 mainContext.setAverageNeighbourCount(averageNeighbourCount);
+                mainContext.setAverageMultiplicity(averageMultiplicity);
                 mainContext.setSpentTime(endTime - startTime);
 
                 List<ElementNode> elementNodes = ElementNodeGraphUtil.sortAndSetIndex(elementNodeGraph);
                 for (ElementNode elementNode : elementNodes) {
-                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{elementNode.getIndex(), elementNode.getElement(), elementNode.getFrequency(), elementNode.getClusteringCoefficient(), elementNode.getAveragePathLength(), elementNode.getNeighborCount()}));
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{
+                            elementNode.getIndex(),
+                            elementNode.getElement(),
+                            elementNode.getFrequency(),
+                            elementNode.getClusteringCoefficient(),
+                            elementNode.getAveragePathLength(),
+                            elementNode.getNeighborCount(),
+                            elementNode.getMultiplicity()
+                    }));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -438,18 +454,10 @@ public class MainFrame extends JFrame {
         mainContext.setRangeSize((int) rangeSizeSpinner.getValue());
         mainContext.setRemoveStopWords(removeStopWordsCheckBox.isSelected());
         mainContext.setRestrictedGraph(restrictedGraphCheckBox.isSelected());
-        mainContext.setJaccardCoefficient((Double) jaccardCoefficientTextField.getValue());
+        mainContext.setJaccardCoefficient((double) jaccardCoefficientTextField.getValue());
         mainContext.setFilterByFrequency(filterByFrequencyCheckBox.isSelected());
         mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
         mainContext.setWeightedGraph(weightedGraphCheckBox.isSelected());
-    }
-
-    private void elementNodeGraphChanged() {
-        for (JFrame subFrame : subFrameMap.values()) {
-            if (subFrame instanceof SubFrame) {
-                ((SubFrame) subFrame).elementNodeGraphChanged();
-            }
-        }
     }
 
     private void clearContext() {
@@ -458,10 +466,19 @@ public class MainFrame extends JFrame {
         mainContext.setAverageClusteringCoefficient(0.0);
         mainContext.setAveragePathLength(0.0);
         mainContext.setAverageNeighbourCount(0.0);
+        mainContext.setAverageMultiplicity(0.0);
         mainContext.setSpentTime(0);
         for (JFrame subFrame : subFrameMap.values()) {
             if (subFrame instanceof SubFrame) {
                 ((SubFrame) subFrame).clearContext();
+            }
+        }
+    }
+
+    private void elementNodeGraphChanged() {
+        for (JFrame subFrame : subFrameMap.values()) {
+            if (subFrame instanceof SubFrame) {
+                ((SubFrame) subFrame).elementNodeGraphChanged();
             }
         }
     }
@@ -523,6 +540,7 @@ public class MainFrame extends JFrame {
         averageClusteringCoefficientTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAverageClusteringCoefficient()));
         averagePathLengthTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAveragePathLength()));
         averageNeighbourCountTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAverageNeighbourCount()));
+        averageMultiplicityTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(mainContext.getAverageMultiplicity()));
         spentTimeTextField.setText(CommonUtil.formatDuration(mainContext.getSpentTime()));
 
         if (mainContext.getElementNodeGraph() == null) {
@@ -570,12 +588,12 @@ public class MainFrame extends JFrame {
 
         filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
 
-        jaccardCoefficientTextField = new JFormattedTextField(2.0);
+        jaccardCoefficientTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 2.0);
 
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbor Count"};
-        defaultTableModel = new DefaultTableModel(0, 6) {
-            final Class<?>[] types = {Integer.class, String.class, Integer.class, Double.class, Double.class, Integer.class};
+        String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbor Count", "Multiplicity"};
+        defaultTableModel = new DefaultTableModel(0, 7) {
+            final Class<?>[] types = {Integer.class, String.class, Integer.class, Double.class, Double.class, Integer.class, Integer.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
@@ -590,7 +608,7 @@ public class MainFrame extends JFrame {
         defaultTableModel.setColumnIdentifiers(columnIdentifiers);
         statisticTable.setModel(defaultTableModel);
 
-        double[] columnWidth = {0.09, 0.17, 0.13, 0.21, 0.2, 0.2};
+        double[] columnWidth = {0.08, 0.17, 0.10, 0.20, 0.17, 0.16, 0.12};
         CommonGUIUtil.setTableColumnWidth(this, statisticTable, columnWidth);
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
@@ -717,7 +735,7 @@ public class MainFrame extends JFrame {
         caseSensitiveCheckBox.setEnabled(true);
         Font caseSensitiveCheckBoxFont = this.$$$getFont$$$(null, -1, 14, caseSensitiveCheckBox.getFont());
         if (caseSensitiveCheckBoxFont != null) caseSensitiveCheckBox.setFont(caseSensitiveCheckBoxFont);
-        caseSensitiveCheckBox.setSelected(true);
+        caseSensitiveCheckBox.setSelected(false);
         caseSensitiveCheckBox.setText("Case sensitive");
         GridBagConstraints gbc;
         gbc = new GridBagConstraints();
@@ -1011,7 +1029,7 @@ public class MainFrame extends JFrame {
         label6.setText("Spent time");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 0, 5);
         panel7.add(label6, gbc);
@@ -1022,7 +1040,7 @@ public class MainFrame extends JFrame {
         if (spentTimeTextFieldFont != null) spentTimeTextField.setFont(spentTimeTextFieldFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel7.add(spentTimeTextField, gbc);
@@ -1094,6 +1112,29 @@ public class MainFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 0, 5, 0);
         panel7.add(averageNeighbourCountTextField, gbc);
+        final JLabel label10 = new JLabel();
+        Font label10Font = this.$$$getFont$$$(null, -1, 14, label10.getFont());
+        if (label10Font != null) label10.setFont(label10Font);
+        label10.setText("Average Multiplicity");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 5, 5);
+        panel7.add(label10, gbc);
+        averageMultiplicityTextField = new JTextField();
+        averageMultiplicityTextField.setColumns(10);
+        averageMultiplicityTextField.setEditable(false);
+        Font averageMultiplicityTextFieldFont = this.$$$getFont$$$(null, -1, 14, averageMultiplicityTextField.getFont());
+        if (averageMultiplicityTextFieldFont != null)
+            averageMultiplicityTextField.setFont(averageMultiplicityTextFieldFont);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        panel7.add(averageMultiplicityTextField, gbc);
         final JScrollPane scrollPane1 = new JScrollPane();
         panel6.add(scrollPane1, BorderLayout.CENTER);
         statisticTable.setAutoCreateRowSorter(true);

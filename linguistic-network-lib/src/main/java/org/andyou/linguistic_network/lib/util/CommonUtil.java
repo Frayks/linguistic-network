@@ -38,13 +38,22 @@ public class CommonUtil {
             printWriter.println("Average Clustering Coefficient: " + mainContext.getAverageClusteringCoefficient());
             printWriter.println("Average Path Length: " + mainContext.getAveragePathLength());
             printWriter.println("Average Neighbour Count: " + mainContext.getAverageNeighbourCount());
+            printWriter.println("Average Multiplicity: " + mainContext.getAverageMultiplicity());
             printWriter.println("Spent time: " + CommonUtil.formatDuration(mainContext.getSpentTime()));
 
             Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
             List<ElementNode> elementNodes = ElementNodeGraphUtil.sortAndSetIndex(elementNodeGraph);
-            printWriter.println("Index\tElement\tFrequency\tClustering Coefficient\tAvg. Path Length\tNeighbor Count");
+            printWriter.println("\nIndex\tElement\tFrequency\tClustering Coefficient\tAvg. Path Length\tNeighbor Count\tMultiplicity");
             for (ElementNode elementNode : elementNodes) {
-                printWriter.printf("%d\t%s\t%d\t%f\t%f\t%d\n", elementNode.getIndex(), elementNode.getElement(), elementNode.getFrequency(), elementNode.getClusteringCoefficient(), elementNode.getAveragePathLength(), elementNode.getNeighborCount());
+                printWriter.printf("%d\t%s\t%d\t%f\t%f\t%d\t%d\n",
+                        elementNode.getIndex(),
+                        elementNode.getElement(),
+                        elementNode.getFrequency(),
+                        elementNode.getClusteringCoefficient(),
+                        elementNode.getAveragePathLength(),
+                        elementNode.getNeighborCount(),
+                        elementNode.getMultiplicity()
+                );
             }
             printWriter.close();
         }
@@ -59,7 +68,12 @@ public class CommonUtil {
             List<CDFNode> cdfNodes = linguisticMetricsContext.getCdfNodes();
             printWriter.println("\nK\tN\tPDF\tCDF");
             for (CDFNode cdfNode : cdfNodes) {
-                printWriter.printf("%d\t%d\t%f\t%f\n", cdfNode.getK(), cdfNode.getN(), cdfNode.getPdf(), cdfNode.getCdf());
+                printWriter.printf("%d\t%d\t%f\t%f\n",
+                        cdfNode.getK(),
+                        cdfNode.getN(),
+                        cdfNode.getPdf(),
+                        cdfNode.getCdf()
+                );
             }
             printWriter.close();
         }
@@ -77,7 +91,7 @@ public class CommonUtil {
                     .thenComparing(swNode -> swNode.getElementNode().getFrequency())
                     .thenComparing(swNode -> swNode.getElementNode().getElement())
                     .reversed());
-            printWriter.println("Rank\tIndex\tElement\tFrequency\tNeighbors count\tCB1\tCB1 Adj.\tCB1 Norm.\tCB2\tCB2 Norm.\tCB3\tCB3 Adj.\tCB3 Norm.");
+            printWriter.println("\nRank\tIndex\tElement\tFrequency\tNeighbors count\tCB1\tCB1 Adj.\tCB1 Norm.\tCB2\tCB2 Norm.\tCB3\tCB3 Adj.\tCB3 Norm.");
             for (int i = 0; i < swNodes.size(); i++) {
                 SWNode swNode = swNodes.get(i);
                 int rank = i + 1;
@@ -94,7 +108,8 @@ public class CommonUtil {
                         swNode.getNormalizedContribution2(),
                         swNode.getContribution3(),
                         swNode.getAdjustedContribution3(),
-                        swNode.getNormalizedContribution3());
+                        swNode.getNormalizedContribution3()
+                );
             }
             printWriter.close();
         }
@@ -105,13 +120,18 @@ public class CommonUtil {
 
         if (elementNode != null) {
             PrintWriter printWriter = new PrintWriter(new FileWriter(file));
+            printWriter.println("Index: " + elementNode.getIndex());
             printWriter.println("Element: " + elementNode.getElement());
 
             List<Map.Entry<ElementNode, Integer>> neighbors = new ArrayList<>(elementNode.getNeighbors().entrySet());
             neighbors.sort(Map.Entry.<ElementNode, Integer>comparingByValue().reversed());
-            printWriter.println("Index\tNeighbor\tMultiplicity");
+            printWriter.println("\nIndex\tNeighbor\tMultiplicity");
             for (Map.Entry<ElementNode, Integer> neighbor : neighbors) {
-                printWriter.printf("%d\t%s\t%d\n", neighbor.getKey().getIndex(), neighbor.getKey().getElement(), neighbor.getValue());
+                printWriter.printf("%d\t%s\t%d\n",
+                        neighbor.getKey().getIndex(),
+                        neighbor.getKey().getElement(),
+                        neighbor.getValue()
+                );
             }
             printWriter.close();
         }
@@ -126,17 +146,18 @@ public class CommonUtil {
         if (mainContext != null && mainContext.getElementNodeGraph() != null) {
             Sheet sheet = workbook.createSheet("linguistic_network");
 
-            Row row6 = sheet.createRow(6);
-            row6.createCell(0).setCellValue("Index");
-            row6.createCell(1).setCellValue("Element");
-            row6.createCell(2).setCellValue("Frequency");
-            row6.createCell(3).setCellValue("Clustering Coefficient");
-            row6.createCell(4).setCellValue("Avg. Path Length");
-            row6.createCell(5).setCellValue("Neighbor Count");
+            Row row8 = sheet.createRow(8);
+            row8.createCell(0).setCellValue("Index");
+            row8.createCell(1).setCellValue("Element");
+            row8.createCell(2).setCellValue("Frequency");
+            row8.createCell(3).setCellValue("Clustering Coefficient");
+            row8.createCell(4).setCellValue("Avg. Path Length");
+            row8.createCell(5).setCellValue("Neighbor Count");
+            row8.createCell(6).setCellValue("Multiplicity");
 
             Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
             List<ElementNode> elementNodes = ElementNodeGraphUtil.sortAndSetIndex(elementNodeGraph);
-            int rowShift = 7;
+            int rowShift = 9;
             for (int i = 0; i < elementNodes.size(); i++) {
                 ElementNode elementNode = elementNodes.get(i);
                 Row row = sheet.createRow(rowShift + i);
@@ -146,6 +167,7 @@ public class CommonUtil {
                 row.createCell(3).setCellValue(elementNode.getClusteringCoefficient());
                 row.createCell(4).setCellValue(elementNode.getAveragePathLength());
                 row.createCell(5).setCellValue(elementNode.getNeighborCount());
+                row.createCell(6).setCellValue(elementNode.getMultiplicity());
             }
             sheet.autoSizeColumn(1);
 
@@ -170,8 +192,12 @@ public class CommonUtil {
             row4.createCell(1).setCellValue(mainContext.getAverageNeighbourCount());
 
             Row row5 = sheet.createRow(5);
-            row5.createCell(0).setCellValue("Spent time");
-            row5.createCell(1).setCellValue(CommonUtil.formatDuration(mainContext.getSpentTime()));
+            row5.createCell(0).setCellValue("Average Multiplicity");
+            row5.createCell(1).setCellValue(mainContext.getAverageNeighbourCount());
+
+            Row row6 = sheet.createRow(6);
+            row6.createCell(0).setCellValue("Spent time");
+            row6.createCell(1).setCellValue(CommonUtil.formatDuration(mainContext.getSpentTime()));
         }
 
         LinguisticMetricsContext linguisticMetricsContext = context.getLinguisticMetricsContext();

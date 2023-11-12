@@ -155,7 +155,7 @@
                         <properties>
                           <enabled value="true"/>
                           <font size="14"/>
-                          <selected value="true"/>
+                          <selected value="false"/>
                           <text value="Case sensitive"/>
                         </properties>
                       </component>
@@ -455,7 +455,7 @@
                       </component>
                       <component id="4fc8c" class="javax.swing.JLabel">
                         <constraints>
-                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag top="0" left="0" bottom="0" right="5" weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -465,7 +465,7 @@
                       </component>
                       <component id="efc11" class="javax.swing.JTextField" binding="spentTimeTextField">
                         <constraints>
-                          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
                           </grid>
                           <gridbag weightx="0.0" weighty="0.0"/>
@@ -535,6 +535,29 @@
                       <component id="e8968" class="javax.swing.JTextField" binding="averageNeighbourCountTextField">
                         <constraints>
                           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                          <gridbag top="0" left="0" bottom="5" right="0" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <columns value="10"/>
+                          <editable value="false"/>
+                          <font size="14"/>
+                        </properties>
+                      </component>
+                      <component id="523c7" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag top="0" left="0" bottom="5" right="5" weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <font size="14"/>
+                          <text value="Average Multiplicity"/>
+                        </properties>
+                      </component>
+                      <component id="991de" class="javax.swing.JTextField" binding="averageMultiplicityTextField">
+                        <constraints>
+                          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
                           </grid>
                           <gridbag top="0" left="0" bottom="5" right="0" weightx="0.0" weighty="0.0"/>
