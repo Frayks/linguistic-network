@@ -1,6 +1,6 @@
 package org.andyou.linguistic_network.lib.util;
 
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.api.data.ElementNode;
 
 import java.util.*;
 

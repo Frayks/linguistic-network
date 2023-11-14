@@ -1,10 +1,7 @@
 package org.andyou.linguistic_network.lib.util;
 
 import org.andyou.linguistic_network.lib.api.constant.StopConditionType;
-import org.andyou.linguistic_network.lib.api.node.CDFNode;
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
-import org.andyou.linguistic_network.lib.api.node.TRNode;
+import org.andyou.linguistic_network.lib.api.data.*;
 import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 
 import java.util.*;
@@ -61,13 +58,77 @@ public class LinguisticNetworkUtil {
         return swNodes;
     }
 
-    public static List<TRNode> calcKeywordStatisticsTextRank(Set<ElementNode> elementNodeGraph, StopConditionType stopConditionType, double accuracy, int iterationCount, double dampingFactor, boolean weightedGraph, ProgressBarProcessor progressBarProcessor) {
-        List<TRNode> trNodes = new ArrayList<>();
+    public static TextRankStatistics calcKeywordStatisticsTextRank(Set<ElementNode> elementNodeGraph, StopConditionType stopConditionType, double accuracy, int iterationCount, double dampingFactor, boolean weightedGraph, ProgressBarProcessor progressBarProcessor) {
+        elementNodeGraph = ElementNodeGraphUtil.clone(elementNodeGraph);
+        TextRankStatistics textRankStatistics = new TextRankStatistics();
+
+        Map<ElementNode, TRNode> trNodeMap = new HashMap<>();
         for (ElementNode elementNode : elementNodeGraph) {
-            trNodes.add(new TRNode(elementNode, 1.0));
+            trNodeMap.put(elementNode, new TRNode(elementNode, 1.0));
         }
 
-        return trNodes;
+        List<TRNode> trNodes = new ArrayList<>(trNodeMap.values());
+        trNodes.sort(Comparator.comparing(trNode -> trNode.getElementNode().getElement()));
+
+        if (StopConditionType.ACCURACY.equals(stopConditionType)) {
+            if (progressBarProcessor != null) {
+                progressBarProcessor.setIndeterminate(true);
+            }
+
+            int iterationsCompleted = 0;
+            double calculationError = Double.MAX_VALUE;
+            while (calculationError > accuracy) {
+                calculationError = executeTextRankIteration(trNodes, trNodeMap, dampingFactor, weightedGraph);
+                iterationsCompleted++;
+            }
+            textRankStatistics.setIterationsCompleted(iterationsCompleted);
+            textRankStatistics.setCalculationError(calculationError);
+        } else if (StopConditionType.ITERATION_COUNT.equals(stopConditionType)) {
+            if (progressBarProcessor != null) {
+                progressBarProcessor.initNextBlock(iterationCount);
+            }
+
+            double accuracyAchieved = 0.0;
+            for (int i = 0; i < iterationCount; i++) {
+                accuracyAchieved = executeTextRankIteration(trNodes, trNodeMap, dampingFactor, weightedGraph);
+
+                if (progressBarProcessor != null) {
+                    progressBarProcessor.walk();
+                }
+            }
+            textRankStatistics.setIterationsCompleted(iterationCount);
+            textRankStatistics.setCalculationError(accuracyAchieved);
+        }
+
+        double sumImportance = trNodes.stream().mapToDouble(TRNode::getImportance).sum();
+        trNodes.forEach(trNode -> trNode.setNormalizedImportance(trNode.getImportance() / sumImportance));
+        textRankStatistics.setTrNodes(trNodes);
+
+        return textRankStatistics;
+    }
+
+    private static double executeTextRankIteration(List<TRNode> trNodes, Map<ElementNode, TRNode> trNodeMap, double dampingFactor, boolean weightedGraph) {
+        return trNodes.stream().mapToDouble(trNode -> {
+            ElementNode elementNode = trNode.getElementNode();
+
+            double sum = elementNode.getNeighbors().entrySet().stream()
+                    .mapToDouble(neighborEntry -> {
+                        ElementNode neighborElementNode = neighborEntry.getKey();
+                        TRNode neighborTRNode = trNodeMap.get(neighborElementNode);
+                        if (weightedGraph) {
+                            double neighborWeight = 1.0 / neighborEntry.getValue();
+                            double sumWeight = neighborElementNode.getNeighbors().values().stream()
+                                    .mapToDouble(multiplicity -> 1.0 / multiplicity).sum();
+                            return neighborWeight / sumWeight * neighborTRNode.getImportance();
+                        } else {
+                            return 1.0 / neighborElementNode.getNeighborCount() * neighborTRNode.getImportance();
+                        }
+                    }).sum();
+            double oldImportance = trNode.getImportance();
+            double newImportance = (1 - dampingFactor) + dampingFactor * sum;
+            trNode.setImportance(newImportance);
+            return Math.abs(newImportance - oldImportance);
+        }).max().orElse(0);
     }
 
     public static List<CDFNode> calcCDFNodes(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {

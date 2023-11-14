@@ -1,4 +1,4 @@
-package org.andyou.linguistic_network.lib.api.node;
+package org.andyou.linguistic_network.lib.api.data;
 
 import lombok.Getter;
 import lombok.Setter;

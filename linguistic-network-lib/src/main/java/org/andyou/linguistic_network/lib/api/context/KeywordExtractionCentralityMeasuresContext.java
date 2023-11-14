@@ -2,8 +2,7 @@ package org.andyou.linguistic_network.lib.api.context;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.andyou.linguistic_network.lib.api.node.CMNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.data.CMNode;
 
 import java.util.List;
 

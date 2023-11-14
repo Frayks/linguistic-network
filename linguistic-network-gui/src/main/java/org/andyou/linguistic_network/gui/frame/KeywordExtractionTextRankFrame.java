@@ -6,8 +6,9 @@ import org.andyou.linguistic_network.lib.api.constant.StopConditionType;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionTextRankContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
-import org.andyou.linguistic_network.lib.api.node.TRNode;
+import org.andyou.linguistic_network.lib.api.data.ElementNode;
+import org.andyou.linguistic_network.lib.api.data.TRNode;
+import org.andyou.linguistic_network.lib.api.data.TextRankStatistics;
 import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
@@ -20,8 +21,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,13 +30,13 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
     private JPanel mainPanel;
     private JComboBox<StopConditionType> stopConditionComboBox;
     private JLabel accuracyLabel;
-    private JFormattedTextField accuracyTextField;
+    private JFormattedTextField accuracyFormattedTextField;
     private JLabel iterationCountLabel;
     private JSpinner iterationCountSpinner;
-    private JFormattedTextField dampingFactorTextField;
+    private JFormattedTextField dampingFactorFormattedTextField;
     private JTable statisticTable;
     private DefaultTableModel defaultTableModel;
-    private JTextField accuracyAchievedTextField;
+    private JTextField calculationErrorTextField;
     private JTextField iterationsCompletedTextField;
     private JTextField spentTimeTextField;
     private JButton calculateButton;
@@ -62,22 +61,16 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         stopConditionComboBox.addActionListener(e -> {
             StopConditionType stopConditionType = (StopConditionType) stopConditionComboBox.getSelectedItem();
             keywordExtractionTextRankContext.setStopConditionType(stopConditionType);
-            updateUI(true);
+            updateUI();
         });
-        accuracyTextField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                keywordExtractionTextRankContext.setAccuracy((double) accuracyTextField.getValue());
-            }
+        accuracyFormattedTextField.addPropertyChangeListener("value", e -> {
+            keywordExtractionTextRankContext.setAccuracy(Double.parseDouble(accuracyFormattedTextField.getValue().toString()));
         });
         iterationCountSpinner.addChangeListener(e -> {
             keywordExtractionTextRankContext.setIterationCount((int) iterationCountSpinner.getValue());
         });
-        dampingFactorTextField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                keywordExtractionTextRankContext.setDampingFactor((double) dampingFactorTextField.getValue());
-            }
+        dampingFactorFormattedTextField.addPropertyChangeListener("value", e -> {
+            keywordExtractionTextRankContext.setDampingFactor(Double.parseDouble(dampingFactorFormattedTextField.getValue().toString()));
         });
 
         Runnable task = () -> {
@@ -96,13 +89,15 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
                 ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Collections.singletonList(100));
 
                 long startTime = System.currentTimeMillis();
-                List<TRNode> trNodes = LinguisticNetworkUtil.calcKeywordStatisticsTextRank(elementNodeGraph, stopConditionType, accuracy, iterationCount, dampingFactor, weightedGraph, progressBarProcessor);
+                TextRankStatistics textRankStatistics = LinguisticNetworkUtil.calcKeywordStatisticsTextRank(elementNodeGraph, stopConditionType, accuracy, iterationCount, dampingFactor, weightedGraph, progressBarProcessor);
                 progressBarProcessor.completed();
                 long endTime = System.currentTimeMillis();
 
+                List<TRNode> trNodes = textRankStatistics.getTrNodes();
+
                 keywordExtractionTextRankContext.setTrNodes(trNodes);
-                keywordExtractionTextRankContext.setAccuracyAchieved(0.0);
-                keywordExtractionTextRankContext.setIterationsCompleted(0);
+                keywordExtractionTextRankContext.setCalculationError(textRankStatistics.getCalculationError());
+                keywordExtractionTextRankContext.setIterationsCompleted(textRankStatistics.getIterationsCompleted());
                 keywordExtractionTextRankContext.setSpentTime(endTime - startTime);
 
                 trNodes.sort(Comparator.comparingDouble(TRNode::getImportance)
@@ -156,15 +151,15 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
 
     private void initContext() {
         keywordExtractionTextRankContext.setStopConditionType((StopConditionType) stopConditionComboBox.getSelectedItem());
-        keywordExtractionTextRankContext.setAccuracy((double) accuracyTextField.getValue());
+        keywordExtractionTextRankContext.setAccuracy((double) accuracyFormattedTextField.getValue());
         keywordExtractionTextRankContext.setIterationCount((int) iterationCountSpinner.getValue());
-        keywordExtractionTextRankContext.setDampingFactor((double) dampingFactorTextField.getValue());
+        keywordExtractionTextRankContext.setDampingFactor((double) dampingFactorFormattedTextField.getValue());
     }
 
     @Override
     public void clearContext() {
         keywordExtractionTextRankContext.setTrNodes(null);
-        keywordExtractionTextRankContext.setAccuracyAchieved(null);
+        keywordExtractionTextRankContext.setCalculationError(null);
         keywordExtractionTextRankContext.setIterationsCompleted(0);
         keywordExtractionTextRankContext.setSpentTime(0);
     }
@@ -179,15 +174,15 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         stopConditionComboBox.setSelectedItem(keywordExtractionTextRankContext.getStopConditionType());
 
         accuracyLabel.setVisible(StopConditionType.ACCURACY.equals(keywordExtractionTextRankContext.getStopConditionType()));
-        accuracyTextField.setVisible(StopConditionType.ACCURACY.equals(keywordExtractionTextRankContext.getStopConditionType()));
+        accuracyFormattedTextField.setVisible(StopConditionType.ACCURACY.equals(keywordExtractionTextRankContext.getStopConditionType()));
 
         iterationCountLabel.setVisible(StopConditionType.ITERATION_COUNT.equals(keywordExtractionTextRankContext.getStopConditionType()));
         iterationCountSpinner.setVisible(StopConditionType.ITERATION_COUNT.equals(keywordExtractionTextRankContext.getStopConditionType()));
 
-        if (keywordExtractionTextRankContext.getAccuracyAchieved() == null) {
-            accuracyAchievedTextField.setText("");
+        if (keywordExtractionTextRankContext.getCalculationError() == null) {
+            calculationErrorTextField.setText("");
         } else {
-            accuracyAchievedTextField.setText(CommonGUIUtil.DECIMAL_FORMAT.format(keywordExtractionTextRankContext.getAccuracyAchieved()));
+            calculationErrorTextField.setText(CommonGUIUtil.ERROR_FORMAT.format(keywordExtractionTextRankContext.getCalculationError()));
         }
         iterationsCompletedTextField.setText(String.valueOf(keywordExtractionTextRankContext.getIterationsCompleted()));
         spentTimeTextField.setText(CommonUtil.formatDuration(keywordExtractionTextRankContext.getSpentTime()));
@@ -204,11 +199,11 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         StopConditionType[] stopConditionTypes = {StopConditionType.ACCURACY, StopConditionType.ITERATION_COUNT};
         stopConditionComboBox = new JComboBox<>(stopConditionTypes);
 
-        accuracyTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 0.0001);
+        accuracyFormattedTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 0.0001);
 
-        iterationCountSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
+        iterationCountSpinner = new JSpinner(new SpinnerNumberModel(20, 1, 1000000000, 1));
 
-        dampingFactorTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 0.85);
+        dampingFactorFormattedTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 0.85);
 
         statisticTable = new JTable();
         String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "S", "S Norm."};
@@ -336,16 +331,16 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel3.add(accuracyLabel, gbc);
-        Font accuracyTextFieldFont = this.$$$getFont$$$(null, -1, 14, accuracyTextField.getFont());
-        if (accuracyTextFieldFont != null) accuracyTextField.setFont(accuracyTextFieldFont);
-        accuracyTextField.setHorizontalAlignment(4);
+        Font accuracyFormattedTextFieldFont = this.$$$getFont$$$(null, -1, 14, accuracyFormattedTextField.getFont());
+        if (accuracyFormattedTextFieldFont != null) accuracyFormattedTextField.setFont(accuracyFormattedTextFieldFont);
+        accuracyFormattedTextField.setHorizontalAlignment(4);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 0, 2, 5);
-        panel3.add(accuracyTextField, gbc);
+        panel3.add(accuracyFormattedTextField, gbc);
         final JLabel label2 = new JLabel();
         Font label2Font = this.$$$getFont$$$(null, -1, 14, label2.getFont());
         if (label2Font != null) label2.setFont(label2Font);
@@ -356,16 +351,17 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel3.add(label2, gbc);
-        Font dampingFactorTextFieldFont = this.$$$getFont$$$(null, -1, 14, dampingFactorTextField.getFont());
-        if (dampingFactorTextFieldFont != null) dampingFactorTextField.setFont(dampingFactorTextFieldFont);
-        dampingFactorTextField.setHorizontalAlignment(4);
+        Font dampingFactorFormattedTextFieldFont = this.$$$getFont$$$(null, -1, 14, dampingFactorFormattedTextField.getFont());
+        if (dampingFactorFormattedTextFieldFont != null)
+            dampingFactorFormattedTextField.setFont(dampingFactorFormattedTextFieldFont);
+        dampingFactorFormattedTextField.setHorizontalAlignment(4);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 0, 2, 5);
-        panel3.add(dampingFactorTextField, gbc);
+        panel3.add(dampingFactorFormattedTextField, gbc);
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new BorderLayout(0, 0));
         panel1.add(panel4, BorderLayout.CENTER);
@@ -419,7 +415,7 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         final JLabel label5 = new JLabel();
         Font label5Font = this.$$$getFont$$$(null, -1, 14, label5.getFont());
         if (label5Font != null) label5.setFont(label5Font);
-        label5.setText("Accuracy achieved");
+        label5.setText("Calculation error");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -433,17 +429,17 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel5.add(spacer2, gbc);
-        accuracyAchievedTextField = new JTextField();
-        accuracyAchievedTextField.setColumns(10);
-        accuracyAchievedTextField.setEditable(false);
-        Font accuracyAchievedTextFieldFont = this.$$$getFont$$$(null, -1, 14, accuracyAchievedTextField.getFont());
-        if (accuracyAchievedTextFieldFont != null) accuracyAchievedTextField.setFont(accuracyAchievedTextFieldFont);
+        calculationErrorTextField = new JTextField();
+        calculationErrorTextField.setColumns(10);
+        calculationErrorTextField.setEditable(false);
+        Font calculationErrorTextFieldFont = this.$$$getFont$$$(null, -1, 14, calculationErrorTextField.getFont());
+        if (calculationErrorTextFieldFont != null) calculationErrorTextField.setFont(calculationErrorTextFieldFont);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel5.add(accuracyAchievedTextField, gbc);
+        panel5.add(calculationErrorTextField, gbc);
         final JScrollPane scrollPane1 = new JScrollPane();
         panel4.add(scrollPane1, BorderLayout.CENTER);
         statisticTable.setAutoCreateRowSorter(true);

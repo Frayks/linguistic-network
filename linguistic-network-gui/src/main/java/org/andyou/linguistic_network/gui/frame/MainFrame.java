@@ -8,7 +8,7 @@ import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.api.data.ElementNode;
 import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.ElementNodeGraphUtil;
@@ -60,7 +60,7 @@ public class MainFrame extends JFrame {
     private JButton chooseStopWordsFileButton;
     private JCheckBox restrictedGraphCheckBox;
     private JLabel jaccardCoefficientLabel;
-    private JFormattedTextField jaccardCoefficientTextField;
+    private JFormattedTextField jaccardCoefficientFormattedTextField;
     private JCheckBox filterByFrequencyCheckBox;
     private JLabel frequencyLabel;
     private JSpinner filterFrequencySpinner;
@@ -155,11 +155,8 @@ public class MainFrame extends JFrame {
             mainContext.setRestrictedGraph(restrictedGraphCheckBox.isSelected());
             updateUI(false);
         });
-        jaccardCoefficientTextField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                mainContext.setJaccardCoefficient((double) jaccardCoefficientTextField.getValue());
-            }
+        jaccardCoefficientFormattedTextField.addPropertyChangeListener("value", e -> {
+            mainContext.setJaccardCoefficient(Double.parseDouble(jaccardCoefficientFormattedTextField.getValue().toString()));
         });
         filterByFrequencyCheckBox.addActionListener(e -> {
             mainContext.setFilterByFrequency(filterByFrequencyCheckBox.isSelected());
@@ -454,7 +451,7 @@ public class MainFrame extends JFrame {
         mainContext.setRangeSize((int) rangeSizeSpinner.getValue());
         mainContext.setRemoveStopWords(removeStopWordsCheckBox.isSelected());
         mainContext.setRestrictedGraph(restrictedGraphCheckBox.isSelected());
-        mainContext.setJaccardCoefficient((double) jaccardCoefficientTextField.getValue());
+        mainContext.setJaccardCoefficient((double) jaccardCoefficientFormattedTextField.getValue());
         mainContext.setFilterByFrequency(filterByFrequencyCheckBox.isSelected());
         mainContext.setFilterFrequency((int) filterFrequencySpinner.getValue());
         mainContext.setWeightedGraph(weightedGraphCheckBox.isSelected());
@@ -531,7 +528,7 @@ public class MainFrame extends JFrame {
         }
 
         jaccardCoefficientLabel.setVisible(mainContext.isRestrictedGraph());
-        jaccardCoefficientTextField.setVisible(mainContext.isRestrictedGraph());
+        jaccardCoefficientFormattedTextField.setVisible(mainContext.isRestrictedGraph());
 
         frequencyLabel.setVisible(mainContext.isFilterByFrequency());
         filterFrequencySpinner.setVisible(mainContext.isFilterByFrequency());
@@ -588,7 +585,7 @@ public class MainFrame extends JFrame {
 
         filterFrequencySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000000000, 1));
 
-        jaccardCoefficientTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 2.0);
+        jaccardCoefficientFormattedTextField = new JFormattedTextField(CommonGUIUtil.DOUBLE_FORMATTER_FACTORY, 2.0);
 
         statisticTable = new JTable();
         String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbor Count", "Multiplicity"};
@@ -968,17 +965,17 @@ public class MainFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(2, 5, 2, 5);
         panel5.add(jaccardCoefficientLabel, gbc);
-        Font jaccardCoefficientTextFieldFont = this.$$$getFont$$$(null, -1, 14, jaccardCoefficientTextField.getFont());
-        if (jaccardCoefficientTextFieldFont != null)
-            jaccardCoefficientTextField.setFont(jaccardCoefficientTextFieldFont);
-        jaccardCoefficientTextField.setHorizontalAlignment(4);
+        Font jaccardCoefficientFormattedTextFieldFont = this.$$$getFont$$$(null, -1, 14, jaccardCoefficientFormattedTextField.getFont());
+        if (jaccardCoefficientFormattedTextFieldFont != null)
+            jaccardCoefficientFormattedTextField.setFont(jaccardCoefficientFormattedTextFieldFont);
+        jaccardCoefficientFormattedTextField.setHorizontalAlignment(4);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 11;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 0, 2, 5);
-        panel5.add(jaccardCoefficientTextField, gbc);
+        panel5.add(jaccardCoefficientFormattedTextField, gbc);
         weightedGraphCheckBox = new JCheckBox();
         weightedGraphCheckBox.setText("Weighted graph");
         gbc = new GridBagConstraints();

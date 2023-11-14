@@ -3,7 +3,7 @@ package org.andyou.linguistic_network.lib.api.context;
 import lombok.Getter;
 import lombok.Setter;
 import org.andyou.linguistic_network.lib.api.constant.StopConditionType;
-import org.andyou.linguistic_network.lib.api.node.TRNode;
+import org.andyou.linguistic_network.lib.api.data.TRNode;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class KeywordExtractionTextRankContext {
     private double accuracy;
     private int iterationCount;
     private double dampingFactor;
-    private Double accuracyAchieved;
+    private Double calculationError;
     private int iterationsCompleted;
     private long spentTime;
 

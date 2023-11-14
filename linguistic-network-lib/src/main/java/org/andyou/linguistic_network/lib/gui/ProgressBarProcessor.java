@@ -39,12 +39,17 @@ public class ProgressBarProcessor {
         updateProgressBar();
     }
 
-    private void updateProgressBar() {
-        progressBar.setValue((int) Math.round(progress));
+    public void setIndeterminate(boolean indeterminate) {
+        progressBar.setIndeterminate(true);
     }
 
     public void completed() {
         progressBar.setValue(0);
+        progressBar.setIndeterminate(false);
+    }
+
+    private void updateProgressBar() {
+        progressBar.setValue((int) Math.round(progress));
     }
 
 }

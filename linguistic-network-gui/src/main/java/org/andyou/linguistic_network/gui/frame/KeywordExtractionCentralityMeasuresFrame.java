@@ -5,7 +5,7 @@ import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionCentralityMeasuresContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
+import org.andyou.linguistic_network.lib.api.data.ElementNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 
 import javax.swing.*;

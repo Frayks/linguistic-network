@@ -6,8 +6,8 @@ import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionSmallWorldContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.data.ElementNode;
+import org.andyou.linguistic_network.lib.api.data.SWNode;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 

@@ -4,9 +4,9 @@ import org.andyou.linguistic_network.lib.api.context.KeywordExtractionSmallWorld
 import org.andyou.linguistic_network.lib.api.context.LinguisticMetricsContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
-import org.andyou.linguistic_network.lib.api.node.CDFNode;
-import org.andyou.linguistic_network.lib.api.node.ElementNode;
-import org.andyou.linguistic_network.lib.api.node.SWNode;
+import org.andyou.linguistic_network.lib.api.data.CDFNode;
+import org.andyou.linguistic_network.lib.api.data.ElementNode;
+import org.andyou.linguistic_network.lib.api.data.SWNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.poi.ss.usermodel.*;
