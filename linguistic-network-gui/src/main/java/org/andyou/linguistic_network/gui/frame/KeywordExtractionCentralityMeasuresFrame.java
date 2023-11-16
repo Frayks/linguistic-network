@@ -5,8 +5,11 @@ import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionCentralityMeasuresContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
+import org.andyou.linguistic_network.lib.api.data.CMNode;
 import org.andyou.linguistic_network.lib.api.data.ElementNode;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
+import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -16,10 +19,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements SubFrame {
@@ -52,6 +53,40 @@ public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements 
 
                 Set<ElementNode> elementNodeGraph = mainContext.getElementNodeGraph();
                 boolean weightedGraph = mainContext.isWeightedGraph();
+
+                ProgressBarProcessor progressBarProcessor = new ProgressBarProcessor(progressBar, Collections.singletonList(100));
+
+                long startTime = System.currentTimeMillis();
+                List<CMNode> cmNodes = LinguisticNetworkUtil.calcKeywordStatisticsCentralityMeasures(elementNodeGraph, weightedGraph, progressBarProcessor);
+                progressBarProcessor.completed();
+                long endTime = System.currentTimeMillis();
+
+                keywordExtractionCentralityMeasuresContext.setCmNodes(cmNodes);
+                keywordExtractionCentralityMeasuresContext.setSpentTime(endTime - startTime);
+
+                cmNodes.sort(Comparator.comparingDouble(CMNode::getEccentricity)
+                        .thenComparing(cmNode -> cmNode.getElementNode().getNeighborCount())
+                        .thenComparing(cmNode -> cmNode.getElementNode().getFrequency())
+                        .thenComparing(cmNode -> cmNode.getElementNode().getElement())
+                        .reversed());
+
+                for (int i = 0; i < cmNodes.size(); i++) {
+                    CMNode cmNode = cmNodes.get(i);
+                    int rank = i + 1;
+                    SwingUtilities.invokeLater(() -> defaultTableModel.addRow(new Object[]{
+                            rank,
+                            cmNode.getElementNode().getIndex(),
+                            cmNode.getElementNode().getElement(),
+                            cmNode.getElementNode().getFrequency(),
+                            cmNode.getElementNode().getNeighborCount(),
+                            cmNode.getEccentricity(),
+                            cmNode.getNormalizedEccentricity(),
+                            cmNode.getCloseness(),
+                            cmNode.getNormalizedCloseness(),
+                            cmNode.getAverageCloseness(),
+                            cmNode.getNormalizedAverageCloseness()
+                    }));
+                }
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -108,9 +143,9 @@ public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements 
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count"};
-        defaultTableModel = new DefaultTableModel(0, 5) {
-            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class};
+        String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "E", "E Norm.", "C", "C Norm.", "Avg. C", "Avg. C Norm."};
+        defaultTableModel = new DefaultTableModel(0, 11) {
+            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {

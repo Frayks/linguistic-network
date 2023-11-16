@@ -131,6 +131,42 @@ public class LinguisticNetworkUtil {
         }).max().orElse(0);
     }
 
+    public static List<CMNode> calcKeywordStatisticsCentralityMeasures(Set<ElementNode> elementNodeGraph, boolean weightedGraph, ProgressBarProcessor progressBarProcessor) {
+        elementNodeGraph = ElementNodeGraphUtil.clone(elementNodeGraph);
+
+        List<CMNode> cmNodes = new ArrayList<>();
+
+        for (ElementNode elementNode : elementNodeGraph) {
+
+            double eccentricity;
+            double closeness;
+            double averageCloseness;
+
+            if (weightedGraph) {
+                eccentricity = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).max().orElse(0);
+                closeness = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).sum();
+                averageCloseness = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).average().orElse(0);
+            } else {
+                eccentricity = 1;
+                closeness = elementNode.getNeighborCount();
+                averageCloseness = 1;
+            }
+
+            cmNodes.add(new CMNode(elementNode, eccentricity, closeness, averageCloseness));
+        }
+
+        double sumEccentricity = cmNodes.stream().mapToDouble(CMNode::getEccentricity).sum();
+        cmNodes.forEach(cmNode -> cmNode.setNormalizedEccentricity(cmNode.getEccentricity() / sumEccentricity));
+
+        double sumCloseness = cmNodes.stream().mapToDouble(CMNode::getCloseness).sum();
+        cmNodes.forEach(cmNode -> cmNode.setNormalizedCloseness(cmNode.getCloseness() / sumCloseness));
+
+        double sumAverageCloseness = cmNodes.stream().mapToDouble(CMNode::getAverageCloseness).sum();
+        cmNodes.forEach(cmNode -> cmNode.setNormalizedAverageCloseness(cmNode.getAverageCloseness() / sumAverageCloseness));
+
+        return cmNodes;
+    }
+
     public static List<CDFNode> calcCDFNodes(Set<ElementNode> elementNodeGraph, ProgressBarProcessor progressBarProcessor) {
         Map<Integer, CDFNode> cdfNodeMap = new HashMap<>();
 
@@ -275,4 +311,6 @@ public class LinguisticNetworkUtil {
             return multiplicity;
         }).average().orElse(0);
     }
+
+
 }

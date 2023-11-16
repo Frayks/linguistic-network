@@ -9,7 +9,7 @@ public class TRNode {
 
     private ElementNode elementNode;
     private double importance;
-    private Double normalizedImportance;
+    private double normalizedImportance;
 
     public TRNode(ElementNode elementNode, double importance) {
         this.elementNode = elementNode;

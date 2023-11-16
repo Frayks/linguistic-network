@@ -101,9 +101,9 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
                 keywordExtractionTextRankContext.setSpentTime(endTime - startTime);
 
                 trNodes.sort(Comparator.comparingDouble(TRNode::getImportance)
-                        .thenComparing(swNode -> swNode.getElementNode().getNeighborCount())
-                        .thenComparing(swNode -> swNode.getElementNode().getFrequency())
-                        .thenComparing(swNode -> swNode.getElementNode().getElement())
+                        .thenComparing(trNode -> trNode.getElementNode().getNeighborCount())
+                        .thenComparing(trNode -> trNode.getElementNode().getFrequency())
+                        .thenComparing(trNode -> trNode.getElementNode().getElement())
                         .reversed());
 
                 for (int i = 0; i < trNodes.size(); i++) {
