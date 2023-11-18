@@ -120,12 +120,11 @@ public class ElementNodeInfoFrame extends JFrame {
     private void createUIComponents() {
         statisticTable = new JTable();
         String[] columnIdentifiers = {"Index", "Neighbor", "Multiplicity"};
-        defaultTableModel = new DefaultTableModel(0, 3) {
-            final Class<?>[] types = {Integer.class, String.class, Integer.class};
-
+        Class<?>[] types = {Integer.class, String.class, Integer.class};
+        defaultTableModel = new DefaultTableModel(0, types.length) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                return this.types[columnIndex];
+                return types[columnIndex];
             }
 
             @Override

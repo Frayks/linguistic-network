@@ -5,6 +5,7 @@ import org.andyou.linguistic_network.lib.api.data.*;
 import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LinguisticNetworkUtil {
 
@@ -68,7 +69,10 @@ public class LinguisticNetworkUtil {
         }
 
         List<TRNode> trNodes = new ArrayList<>(trNodeMap.values());
-        trNodes.sort(Comparator.comparing(trNode -> trNode.getElementNode().getElement()));
+        trNodes.sort(Comparator.comparing(TRNode::getImportance)
+                .thenComparing(trNode -> trNode.getElementNode().getNeighborCount())
+                .thenComparing(trNode -> trNode.getElementNode().getFrequency())
+                .thenComparing(trNode -> trNode.getElementNode().getElement()));
 
         if (StopConditionType.ACCURACY.equals(stopConditionType)) {
             if (progressBarProcessor != null) {
@@ -134,35 +138,49 @@ public class LinguisticNetworkUtil {
     public static List<CMNode> calcKeywordStatisticsCentralityMeasures(Set<ElementNode> elementNodeGraph, boolean weightedGraph, ProgressBarProcessor progressBarProcessor) {
         elementNodeGraph = ElementNodeGraphUtil.clone(elementNodeGraph);
 
-        List<CMNode> cmNodes = new ArrayList<>();
+        if (progressBarProcessor != null) {
+            int stepsCount = elementNodeGraph.size();
+            progressBarProcessor.initNextBlock(stepsCount);
+        }
 
-        for (ElementNode elementNode : elementNodeGraph) {
-
+        List<CMNode> cmNodes = elementNodeGraph.parallelStream().map(elementNode -> {
             double eccentricity;
             double closeness;
             double averageCloseness;
 
             if (weightedGraph) {
-                eccentricity = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).max().orElse(0);
-                closeness = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).sum();
-                averageCloseness = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).average().orElse(0);
+                List<Double> pathLengths = DijkstraUtil.calcPathLengths(elementNode);
+                eccentricity = pathLengths.stream().mapToDouble(Double::doubleValue).max().orElse(0);
+                closeness = pathLengths.stream().mapToDouble(Double::doubleValue).sum();
+                averageCloseness = pathLengths.stream().mapToDouble(Double::doubleValue).average().orElse(0);
             } else {
-                eccentricity = 1;
-                closeness = elementNode.getNeighborCount();
-                averageCloseness = 1;
+                List<Integer> pathLengths = BFSUtil.calcPathLengths(elementNode);
+                eccentricity = pathLengths.stream().mapToInt(Integer::intValue).max().orElse(0);
+                closeness = pathLengths.stream().mapToInt(Integer::intValue).sum();
+                averageCloseness = pathLengths.stream().mapToInt(Integer::intValue).average().orElse(0);
             }
 
-            cmNodes.add(new CMNode(elementNode, eccentricity, closeness, averageCloseness));
-        }
+            if (progressBarProcessor != null) {
+                progressBarProcessor.walk();
+            }
 
-        double sumEccentricity = cmNodes.stream().mapToDouble(CMNode::getEccentricity).sum();
-        cmNodes.forEach(cmNode -> cmNode.setNormalizedEccentricity(cmNode.getEccentricity() / sumEccentricity));
+            return new CMNode(elementNode, eccentricity, closeness, averageCloseness);
+        }).collect(Collectors.toList());
 
-        double sumCloseness = cmNodes.stream().mapToDouble(CMNode::getCloseness).sum();
-        cmNodes.forEach(cmNode -> cmNode.setNormalizedCloseness(cmNode.getCloseness() / sumCloseness));
+        double maxEccentricity = cmNodes.stream().mapToDouble(CMNode::getEccentricity).max().orElse(0);
+        cmNodes.forEach(cmNode -> cmNode.setReversedEccentricity(maxEccentricity - cmNode.getEccentricity()));
+        double sumReversedEccentricity = cmNodes.stream().mapToDouble(CMNode::getReversedEccentricity).sum();
+        cmNodes.forEach(cmNode -> cmNode.setNormalizedReversedEccentricity(cmNode.getReversedEccentricity() / sumReversedEccentricity));
 
-        double sumAverageCloseness = cmNodes.stream().mapToDouble(CMNode::getAverageCloseness).sum();
-        cmNodes.forEach(cmNode -> cmNode.setNormalizedAverageCloseness(cmNode.getAverageCloseness() / sumAverageCloseness));
+        double maxCloseness = cmNodes.stream().mapToDouble(CMNode::getCloseness).max().orElse(0);
+        cmNodes.forEach(cmNode -> cmNode.setReversedCloseness(maxCloseness - cmNode.getCloseness()));
+        double sumReversedCloseness = cmNodes.stream().mapToDouble(CMNode::getReversedCloseness).sum();
+        cmNodes.forEach(cmNode -> cmNode.setNormalizedReversedCloseness(cmNode.getReversedCloseness() / sumReversedCloseness));
+
+        double maxAverageCloseness = cmNodes.stream().mapToDouble(CMNode::getAverageCloseness).max().orElse(0);
+        cmNodes.forEach(cmNode -> cmNode.setReversedAverageCloseness(maxAverageCloseness - cmNode.getAverageCloseness()));
+        double sumReversedAverageCloseness = cmNodes.stream().mapToDouble(CMNode::getReversedAverageCloseness).sum();
+        cmNodes.forEach(cmNode -> cmNode.setNormalizedReversedAverageCloseness(cmNode.getReversedAverageCloseness() / sumReversedAverageCloseness));
 
         return cmNodes;
     }

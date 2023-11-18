@@ -64,7 +64,7 @@ public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements 
                 keywordExtractionCentralityMeasuresContext.setCmNodes(cmNodes);
                 keywordExtractionCentralityMeasuresContext.setSpentTime(endTime - startTime);
 
-                cmNodes.sort(Comparator.comparingDouble(CMNode::getEccentricity)
+                cmNodes.sort(Comparator.comparingDouble(CMNode::getReversedEccentricity)
                         .thenComparing(cmNode -> cmNode.getElementNode().getNeighborCount())
                         .thenComparing(cmNode -> cmNode.getElementNode().getFrequency())
                         .thenComparing(cmNode -> cmNode.getElementNode().getElement())
@@ -80,11 +80,14 @@ public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements 
                             cmNode.getElementNode().getFrequency(),
                             cmNode.getElementNode().getNeighborCount(),
                             cmNode.getEccentricity(),
-                            cmNode.getNormalizedEccentricity(),
+                            cmNode.getReversedEccentricity(),
+                            cmNode.getNormalizedReversedEccentricity(),
                             cmNode.getCloseness(),
-                            cmNode.getNormalizedCloseness(),
+                            cmNode.getReversedCloseness(),
+                            cmNode.getNormalizedReversedCloseness(),
                             cmNode.getAverageCloseness(),
-                            cmNode.getNormalizedAverageCloseness()
+                            cmNode.getReversedAverageCloseness(),
+                            cmNode.getNormalizedReversedAverageCloseness()
                     }));
                 }
 
@@ -143,13 +146,12 @@ public class KeywordExtractionCentralityMeasuresFrame extends JFrame implements 
 
     private void createUIComponents() {
         statisticTable = new JTable();
-        String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "E", "E Norm.", "C", "C Norm.", "Avg. C", "Avg. C Norm."};
-        defaultTableModel = new DefaultTableModel(0, 11) {
-            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class};
-
+        String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "E", "E Rev.", "E Norm.", "C", "C Rev.", "C Norm.", "Avg. C", "Avg. C Rev.", "Avg. C Norm."};
+        Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class};
+        defaultTableModel = new DefaultTableModel(0, types.length) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                return this.types[columnIndex];
+                return types[columnIndex];
             }
 
             @Override

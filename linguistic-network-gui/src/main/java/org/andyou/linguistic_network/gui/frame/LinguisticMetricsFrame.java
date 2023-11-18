@@ -130,12 +130,12 @@ public class LinguisticMetricsFrame extends JFrame implements SubFrame {
         statisticTable = new JTable();
 
         String[] columnIdentifiers = {"K", "N", "PDF", "CDF"};
-        defaultTableModel = new DefaultTableModel(0, 4) {
-            final Class<?>[] types = {Integer.class, Integer.class, Double.class, Double.class};
+        Class<?>[] types = {Integer.class, Integer.class, Double.class, Double.class};
 
+        defaultTableModel = new DefaultTableModel(0, types.length) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                return this.types[columnIndex];
+                return types[columnIndex];
             }
 
             @Override

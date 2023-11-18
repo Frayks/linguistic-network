@@ -9,11 +9,14 @@ public class CMNode {
 
     private ElementNode elementNode;
     private double eccentricity;
-    private double normalizedEccentricity;
+    private double reversedEccentricity;
+    private double normalizedReversedEccentricity;
     private double closeness;
-    private double normalizedCloseness;
+    private double reversedCloseness;
+    private double normalizedReversedCloseness;
     private double averageCloseness;
-    private double normalizedAverageCloseness;
+    private double reversedAverageCloseness;
+    private double normalizedReversedAverageCloseness;
 
     public CMNode(ElementNode elementNode, double eccentricity, double closeness, double averageCloseness) {
         this.elementNode = elementNode;

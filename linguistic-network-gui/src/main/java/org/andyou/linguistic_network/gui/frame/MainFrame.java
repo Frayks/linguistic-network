@@ -278,7 +278,7 @@ public class MainFrame extends JFrame {
                         subFrameMap.remove(FrameKey.KEYWORD_EXTRACTION_CENTRALITY_MEASURES);
                     }
                 });
-                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionCentralityMeasuresFrame, 1000, 600);
+                CommonGUIUtil.configureDefaultSubFrame(keywordExtractionCentralityMeasuresFrame, 1300, 600);
                 subFrameMap.put(FrameKey.KEYWORD_EXTRACTION_CENTRALITY_MEASURES, keywordExtractionCentralityMeasuresFrame);
             } else {
                 keywordExtractionCentralityMeasuresSubFrame.setState(JFrame.NORMAL);

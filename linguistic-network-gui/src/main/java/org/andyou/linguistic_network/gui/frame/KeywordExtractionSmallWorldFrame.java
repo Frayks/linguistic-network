@@ -2,12 +2,12 @@ package org.andyou.linguistic_network.gui.frame;
 
 import org.andyou.linguistic_network.gui.api.frame.SubFrame;
 import org.andyou.linguistic_network.gui.util.CommonGUIUtil;
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.context.KeywordExtractionSmallWorldContext;
 import org.andyou.linguistic_network.lib.api.context.LinguisticNetworkContext;
 import org.andyou.linguistic_network.lib.api.context.MainContext;
 import org.andyou.linguistic_network.lib.api.data.ElementNode;
 import org.andyou.linguistic_network.lib.api.data.SWNode;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.util.CommonUtil;
 import org.andyou.linguistic_network.lib.util.LinguisticNetworkUtil;
 
@@ -144,12 +144,12 @@ public class KeywordExtractionSmallWorldFrame extends JFrame implements SubFrame
     private void createUIComponents() {
         statisticTable = new JTable();
         String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "CB1", "CB1 Adj.", "CB1 Norm.", "CB2", "CB2 Norm.", "CB3", "CB3 Adj.", "CB3 Norm."};
-        defaultTableModel = new DefaultTableModel(0, 13) {
-            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class};
+        Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class, Double.class};
 
+        defaultTableModel = new DefaultTableModel(0, types.length) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                return this.types[columnIndex];
+                return types[columnIndex];
             }
 
             @Override

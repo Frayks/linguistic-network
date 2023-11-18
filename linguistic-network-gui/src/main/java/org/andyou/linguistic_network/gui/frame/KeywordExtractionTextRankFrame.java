@@ -207,12 +207,11 @@ public class KeywordExtractionTextRankFrame extends JFrame implements SubFrame {
 
         statisticTable = new JTable();
         String[] columnIdentifiers = {"Rank", "Index", "Element", "Frequency", "Neighbors count", "S", "S Norm."};
-        defaultTableModel = new DefaultTableModel(0, 7) {
-            final Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class};
-
+        Class<?>[] types = {Integer.class, Integer.class, String.class, Integer.class, Integer.class, Double.class, Double.class};
+        defaultTableModel = new DefaultTableModel(0, types.length) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                return this.types[columnIndex];
+                return types[columnIndex];
             }
 
             @Override
