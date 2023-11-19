@@ -120,10 +120,9 @@ public class LinguisticNetworkUtil {
                         ElementNode neighborElementNode = neighborEntry.getKey();
                         TRNode neighborTRNode = trNodeMap.get(neighborElementNode);
                         if (weightedGraph) {
-                            double neighborWeight = 1.0 / neighborEntry.getValue();
-                            double sumWeight = neighborElementNode.getNeighbors().values().stream()
-                                    .mapToDouble(multiplicity -> 1.0 / multiplicity).sum();
-                            return neighborWeight / sumWeight * neighborTRNode.getImportance();
+                            int sumWeight = neighborElementNode.getNeighbors().values().stream()
+                                    .mapToInt(Integer::intValue).sum();
+                            return (double) neighborEntry.getValue() / sumWeight * neighborTRNode.getImportance();
                         } else {
                             return 1.0 / neighborElementNode.getNeighborCount() * neighborTRNode.getImportance();
                         }

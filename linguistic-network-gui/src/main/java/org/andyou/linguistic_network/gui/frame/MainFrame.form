@@ -46,12 +46,12 @@
                       <text value="Excel file"/>
                     </properties>
                   </component>
-                  <component id="71a47" class="javax.swing.JMenuItem" binding="textFilesMenuItem">
+                  <component id="71a47" class="javax.swing.JMenuItem" binding="zipFileMenuItem">
                     <constraints/>
                     <properties>
                       <font size="14"/>
-                      <icon value="icon/txtFileIcon.png"/>
-                      <text value="Text files"/>
+                      <icon value="icon/zipFileIcon.png"/>
+                      <text value="Zip file"/>
                     </properties>
                   </component>
                 </children>

@@ -25,8 +25,8 @@ public class CommonGUIUtil {
     public static final DecimalFormat ERROR_FORMAT = new DecimalFormat("0.0000000000");
 
     public static final FileFilter TXT_FILE_FILTER = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
-
     public static final FileFilter XLSX_FILE_FILTER = new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx");
+    public static final FileFilter ZIP_FILE_FILTER = new FileNameExtensionFilter("Zip Archives (*.zip)", "zip");
 
     public static final JFormattedTextField.AbstractFormatterFactory DOUBLE_FORMATTER_FACTORY = new JFormattedTextField.AbstractFormatterFactory() {
         @Override

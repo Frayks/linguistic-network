@@ -37,7 +37,7 @@ public class MainFrame extends JFrame {
     private JMenuItem openMenuItem;
     private JMenu saveAsMenu;
     private JMenuItem excelFileMenuItem;
-    private JMenuItem textFilesMenuItem;
+    private JMenuItem zipFileMenuItem;
     private JMenuItem linguisticMetricsMenuItem;
     private JMenuItem keywordExtractionSmallWorldMenuItem;
     private JMenuItem keywordExtractionTextRankMenuItem;
@@ -95,13 +95,13 @@ public class MainFrame extends JFrame {
         txtFileChooser.setFileFilter(CommonGUIUtil.TXT_FILE_FILTER);
         JFileChooser xlsxFileChooser = new JFileChooser();
         xlsxFileChooser.setFileFilter(CommonGUIUtil.XLSX_FILE_FILTER);
-        JFileChooser directoryChooser = new JFileChooser();
-        directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        JFileChooser zipFileChooser = new JFileChooser();
+        zipFileChooser.setFileFilter(CommonGUIUtil.ZIP_FILE_FILTER);
 
         Font font = new JLabel().getFont().deriveFont(14f);
         CommonGUIUtil.setComponentsFont(txtFileChooser.getComponents(), font);
         CommonGUIUtil.setComponentsFont(xlsxFileChooser.getComponents(), font);
-        CommonGUIUtil.setComponentsFont(directoryChooser.getComponents(), font);
+        CommonGUIUtil.setComponentsFont(zipFileChooser.getComponents(), font);
 
         nGramTypeComboBox.addActionListener(e -> {
             NGramType nGramType = (NGramType) nGramTypeComboBox.getSelectedItem();
@@ -198,19 +198,23 @@ public class MainFrame extends JFrame {
                 CommonGUIUtil.showErrorMessageDialog(this, ex);
             }
         });
-        textFilesMenuItem.addActionListener(e -> {
+        zipFileMenuItem.addActionListener(e -> {
             try {
-                if (directoryChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                    File directory = directoryChooser.getSelectedFile();
-                    if (directory.exists()) {
+                if (zipFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    File file = zipFileChooser.getSelectedFile();
+                    String filePath = file.getAbsolutePath();
+                    if (!filePath.endsWith(".zip")) {
+                        file = new File(filePath + ".zip");
+                    }
+                    if (file.exists()) {
                         if (CommonGUIUtil.showWarningConfirmDialog(
                                 this,
-                                String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, directory.getName())
+                                String.format(TextConstant.WARNING_MESSAGE_FILE_ALREADY_EXISTS, file.getName())
                         ) != JOptionPane.YES_OPTION) {
                             return;
                         }
                     }
-                    CommonUtil.saveStatisticsToTextFiles(directory, linguisticNetworkContext);
+                    CommonUtil.saveStatisticsToTextFiles(file, linguisticNetworkContext);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -663,12 +667,12 @@ public class MainFrame extends JFrame {
         excelFileMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/xlsxFileIcon.png")));
         excelFileMenuItem.setText("Excel file");
         saveAsMenu.add(excelFileMenuItem);
-        textFilesMenuItem = new JMenuItem();
-        Font textFilesMenuItemFont = this.$$$getFont$$$(null, -1, 14, textFilesMenuItem.getFont());
-        if (textFilesMenuItemFont != null) textFilesMenuItem.setFont(textFilesMenuItemFont);
-        textFilesMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/txtFileIcon.png")));
-        textFilesMenuItem.setText("Text files");
-        saveAsMenu.add(textFilesMenuItem);
+        zipFileMenuItem = new JMenuItem();
+        Font zipFileMenuItemFont = this.$$$getFont$$$(null, -1, 14, zipFileMenuItem.getFont());
+        if (zipFileMenuItemFont != null) zipFileMenuItem.setFont(zipFileMenuItemFont);
+        zipFileMenuItem.setIcon(new ImageIcon(getClass().getResource("/icon/zipFileIcon.png")));
+        zipFileMenuItem.setText("Zip file");
+        saveAsMenu.add(zipFileMenuItem);
         final JMenu menu2 = new JMenu();
         menu2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         Font menu2Font = this.$$$getFont$$$(null, -1, 14, menu2.getFont());
