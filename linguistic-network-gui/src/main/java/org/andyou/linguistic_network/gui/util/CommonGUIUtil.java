@@ -21,7 +21,7 @@ public class CommonGUIUtil {
 
     public static final ImageIcon ICON = new ImageIcon(Objects.requireNonNull(CommonGUIUtil.class.getResource("/icon/networkIcon.png")));
 
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00000");
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.000000");
     public static final DecimalFormat ERROR_FORMAT = new DecimalFormat("0.0000000000");
 
     public static final FileFilter TXT_FILE_FILTER = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");

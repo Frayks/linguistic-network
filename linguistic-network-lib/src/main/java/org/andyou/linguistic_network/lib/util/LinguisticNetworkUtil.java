@@ -124,7 +124,7 @@ public class LinguisticNetworkUtil {
                                     .mapToInt(Integer::intValue).sum();
                             return (double) neighborEntry.getValue() / sumWeight * neighborTRNode.getImportance();
                         } else {
-                            return 1.0 / neighborElementNode.getNeighborCount() * neighborTRNode.getImportance();
+                            return neighborTRNode.getImportance() / neighborElementNode.getNeighborCount();
                         }
                     }).sum();
             double oldImportance = trNode.getImportance();
