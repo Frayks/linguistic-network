@@ -594,7 +594,7 @@ public class MainFrame extends JFrame {
         statisticTable = new JTable();
         String[] columnIdentifiers = {"Index", "Element", "Frequency", "Clustering Coefficient", "Avg. Path Length", "Neighbor Count", "Multiplicity"};
         defaultTableModel = new DefaultTableModel(0, 7) {
-            final Class<?>[] types = {Integer.class, String.class, Integer.class, Double.class, Double.class, Integer.class, Integer.class};
+            final Class<?>[] types = {Integer.class, String.class, Integer.class, Double.class, Double.class, Integer.class, Double.class};
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {

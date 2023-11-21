@@ -317,12 +317,17 @@ public class LinguisticNetworkUtil {
 
 
     public static double calcAverageMultiplicity(Set<ElementNode> elementNodeGraph, boolean weightedGraph) {
-        return elementNodeGraph.stream().mapToInt(elementNode -> {
-            int multiplicity;
+        return elementNodeGraph.stream().mapToDouble(elementNode -> {
+            double multiplicity;
             if (weightedGraph) {
-                multiplicity = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).sum();
+                int sum = elementNode.getNeighbors().values().stream().mapToInt(Integer::intValue).sum();
+                if (elementNode.getNeighborCount() == 0) {
+                    multiplicity = 0.0;
+                } else {
+                    multiplicity = (double) sum / elementNode.getNeighborCount();
+                }
             } else {
-                multiplicity = elementNode.getNeighborCount();
+                multiplicity = 1.0;
             }
             elementNode.setMultiplicity(multiplicity);
             return multiplicity;

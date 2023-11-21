@@ -15,7 +15,7 @@ public class ElementNode {
     private int frequency;
     private double clusteringCoefficient;
     private double averagePathLength;
-    private int multiplicity;
+    private double multiplicity;
     private Map<ElementNode, Integer> neighbors;
 
     public ElementNode(String element, int frequency) {
