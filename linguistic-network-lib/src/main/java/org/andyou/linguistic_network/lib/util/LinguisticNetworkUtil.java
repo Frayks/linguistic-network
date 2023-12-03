@@ -315,7 +315,6 @@ public class LinguisticNetworkUtil {
                 .average().orElse(0);
     }
 
-
     public static double calcAverageMultiplicity(Set<ElementNode> elementNodeGraph, boolean weightedGraph) {
         return elementNodeGraph.stream().mapToDouble(elementNode -> {
             double multiplicity;
@@ -333,6 +332,5 @@ public class LinguisticNetworkUtil {
             return multiplicity;
         }).average().orElse(0);
     }
-
 
 }

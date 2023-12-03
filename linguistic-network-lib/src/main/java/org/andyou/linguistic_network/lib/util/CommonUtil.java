@@ -20,7 +20,7 @@ public class CommonUtil {
     }
 
     public static void saveStatisticsToTextFiles(File file, LinguisticNetworkContext context) throws IOException {
-        FileUtils.forceDeleteOnExit(file);
+        Files.deleteIfExists(file.toPath());
 
         ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(file.toPath()));
 
@@ -41,7 +41,7 @@ public class CommonUtil {
             List<ElementNode> elementNodes = ElementNodeGraphUtil.sortAndSetIndex(elementNodeGraph);
             printWriter.println("\nIndex\tElement\tFrequency\tClustering Coefficient\tAvg. Path Length\tNeighbor Count\tMultiplicity");
             for (ElementNode elementNode : elementNodes) {
-                printWriter.printf("%d\t%s\t%d\t%f\t%f\t%d\t%d\n",
+                printWriter.printf("%d\t%s\t%d\t%f\t%f\t%d\t%f\n",
                         elementNode.getIndex(),
                         elementNode.getElement(),
                         elementNode.getFrequency(),
@@ -187,7 +187,7 @@ public class CommonUtil {
     }
 
     public static void saveStatisticsToTextFile(File file, ElementNode elementNode) throws IOException {
-        FileUtils.forceDeleteOnExit(file);
+        Files.deleteIfExists(file.toPath());
 
         if (elementNode != null) {
             PrintWriter printWriter = new PrintWriter(new FileWriter(file));
@@ -209,7 +209,7 @@ public class CommonUtil {
     }
 
     public static void saveStatisticsToXlsxFile(File file, LinguisticNetworkContext context) throws IOException {
-        FileUtils.forceDeleteOnExit(file);
+        Files.deleteIfExists(file.toPath());
 
         Workbook workbook = new XSSFWorkbook();
 
@@ -475,7 +475,7 @@ public class CommonUtil {
     }
 
     public static void saveStatisticsToXlsxFile(File file, ElementNode elementNode) throws IOException {
-        FileUtils.forceDeleteOnExit(file);
+        Files.deleteIfExists(file.toPath());
 
         Workbook workbook = new XSSFWorkbook();
 
