@@ -336,7 +336,7 @@
                         </constraints>
                         <properties>
                           <font size="14"/>
-                          <text value=".!?…"/>
+                          <text value=".!?…。．！？‥"/>
                         </properties>
                       </component>
                       <component id="4cf6" class="javax.swing.JCheckBox" binding="includeSpacesCheckBox" default-binding="true">

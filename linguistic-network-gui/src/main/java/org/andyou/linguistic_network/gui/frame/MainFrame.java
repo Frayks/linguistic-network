@@ -912,7 +912,7 @@ public class MainFrame extends JFrame {
         Font sentenceDelimitersTextFieldFont = this.$$$getFont$$$(null, -1, 14, sentenceDelimitersTextField.getFont());
         if (sentenceDelimitersTextFieldFont != null)
             sentenceDelimitersTextField.setFont(sentenceDelimitersTextFieldFont);
-        sentenceDelimitersTextField.setText(".!?…");
+        sentenceDelimitersTextField.setText(".!?…。．！？‥");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 5;
