@@ -249,7 +249,7 @@
                         <properties>
                           <enabled value="true"/>
                           <font size="14"/>
-                          <text value="Frequency"/>
+                          <text value="F &gt;"/>
                         </properties>
                       </component>
                       <component id="f07c5" class="javax.swing.JSpinner" binding="filterFrequencySpinner" custom-create="true">
