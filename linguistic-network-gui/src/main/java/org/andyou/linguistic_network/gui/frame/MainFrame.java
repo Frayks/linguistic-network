@@ -828,7 +828,7 @@ public class MainFrame extends JFrame {
         frequencyLabel.setEnabled(true);
         Font frequencyLabelFont = this.$$$getFont$$$(null, -1, 14, frequencyLabel.getFont());
         if (frequencyLabelFont != null) frequencyLabel.setFont(frequencyLabelFont);
-        frequencyLabel.setText("Frequency");
+        frequencyLabel.setText("F >");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 13;
