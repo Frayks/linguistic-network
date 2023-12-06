@@ -34,6 +34,7 @@ public class DijkstraUtil {
                 }
             }
         }
+        pathLengthMap.remove(targetNode);
         return new ArrayList<>(pathLengthMap.values());
     }
 
