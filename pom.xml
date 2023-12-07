@@ -6,7 +6,7 @@
 
     <groupId>org.andyou</groupId>
     <artifactId>linguistic-network</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
     <name>Linguistic network</name>
 
