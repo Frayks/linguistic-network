@@ -1,7 +1,7 @@
 package org.andyou.linguistic_network.lib.util;
 
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.data.ElementNode;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 
 import java.util.*;
 

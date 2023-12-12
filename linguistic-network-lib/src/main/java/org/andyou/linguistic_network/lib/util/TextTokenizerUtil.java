@@ -1,8 +1,8 @@
 package org.andyou.linguistic_network.lib.util;
 
-import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.andyou.linguistic_network.lib.api.constant.BoundsType;
 import org.andyou.linguistic_network.lib.api.constant.NGramType;
+import org.andyou.linguistic_network.lib.gui.ProgressBarProcessor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
